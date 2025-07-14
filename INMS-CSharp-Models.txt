@@ -1,0 +1,1497 @@
+// INMS (Ilocos Norte Medical Society) - C# Entity Models
+// Normalized Database Design with Entity Framework Core
+// Created: 2024
+// 
+// This file contains all the C# entity models for the INMS system
+// following proper normalization principles and Entity Framework conventions.
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+
+namespace INMS.Models
+{
+    // ============================================================================
+    // CORE ENTITIES
+    // ============================================================================
+
+    public class Member
+    {
+        [Key]
+        public int MemberId { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string FirstName { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string LastName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        [EmailAddress]
+        public string Email { get; set; }
+        
+        [StringLength(20)]
+        public string Phone { get; set; }
+        
+        public DateTime? Birthday { get; set; }
+        
+        [StringLength(10)]
+        public string Gender { get; set; }
+        
+        [StringLength(500)]
+        public string Address { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string PMANumber { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string LicenseNumber { get; set; }
+        
+        [Required]
+        public int SpecialtyId { get; set; }
+        
+        public int? SubspecialtyId { get; set; }
+        
+        public int? HospitalId { get; set; }
+        
+        [StringLength(200)]
+        public string ClinicAddress { get; set; }
+        
+        [StringLength(100)]
+        public string ClinicHours { get; set; }
+        
+        [StringLength(20)]
+        public string ClinicPhone { get; set; }
+        
+        [Required]
+        public MembershipType MembershipType { get; set; }
+        
+        [Required]
+        public MembershipStatus Status { get; set; }
+        
+        public DateTime JoinDate { get; set; }
+        
+        public DateTime? LastLoginDate { get; set; }
+        
+        [StringLength(255)]
+        public string ProfileImageUrl { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Specialty Specialty { get; set; }
+        public virtual Specialty Subspecialty { get; set; }
+        public virtual Hospital Hospital { get; set; }
+        public virtual EmergencyContact EmergencyContact { get; set; }
+        public virtual ICollection<MembershipDue> MembershipDues { get; set; }
+        public virtual ICollection<EventRegistration> EventRegistrations { get; set; }
+        public virtual ICollection<CMEPoint> CMEPoints { get; set; }
+        public virtual ICollection<Message> SentMessages { get; set; }
+        public virtual ICollection<Message> ReceivedMessages { get; set; }
+        public virtual ICollection<AnnouncementResponse> AnnouncementResponses { get; set; }
+        public virtual ICollection<GalleryLike> GalleryLikes { get; set; }
+        public virtual ICollection<Bookmark> Bookmarks { get; set; }
+    }
+
+    public class EmergencyContact
+    {
+        [Key]
+        public int EmergencyContactId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string Relationship { get; set; }
+        
+        [Required]
+        [StringLength(20)]
+        public string Phone { get; set; }
+        
+        [StringLength(255)]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        // Navigation Properties
+        public virtual Member Member { get; set; }
+    }
+
+    public class Specialty
+    {
+        [Key]
+        public int SpecialtyId { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; }
+        
+        [StringLength(500)]
+        public string Description { get; set; }
+        
+        public bool IsActive { get; set; }
+
+        // Navigation Properties
+        public virtual ICollection<Member> Members { get; set; }
+        public virtual ICollection<Member> SubspecialtyMembers { get; set; }
+        public virtual ICollection<Event> Events { get; set; }
+    }
+
+    public class Hospital
+    {
+        [Key]
+        public int HospitalId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Name { get; set; }
+        
+        [StringLength(500)]
+        public string Address { get; set; }
+        
+        [StringLength(20)]
+        public string Phone { get; set; }
+        
+        [StringLength(255)]
+        [EmailAddress]
+        public string Email { get; set; }
+        
+        [StringLength(255)]
+        public string Website { get; set; }
+        
+        public bool IsActive { get; set; }
+
+        // Navigation Properties
+        public virtual ICollection<Member> Members { get; set; }
+        public virtual ICollection<Event> Events { get; set; }
+    }
+
+    // ============================================================================
+    // EVENT MANAGEMENT
+    // ============================================================================
+
+    public class Event
+    {
+        [Key]
+        public int EventId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(2000)]
+        public string Description { get; set; }
+        
+        [Required]
+        public DateTime EventDate { get; set; }
+        
+        [Required]
+        public TimeSpan StartTime { get; set; }
+        
+        public TimeSpan? EndTime { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Venue { get; set; }
+        
+        [StringLength(500)]
+        public string VenueAddress { get; set; }
+        
+        [Required]
+        public EventType EventType { get; set; }
+        
+        public int? SpecialtyId { get; set; }
+        
+        public int? HospitalId { get; set; }
+        
+        [Required]
+        public int CMEPoints { get; set; }
+        
+        public int? MaxCapacity { get; set; }
+        
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? RegistrationFee { get; set; }
+        
+        public DateTime RegistrationDeadline { get; set; }
+        
+        [Required]
+        public EventStatus Status { get; set; }
+        
+        [Required]
+        public int CreatedByMemberId { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Specialty Specialty { get; set; }
+        public virtual Hospital Hospital { get; set; }
+        public virtual Member CreatedBy { get; set; }
+        public virtual ICollection<EventRegistration> Registrations { get; set; }
+        public virtual ICollection<EventSpeaker> Speakers { get; set; }
+        public virtual ICollection<EventAttachment> Attachments { get; set; }
+    }
+
+    public class EventRegistration
+    {
+        [Key]
+        public int RegistrationId { get; set; }
+        
+        [Required]
+        public int EventId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public RegistrationStatus Status { get; set; }
+        
+        public DateTime RegistrationDate { get; set; }
+        
+        public DateTime? AttendanceDate { get; set; }
+        
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? AmountPaid { get; set; }
+        
+        public DateTime? PaymentDate { get; set; }
+        
+        [StringLength(100)]
+        public string PaymentMethod { get; set; }
+        
+        [StringLength(100)]
+        public string PaymentReference { get; set; }
+        
+        [StringLength(500)]
+        public string Notes { get; set; }
+
+        // Navigation Properties
+        public virtual Event Event { get; set; }
+        public virtual Member Member { get; set; }
+    }
+
+    public class EventSpeaker
+    {
+        [Key]
+        public int EventSpeakerId { get; set; }
+        
+        [Required]
+        public int EventId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Name { get; set; }
+        
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [StringLength(200)]
+        public string Organization { get; set; }
+        
+        [StringLength(1000)]
+        public string Biography { get; set; }
+        
+        [StringLength(255)]
+        public string ProfileImageUrl { get; set; }
+        
+        public int DisplayOrder { get; set; }
+
+        // Navigation Properties
+        public virtual Event Event { get; set; }
+    }
+
+    public class EventAttachment
+    {
+        [Key]
+        public int AttachmentId { get; set; }
+        
+        [Required]
+        public int EventId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string FileName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string FileUrl { get; set; }
+        
+        [StringLength(100)]
+        public string FileType { get; set; }
+        
+        public long FileSize { get; set; }
+        
+        [StringLength(500)]
+        public string Description { get; set; }
+        
+        public DateTime UploadedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Event Event { get; set; }
+    }
+
+    // ============================================================================
+    // ANNOUNCEMENTS
+    // ============================================================================
+
+    public class Announcement
+    {
+        [Key]
+        public int AnnouncementId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(5000)]
+        public string Content { get; set; }
+        
+        [Required]
+        public AnnouncementType Type { get; set; }
+        
+        [Required]
+        public Priority Priority { get; set; }
+        
+        public DateTime? EventDate { get; set; }
+        
+        [StringLength(200)]
+        public string EventVenue { get; set; }
+        
+        [Required]
+        public int AuthorMemberId { get; set; }
+        
+        public DateTime PublishDate { get; set; }
+        
+        public DateTime? ExpiryDate { get; set; }
+        
+        public bool IsEmailSent { get; set; }
+        
+        public DateTime? EmailSentAt { get; set; }
+        
+        [Required]
+        public AnnouncementStatus Status { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Member Author { get; set; }
+        public virtual ICollection<AnnouncementResponse> Responses { get; set; }
+        public virtual ICollection<AnnouncementAttachment> Attachments { get; set; }
+        public virtual ICollection<Bookmark> Bookmarks { get; set; }
+    }
+
+    public class AnnouncementResponse
+    {
+        [Key]
+        public int ResponseId { get; set; }
+        
+        [Required]
+        public int AnnouncementId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public ResponseType ResponseType { get; set; }
+        
+        public DateTime ResponseDate { get; set; }
+        
+        [StringLength(500)]
+        public string Notes { get; set; }
+
+        // Navigation Properties
+        public virtual Announcement Announcement { get; set; }
+        public virtual Member Member { get; set; }
+    }
+
+    public class AnnouncementAttachment
+    {
+        [Key]
+        public int AttachmentId { get; set; }
+        
+        [Required]
+        public int AnnouncementId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string FileName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string FileUrl { get; set; }
+        
+        [StringLength(100)]
+        public string FileType { get; set; }
+        
+        public long FileSize { get; set; }
+        
+        public DateTime UploadedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Announcement Announcement { get; set; }
+    }
+
+    // ============================================================================
+    // CME POINTS & CERTIFICATION
+    // ============================================================================
+
+    public class CMEPoint
+    {
+        [Key]
+        public int CMEPointId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string ActivityName { get; set; }
+        
+        [Required]
+        public CMEActivityType ActivityType { get; set; }
+        
+        [Required]
+        public DateTime ActivityDate { get; set; }
+        
+        [Required]
+        public int Points { get; set; }
+        
+        [StringLength(200)]
+        public string Venue { get; set; }
+        
+        [StringLength(200)]
+        public string Organizer { get; set; }
+        
+        [Required]
+        public CMEStatus Status { get; set; }
+        
+        [StringLength(100)]
+        public string CertificateNumber { get; set; }
+        
+        [StringLength(255)]
+        public string CertificateUrl { get; set; }
+        
+        public int? EventId { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime? ApprovedAt { get; set; }
+        
+        public int? ApprovedByMemberId { get; set; }
+
+        // Navigation Properties
+        public virtual Member Member { get; set; }
+        public virtual Event Event { get; set; }
+        public virtual Member ApprovedBy { get; set; }
+    }
+
+    public class COGSRequest
+    {
+        [Key]
+        public int COGSRequestId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public int Year { get; set; }
+        
+        [Required]
+        public int TotalPoints { get; set; }
+        
+        [Required]
+        public COGSStatus Status { get; set; }
+        
+        public DateTime RequestDate { get; set; }
+        
+        public DateTime? ApprovedDate { get; set; }
+        
+        public int? ApprovedByMemberId { get; set; }
+        
+        [StringLength(100)]
+        public string CertificateNumber { get; set; }
+        
+        [StringLength(255)]
+        public string CertificateUrl { get; set; }
+        
+        [StringLength(500)]
+        public string Notes { get; set; }
+
+        // Navigation Properties
+        public virtual Member Member { get; set; }
+        public virtual Member ApprovedBy { get; set; }
+    }
+
+    // ============================================================================
+    // FINANCIAL MANAGEMENT
+    // ============================================================================
+
+    public class MembershipDue
+    {
+        [Key]
+        public int DueId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public DueType DueType { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Description { get; set; }
+        
+        [Required]
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal Amount { get; set; }
+        
+        [Required]
+        public int Year { get; set; }
+        
+        [Required]
+        public DateTime DueDate { get; set; }
+        
+        [Required]
+        public PaymentStatus Status { get; set; }
+        
+        public DateTime? PaymentDate { get; set; }
+        
+        [StringLength(100)]
+        public string PaymentMethod { get; set; }
+        
+        [StringLength(100)]
+        public string PaymentReference { get; set; }
+        
+        [StringLength(100)]
+        public string ReceiptNumber { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Member Member { get; set; }
+    }
+
+    public class Payment
+    {
+        [Key]
+        public int PaymentId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public PaymentType PaymentType { get; set; }
+        
+        public int? DueId { get; set; }
+        
+        public int? EventRegistrationId { get; set; }
+        
+        [Required]
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal Amount { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string PaymentMethod { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string PaymentReference { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string ReceiptNumber { get; set; }
+        
+        [Required]
+        public PaymentStatus Status { get; set; }
+        
+        public DateTime PaymentDate { get; set; }
+        
+        [StringLength(500)]
+        public string Notes { get; set; }
+
+        // Navigation Properties
+        public virtual Member Member { get; set; }
+        public virtual MembershipDue Due { get; set; }
+        public virtual EventRegistration EventRegistration { get; set; }
+    }
+
+    // ============================================================================
+    // COMMUNICATION
+    // ============================================================================
+
+    public class Message
+    {
+        [Key]
+        public int MessageId { get; set; }
+        
+        [Required]
+        public int SenderMemberId { get; set; }
+        
+        [Required]
+        public int ReceiverMemberId { get; set; }
+        
+        [StringLength(200)]
+        public string Subject { get; set; }
+        
+        [Required]
+        [StringLength(2000)]
+        public string Content { get; set; }
+        
+        [Required]
+        public MessageType MessageType { get; set; }
+        
+        public bool IsRead { get; set; }
+        
+        public DateTime? ReadAt { get; set; }
+        
+        public DateTime SentAt { get; set; }
+        
+        public int? ParentMessageId { get; set; }
+
+        // Navigation Properties
+        public virtual Member Sender { get; set; }
+        public virtual Member Receiver { get; set; }
+        public virtual Message ParentMessage { get; set; }
+        public virtual ICollection<Message> Replies { get; set; }
+        public virtual ICollection<MessageAttachment> Attachments { get; set; }
+    }
+
+    public class MessageAttachment
+    {
+        [Key]
+        public int AttachmentId { get; set; }
+        
+        [Required]
+        public int MessageId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string FileName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string FileUrl { get; set; }
+        
+        [StringLength(100)]
+        public string FileType { get; set; }
+        
+        public long FileSize { get; set; }
+
+        // Navigation Properties
+        public virtual Message Message { get; set; }
+    }
+
+    // ============================================================================
+    // GALLERY & MEDIA
+    // ============================================================================
+
+    public class GalleryAlbum
+    {
+        [Key]
+        public int AlbumId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(1000)]
+        public string Description { get; set; }
+        
+        [Required]
+        public DateTime EventDate { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string EventName { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Venue { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Photographer { get; set; }
+        
+        [Required]
+        public GalleryCategory Category { get; set; }
+        
+        public int Views { get; set; }
+        
+        public int Likes { get; set; }
+        
+        [Required]
+        public int CreatedByMemberId { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Member CreatedBy { get; set; }
+        public virtual ICollection<GalleryImage> Images { get; set; }
+        public virtual ICollection<GalleryLike> GalleryLikes { get; set; }
+    }
+
+    public class GalleryImage
+    {
+        [Key]
+        public int ImageId { get; set; }
+        
+        [Required]
+        public int AlbumId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string FileName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string ImageUrl { get; set; }
+        
+        [StringLength(255)]
+        public string ThumbnailUrl { get; set; }
+        
+        [StringLength(500)]
+        public string Caption { get; set; }
+        
+        public int DisplayOrder { get; set; }
+        
+        public long FileSize { get; set; }
+        
+        public DateTime UploadedAt { get; set; }
+
+        // Navigation Properties
+        public virtual GalleryAlbum Album { get; set; }
+    }
+
+    public class GalleryLike
+    {
+        [Key]
+        public int LikeId { get; set; }
+        
+        [Required]
+        public int AlbumId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        public DateTime LikedAt { get; set; }
+
+        // Navigation Properties
+        public virtual GalleryAlbum Album { get; set; }
+        public virtual Member Member { get; set; }
+    }
+
+    // ============================================================================
+    // LIBRARY & RESOURCES
+    // ============================================================================
+
+    public class LibraryResource
+    {
+        [Key]
+        public int ResourceId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Author { get; set; }
+        
+        [Required]
+        public ResourceCategory Category { get; set; }
+        
+        public int? SpecialtyId { get; set; }
+        
+        [Required]
+        [StringLength(2000)]
+        public string Description { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string FileUrl { get; set; }
+        
+        [StringLength(255)]
+        public string ThumbnailUrl { get; set; }
+        
+        [StringLength(100)]
+        public string FileType { get; set; }
+        
+        public long FileSize { get; set; }
+        
+        public int Pages { get; set; }
+        
+        [StringLength(50)]
+        public string Language { get; set; }
+        
+        public DateTime PublishDate { get; set; }
+        
+        [Column(TypeName = "decimal(3,2)")]
+        public decimal Rating { get; set; }
+        
+        public int Downloads { get; set; }
+        
+        public int Views { get; set; }
+        
+        [StringLength(500)]
+        public string Tags { get; set; }
+        
+        [Required]
+        public int UploadedByMemberId { get; set; }
+        
+        public DateTime UploadedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Specialty Specialty { get; set; }
+        public virtual Member UploadedBy { get; set; }
+        public virtual ICollection<Bookmark> Bookmarks { get; set; }
+    }
+
+    // ============================================================================
+    // UTILITY ENTITIES
+    // ============================================================================
+
+    public class Bookmark
+    {
+        [Key]
+        public int BookmarkId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public BookmarkType BookmarkType { get; set; }
+        
+        public int? AnnouncementId { get; set; }
+        
+        public int? ResourceId { get; set; }
+        
+        public DateTime BookmarkedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Member Member { get; set; }
+        public virtual Announcement Announcement { get; set; }
+        public virtual LibraryResource Resource { get; set; }
+    }
+
+    public class SystemLog
+    {
+        [Key]
+        public int LogId { get; set; }
+        
+        [Required]
+        public LogLevel LogLevel { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Action { get; set; }
+        
+        [Required]
+        [StringLength(1000)]
+        public string Message { get; set; }
+        
+        public int? MemberId { get; set; }
+        
+        [StringLength(45)]
+        public string IPAddress { get; set; }
+        
+        [StringLength(500)]
+        public string UserAgent { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Member Member { get; set; }
+    }
+
+    public class SystemSetting
+    {
+        [Key]
+        public int SettingId { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Key { get; set; }
+        
+        [Required]
+        [StringLength(1000)]
+        public string Value { get; set; }
+        
+        [StringLength(500)]
+        public string Description { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+        
+        public int UpdatedByMemberId { get; set; }
+
+        // Navigation Properties
+        public virtual Member UpdatedBy { get; set; }
+    }
+
+    // ============================================================================
+    // ENUMERATIONS
+    // ============================================================================
+
+    public enum MembershipType
+    {
+        Regular = 1,
+        Associate = 2,
+        Senior = 3,
+        Emeritus = 4
+    }
+
+    public enum MembershipStatus
+    {
+        Active = 1,
+        Inactive = 2,
+        Suspended = 3,
+        Pending = 4
+    }
+
+    public enum EventType
+    {
+        Conference = 1,
+        Workshop = 2,
+        Seminar = 3,
+        Training = 4,
+        Meeting = 5,
+        Social = 6
+    }
+
+    public enum EventStatus
+    {
+        Draft = 1,
+        Published = 2,
+        RegistrationOpen = 3,
+        RegistrationClosed = 4,
+        InProgress = 5,
+        Completed = 6,
+        Cancelled = 7
+    }
+
+    public enum RegistrationStatus
+    {
+        Registered = 1,
+        Attended = 2,
+        NoShow = 3,
+        Cancelled = 4,
+        Waitlisted = 5
+    }
+
+    public enum AnnouncementType
+    {
+        General = 1,
+        Event = 2,
+        Urgent = 3,
+        Dues = 4,
+        CME = 5
+    }
+
+    public enum AnnouncementStatus
+    {
+        Draft = 1,
+        Published = 2,
+        Archived = 3
+    }
+
+    public enum Priority
+    {
+        Low = 1,
+        Medium = 2,
+        High = 3
+    }
+
+    public enum ResponseType
+    {
+        Attending = 1,
+        NotAttending = 2,
+        Maybe = 3,
+        Read = 4
+    }
+
+    public enum CMEActivityType
+    {
+        Conference = 1,
+        Workshop = 2,
+        Seminar = 3,
+        Training = 4,
+        Research = 5,
+        OnlineCourse = 6
+    }
+
+    public enum CMEStatus
+    {
+        Pending = 1,
+        Approved = 2,
+        Rejected = 3
+    }
+
+    public enum COGSStatus
+    {
+        Pending = 1,
+        Approved = 2,
+        Rejected = 3,
+        Issued = 4
+    }
+
+    public enum DueType
+    {
+        AnnualDues = 1,
+        PMADues = 2,
+        SpecialAssessment = 3,
+        EventFee = 4,
+        Merchandise = 5
+    }
+
+    public enum PaymentType
+    {
+        MembershipDues = 1,
+        EventRegistration = 2,
+        Merchandise = 3,
+        Other = 4
+    }
+
+    public enum PaymentStatus
+    {
+        Pending = 1,
+        Paid = 2,
+        Overdue = 3,
+        Cancelled = 4,
+        Refunded = 5
+    }
+
+    public enum MessageType
+    {
+        General = 1,
+        Referral = 2,
+        Consultation = 3,
+        Administrative = 4
+    }
+
+    public enum GalleryCategory
+    {
+        Conference = 1,
+        Workshop = 2,
+        Social = 3,
+        Awards = 4,
+        Community = 5
+    }
+
+    public enum ResourceCategory
+    {
+        Guidelines = 1,
+        Textbook = 2,
+        Journal = 3,
+        Reference = 4,
+        Research = 5
+    }
+
+    public enum BookmarkType
+    {
+        Announcement = 1,
+        Resource = 2
+    }
+
+    public enum LogLevel
+    {
+        Information = 1,
+        Warning = 2,
+        Error = 3,
+        Critical = 4
+    }
+}
+
+// ============================================================================
+// DATABASE CONTEXT
+// ============================================================================
+
+using Microsoft.EntityFrameworkCore;
+
+namespace INMS.Data
+{
+    public class INMSDbContext : DbContext
+    {
+        public INMSDbContext(DbContextOptions<INMSDbContext> options) : base(options)
+        {
+        }
+
+        // DbSets
+        public DbSet<Member> Members { get; set; }
+        public DbSet<EmergencyContact> EmergencyContacts { get; set; }
+        public DbSet<Specialty> Specialties { get; set; }
+        public DbSet<Hospital> Hospitals { get; set; }
+        public DbSet<Event> Events { get; set; }
+        public DbSet<EventRegistration> EventRegistrations { get; set; }
+        public DbSet<EventSpeaker> EventSpeakers { get; set; }
+        public DbSet<EventAttachment> EventAttachments { get; set; }
+        public DbSet<Announcement> Announcements { get; set; }
+        public DbSet<AnnouncementResponse> AnnouncementResponses { get; set; }
+        public DbSet<AnnouncementAttachment> AnnouncementAttachments { get; set; }
+        public DbSet<CMEPoint> CMEPoints { get; set; }
+        public DbSet<COGSRequest> COGSRequests { get; set; }
+        public DbSet<MembershipDue> MembershipDues { get; set; }
+        public DbSet<Payment> Payments { get; set; }
+        public DbSet<Message> Messages { get; set; }
+        public DbSet<MessageAttachment> MessageAttachments { get; set; }
+        public DbSet<GalleryAlbum> GalleryAlbums { get; set; }
+        public DbSet<GalleryImage> GalleryImages { get; set; }
+        public DbSet<GalleryLike> GalleryLikes { get; set; }
+        public DbSet<LibraryResource> LibraryResources { get; set; }
+        public DbSet<Bookmark> Bookmarks { get; set; }
+        public DbSet<SystemLog> SystemLogs { get; set; }
+        public DbSet<SystemSetting> SystemSettings { get; set; }
+
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+            base.OnModelCreating(modelBuilder);
+
+            // Configure relationships and constraints
+            ConfigureMemberRelationships(modelBuilder);
+            ConfigureEventRelationships(modelBuilder);
+            ConfigureAnnouncementRelationships(modelBuilder);
+            ConfigureCMERelationships(modelBuilder);
+            ConfigureFinancialRelationships(modelBuilder);
+            ConfigureCommunicationRelationships(modelBuilder);
+            ConfigureGalleryRelationships(modelBuilder);
+            ConfigureLibraryRelationships(modelBuilder);
+            ConfigureUtilityRelationships(modelBuilder);
+
+            // Configure indexes
+            ConfigureIndexes(modelBuilder);
+
+            // Seed data
+            SeedData(modelBuilder);
+        }
+
+        private void ConfigureMemberRelationships(ModelBuilder modelBuilder)
+        {
+            // Member -> Specialty (Many-to-One)
+            modelBuilder.Entity<Member>()
+                .HasOne(m => m.Specialty)
+                .WithMany(s => s.Members)
+                .HasForeignKey(m => m.SpecialtyId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Member -> Subspecialty (Many-to-One)
+            modelBuilder.Entity<Member>()
+                .HasOne(m => m.Subspecialty)
+                .WithMany(s => s.SubspecialtyMembers)
+                .HasForeignKey(m => m.SubspecialtyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Member -> Hospital (Many-to-One)
+            modelBuilder.Entity<Member>()
+                .HasOne(m => m.Hospital)
+                .WithMany(h => h.Members)
+                .HasForeignKey(m => m.HospitalId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Member -> EmergencyContact (One-to-One)
+            modelBuilder.Entity<EmergencyContact>()
+                .HasOne(ec => ec.Member)
+                .WithOne(m => m.EmergencyContact)
+                .HasForeignKey<EmergencyContact>(ec => ec.MemberId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        private void ConfigureEventRelationships(ModelBuilder modelBuilder)
+        {
+            // Event -> Specialty (Many-to-One)
+            modelBuilder.Entity<Event>()
+                .HasOne(e => e.Specialty)
+                .WithMany(s => s.Events)
+                .HasForeignKey(e => e.SpecialtyId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Event -> Hospital (Many-to-One)
+            modelBuilder.Entity<Event>()
+                .HasOne(e => e.Hospital)
+                .WithMany(h => h.Events)
+                .HasForeignKey(e => e.HospitalId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Event -> CreatedBy (Many-to-One)
+            modelBuilder.Entity<Event>()
+                .HasOne(e => e.CreatedBy)
+                .WithMany()
+                .HasForeignKey(e => e.CreatedByMemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // EventRegistration composite key
+            modelBuilder.Entity<EventRegistration>()
+                .HasIndex(er => new { er.EventId, er.MemberId })
+                .IsUnique();
+        }
+
+        private void ConfigureAnnouncementRelationships(ModelBuilder modelBuilder)
+        {
+            // Announcement -> Author (Many-to-One)
+            modelBuilder.Entity<Announcement>()
+                .HasOne(a => a.Author)
+                .WithMany()
+                .HasForeignKey(a => a.AuthorMemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // AnnouncementResponse composite key
+            modelBuilder.Entity<AnnouncementResponse>()
+                .HasIndex(ar => new { ar.AnnouncementId, ar.MemberId })
+                .IsUnique();
+        }
+
+        private void ConfigureCMERelationships(ModelBuilder modelBuilder)
+        {
+            // CMEPoint -> Event (Many-to-One)
+            modelBuilder.Entity<CMEPoint>()
+                .HasOne(cp => cp.Event)
+                .WithMany()
+                .HasForeignKey(cp => cp.EventId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // CMEPoint -> ApprovedBy (Many-to-One)
+            modelBuilder.Entity<CMEPoint>()
+                .HasOne(cp => cp.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(cp => cp.ApprovedByMemberId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // COGSRequest -> ApprovedBy (Many-to-One)
+            modelBuilder.Entity<COGSRequest>()
+                .HasOne(cr => cr.ApprovedBy)
+                .WithMany()
+                .HasForeignKey(cr => cr.ApprovedByMemberId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+
+        private void ConfigureFinancialRelationships(ModelBuilder modelBuilder)
+        {
+            // Payment -> Due (Many-to-One)
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.Due)
+                .WithMany()
+                .HasForeignKey(p => p.DueId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Payment -> EventRegistration (Many-to-One)
+            modelBuilder.Entity<Payment>()
+                .HasOne(p => p.EventRegistration)
+                .WithMany()
+                .HasForeignKey(p => p.EventRegistrationId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+
+        private void ConfigureCommunicationRelationships(ModelBuilder modelBuilder)
+        {
+            // Message -> Sender (Many-to-One)
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Sender)
+                .WithMany(mem => mem.SentMessages)
+                .HasForeignKey(m => m.SenderMemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Message -> Receiver (Many-to-One)
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Receiver)
+                .WithMany(mem => mem.ReceivedMessages)
+                .HasForeignKey(m => m.ReceiverMemberId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            // Message -> ParentMessage (Self-referencing)
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.ParentMessage)
+                .WithMany(m => m.Replies)
+                .HasForeignKey(m => m.ParentMessageId)
+                .OnDelete(DeleteBehavior.Restrict);
+        }
+
+        private void ConfigureGalleryRelationships(ModelBuilder modelBuilder)
+        {
+            // GalleryLike composite key
+            modelBuilder.Entity<GalleryLike>()
+                .HasIndex(gl => new { gl.AlbumId, gl.MemberId })
+                .IsUnique();
+        }
+
+        private void ConfigureLibraryRelationships(ModelBuilder modelBuilder)
+        {
+            // LibraryResource -> Specialty (Many-to-One)
+            modelBuilder.Entity<LibraryResource>()
+                .HasOne(lr => lr.Specialty)
+                .WithMany()
+                .HasForeignKey(lr => lr.SpecialtyId)
+                .OnDelete(DeleteBehavior.SetNull);
+        }
+
+        private void ConfigureUtilityRelationships(ModelBuilder modelBuilder)
+        {
+            // Bookmark -> Announcement (Many-to-One)
+            modelBuilder.Entity<Bookmark>()
+                .HasOne(b => b.Announcement)
+                .WithMany(a => a.Bookmarks)
+                .HasForeignKey(b => b.AnnouncementId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Bookmark -> Resource (Many-to-One)
+            modelBuilder.Entity<Bookmark>()
+                .HasOne(b => b.Resource)
+                .WithMany(r => r.Bookmarks)
+                .HasForeignKey(b => b.ResourceId)
+                .OnDelete(DeleteBehavior.Cascade);
+        }
+
+        private void ConfigureIndexes(ModelBuilder modelBuilder)
+        {
+            // Member indexes
+            modelBuilder.Entity<Member>()
+                .HasIndex(m => m.Email)
+                .IsUnique();
+
+            modelBuilder.Entity<Member>()
+                .HasIndex(m => m.PMANumber)
+                .IsUnique();
+
+            modelBuilder.Entity<Member>()
+                .HasIndex(m => m.LicenseNumber)
+                .IsUnique();
+
+            // Event indexes
+            modelBuilder.Entity<Event>()
+                .HasIndex(e => e.EventDate);
+
+            modelBuilder.Entity<Event>()
+                .HasIndex(e => e.Status);
+
+            // Announcement indexes
+            modelBuilder.Entity<Announcement>()
+                .HasIndex(a => a.PublishDate);
+
+            modelBuilder.Entity<Announcement>()
+                .HasIndex(a => a.Type);
+
+            // CME indexes
+            modelBuilder.Entity<CMEPoint>()
+                .HasIndex(cp => new { cp.MemberId, cp.ActivityDate });
+
+            // Payment indexes
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => p.PaymentDate);
+
+            modelBuilder.Entity<Payment>()
+                .HasIndex(p => p.ReceiptNumber)
+                .IsUnique();
+
+            // Message indexes
+            modelBuilder.Entity<Message>()
+                .HasIndex(m => new { m.ReceiverMemberId, m.IsRead });
+
+            // System log indexes
+            modelBuilder.Entity<SystemLog>()
+                .HasIndex(sl => sl.CreatedAt);
+
+            modelBuilder.Entity<SystemLog>()
+                .HasIndex(sl => sl.LogLevel);
+        }
+
+        private void SeedData(ModelBuilder modelBuilder)
+        {
+            // Seed Specialties
+            modelBuilder.Entity<Specialty>().HasData(
+                new Specialty { SpecialtyId = 1, Name = "Internal Medicine", Description = "Internal Medicine", IsActive = true },
+                new Specialty { SpecialtyId = 2, Name = "Pediatrics", Description = "Pediatrics", IsActive = true },
+                new Specialty { SpecialtyId = 3, Name = "Surgery", Description = "General Surgery", IsActive = true },
+                new Specialty { SpecialtyId = 4, Name = "Obstetrics & Gynecology", Description = "OB-Gynecology", IsActive = true },
+                new Specialty { SpecialtyId = 5, Name = "Orthopedics", Description = "Orthopedic Surgery", IsActive = true },
+                new Specialty { SpecialtyId = 6, Name = "Cardiology", Description = "Cardiology", IsActive = true },
+                new Specialty { SpecialtyId = 7, Name = "Neurology", Description = "Neurology", IsActive = true },
+                new Specialty { SpecialtyId = 8, Name = "Dermatology", Description = "Dermatology", IsActive = true },
+                new Specialty { SpecialtyId = 9, Name = "Psychiatry", Description = "Psychiatry", IsActive = true },
+                new Specialty { SpecialtyId = 10, Name = "Radiology", Description = "Radiology", IsActive = true },
+                new Specialty { SpecialtyId = 11, Name = "Pathology", Description = "Pathology", IsActive = true },
+                new Specialty { SpecialtyId = 12, Name = "Anesthesiology", Description = "Anesthesiology", IsActive = true },
+                new Specialty { SpecialtyId = 13, Name = "Emergency Medicine", Description = "Emergency Medicine", IsActive = true },
+                new Specialty { SpecialtyId = 14, Name = "Family Medicine", Description = "Family Medicine", IsActive = true },
+                new Specialty { SpecialtyId = 15, Name = "Ophthalmology", Description = "Ophthalmology", IsActive = true }
+            );
+
+            // Seed Hospitals
+            modelBuilder.Entity<Hospital>().HasData(
+                new Hospital { HospitalId = 1, Name = "Ilocos Training Hospital", Address = "Laoag City, Ilocos Norte", Phone = "(077) 123-4567", IsActive = true },
+                new Hospital { HospitalId = 2, Name = "Mariano Marcos Memorial Hospital", Address = "Batac City, Ilocos Norte", Phone = "(077) 234-5678", IsActive = true },
+                new Hospital { HospitalId = 3, Name = "Don Mariano Marcos Memorial Hospital", Address = "Laoag City, Ilocos Norte", Phone = "(077) 345-6789", IsActive = true },
+                new Hospital { HospitalId = 4, Name = "Laoag City General Hospital", Address = "Laoag City, Ilocos Norte", Phone = "(077) 456-7890", IsActive = true },
+                new Hospital { HospitalId = 5, Name = "Private Practice", Address = "Various Locations", Phone = "N/A", IsActive = true }
+            );
+
+            // Seed System Settings
+            modelBuilder.Entity<SystemSetting>().HasData(
+                new SystemSetting { SettingId = 1, Key = "CME_POINTS_REQUIRED", Value = "40", Description = "Annual CME points required", UpdatedAt = DateTime.UtcNow, UpdatedByMemberId = 1 },
+                new SystemSetting { SettingId = 2, Key = "COGS_POINTS_REQUIRED", Value = "60", Description = "CME points required for COGS", UpdatedAt = DateTime.UtcNow, UpdatedByMemberId = 1 },
+                new SystemSetting { SettingId = 3, Key = "ANNUAL_DUES_AMOUNT", Value = "2000", Description = "Annual membership dues amount", UpdatedAt = DateTime.UtcNow, UpdatedByMemberId = 1 },
+                new SystemSetting { SettingId = 4, Key = "PMA_DUES_AMOUNT", Value = "1500", Description = "PMA dues amount", UpdatedAt = DateTime.UtcNow, UpdatedByMemberId = 1 }
+            );
+        }
+    }
+}
+
+// ============================================================================
+// REPOSITORY INTERFACES
+// ============================================================================
+
+namespace INMS.Repositories
+{
+    public interface IGenericRepository<T> where T : class
+    {
+        Task<T> GetByIdAsync(int id);
+        Task<IEnumerable<T>> GetAllAsync();
+        Task<IEnumerable<T>> FindAsync(Expression<Func<T, bool>> expression);
+        Task<T> AddAsync(T entity);
+        Task UpdateAsync(T entity);
+        Task DeleteAsync(T entity);
+        Task<bool> ExistsAsync(int id);
+    }
+
+    public interface IMemberRepository : IGenericRepository<Member>
+    {
+        Task<Member> GetByEmailAsync(string email);
+        Task<Member> GetByPMANumberAsync(string pmaNumber);
+        Task<IEnumerable<Member>> GetActiveMembers();
+        Task<IEnumerable<Member>> GetMembersBySpecialty(int specialtyId);
+    }
+
+    public interface IEventRepository : IGenericRepository<Event>
+    {
+        Task<IEnumerable<Event>> GetUpcomingEvents();
+        Task<IEnumerable<Event>> GetEventsByDateRange(DateTime startDate, DateTime endDate);
+        Task<IEnumerable<Event>> GetEventsBySpecialty(int specialtyId);
+        Task<int> GetRegistrationCount(int eventId);
+    }
+
+    public interface ICMERepository : IGenericRepository<CMEPoint>
+    {
+        Task<IEnumerable<CMEPoint>> GetMemberCMEPoints(int memberId, int year);
+        Task<int> GetMemberTotalPoints(int memberId, int year);
+        Task<IEnumerable<CMEPoint>> GetPendingApprovals();
+    }
+}
+
+// ============================================================================
+// END OF FILE
+// ============================================================================
