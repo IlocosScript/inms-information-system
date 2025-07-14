@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -29,7 +29,8 @@ import {
   LogOut,
   ChevronDown,
   Building,
-  QrCode
+  QrCode,
+  ChevronRight
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
@@ -39,8 +40,21 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ className }: SidebarProps) {
-  const [isCollapsed, setIsCollapsed] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [notificationCount] = useState(3);
+
+  // Close mobile menu when clicking outside or on navigation
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsMobileOpen(false);
+      }
+    };
+
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   const navigationItems = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -63,63 +77,106 @@ export default function Sidebar({ className }: SidebarProps) {
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
+  const handleMobileNavClick = () => {
+    setIsMobileOpen(false);
+  };
+
   return (
     <>
+      {/* Mobile Menu Button - Fixed Position */}
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={() => setIsMobileOpen(true)}
+        className={cn(
+          "fixed top-4 left-4 z-50 lg:hidden bg-white shadow-md border",
+          isMobileOpen && "hidden"
+        )}
+      >
+        <Menu className="w-5 h-5" />
+      </Button>
+
       {/* Mobile Overlay */}
-      {!isCollapsed && (
+      {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setIsCollapsed(true)}
+          onClick={() => setIsMobileOpen(false)}
         />
       )}
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed left-0 top-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out",
-        isCollapsed ? "-translate-x-full lg:w-16" : "w-64",
+        "fixed left-0 top-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col",
+        // Mobile styles
         "lg:translate-x-0",
+        isMobileOpen ? "translate-x-0 w-80" : "-translate-x-full w-80",
+        // Desktop styles
+        "lg:relative lg:z-auto",
+        isDesktopCollapsed ? "lg:w-16" : "lg:w-64",
         className
       )}>
         {/* Header */}
-        <div className="flex items-center justify-between p-4 border-b border-gray-200">
-          {!isCollapsed && (
-            <Link href="/dashboard" className="flex items-center space-x-2">
-              <div className="bg-blue-600 text-white p-2 rounded-lg">
+        <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
+          {(!isDesktopCollapsed || isMobileOpen) && (
+            <Link href="/dashboard" className="flex items-center space-x-2" onClick={handleMobileNavClick}>
+              <div className="bg-blue-600 text-white p-2 rounded-lg flex-shrink-0">
                 <Users className="w-6 h-6" />
               </div>
               <span className="text-xl font-bold text-gray-800">INMS</span>
             </Link>
           )}
+          
+          {/* Mobile Close Button */}
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
+            onClick={() => setIsMobileOpen(false)}
             className="lg:hidden"
           >
-            {isCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
+            <X className="w-5 h-5" />
+          </Button>
+
+          {/* Desktop Collapse Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)}
+            className="hidden lg:block"
+          >
+            {isDesktopCollapsed ? <ChevronRight className="w-4 h-4" /> : <X className="w-4 h-4" />}
           </Button>
         </div>
 
-        {/* Navigation Items */}
+        {/* Navigation Items - Scrollable */}
         <nav className="flex-1 overflow-y-auto py-4">
           <div className="space-y-1 px-2">
             {navigationItems.map((item) => (
               <Link
                 key={item.name}
                 href={item.href}
+                onClick={handleMobileNavClick}
                 className={cn(
-                  "flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors",
-                  isCollapsed && "justify-center"
+                  "flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors group",
+                  isDesktopCollapsed && "lg:justify-center lg:px-2"
                 )}
               >
                 <item.icon className="w-5 h-5 flex-shrink-0" />
-                {!isCollapsed && (
-                  <span className="text-sm font-medium">{item.name}</span>
+                {(!isDesktopCollapsed || isMobileOpen) && (
+                  <>
+                    <span className="text-sm font-medium flex-1">{item.name}</span>
+                    {item.name === 'Messages' && notificationCount > 0 && (
+                      <Badge variant="destructive" className="text-xs px-2 py-0">
+                        {notificationCount}
+                      </Badge>
+                    )}
+                  </>
                 )}
-                {!isCollapsed && item.name === 'Messages' && notificationCount > 0 && (
-                  <Badge variant="destructive" className="ml-auto text-xs">
-                    {notificationCount}
-                  </Badge>
+                
+                {/* Tooltip for collapsed desktop view */}
+                {isDesktopCollapsed && !isMobileOpen && (
+                  <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                    {item.name}
+                  </div>
                 )}
               </Link>
             ))}
@@ -127,7 +184,7 @@ export default function Sidebar({ className }: SidebarProps) {
 
           {/* Admin Section */}
           <div className="mt-6 pt-4 border-t border-gray-200">
-            {!isCollapsed && (
+            {(!isDesktopCollapsed || isMobileOpen) && (
               <p className="px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
                 Administration
               </p>
@@ -137,14 +194,22 @@ export default function Sidebar({ className }: SidebarProps) {
                 <Link
                   key={item.name}
                   href={item.href}
+                  onClick={handleMobileNavClick}
                   className={cn(
-                    "flex items-center space-x-3 px-3 py-2 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors",
-                    isCollapsed && "justify-center"
+                    "flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors group",
+                    isDesktopCollapsed && "lg:justify-center lg:px-2"
                   )}
                 >
                   <item.icon className="w-5 h-5 flex-shrink-0" />
-                  {!isCollapsed && (
+                  {(!isDesktopCollapsed || isMobileOpen) && (
                     <span className="text-sm font-medium">{item.name}</span>
+                  )}
+                  
+                  {/* Tooltip for collapsed desktop view */}
+                  {isDesktopCollapsed && !isMobileOpen && (
+                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                      {item.name}
+                    </div>
                   )}
                 </Link>
               ))}
@@ -152,31 +217,47 @@ export default function Sidebar({ className }: SidebarProps) {
           </div>
         </nav>
 
-        {/* Collapse Toggle for Desktop */}
-        <div className="hidden lg:block p-4 border-t border-gray-200">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => setIsCollapsed(!isCollapsed)}
-            className="w-full justify-center"
-          >
-            {isCollapsed ? <Menu className="w-5 h-5" /> : <X className="w-5 h-5" />}
-          </Button>
-        </div>
-      </div>
-
-      {/* Mobile Menu Button */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setIsCollapsed(false)}
-        className={cn(
-          "fixed top-4 left-4 z-40 lg:hidden",
-          !isCollapsed && "hidden"
+        {/* Footer - User Profile (Mobile Only) */}
+        {(!isDesktopCollapsed || isMobileOpen) && (
+          <div className="p-4 border-t border-gray-200 flex-shrink-0 lg:hidden">
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="w-full justify-start p-2">
+                  <div className="flex items-center space-x-3">
+                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                      JD
+                    </div>
+                    <div className="text-left">
+                      <p className="text-sm font-medium">Dr. Juan Dela Cruz</p>
+                      <p className="text-xs text-gray-600">Internal Medicine</p>
+                    </div>
+                    <ChevronDown className="w-4 h-4 text-gray-400 ml-auto" />
+                  </div>
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-56">
+                <DropdownMenuItem onClick={handleMobileNavClick}>
+                  <User className="w-4 h-4 mr-2" />
+                  <Link href="/profile">View Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleMobileNavClick}>
+                  <Settings className="w-4 h-4 mr-2" />
+                  <Link href="/profile/edit">Edit Profile</Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleMobileNavClick}>
+                  <QrCode className="w-4 h-4 mr-2" />
+                  <Link href="/inms-id">My INMS ID</Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="text-red-600">
+                  <LogOut className="w-4 h-4 mr-2" />
+                  Log Out
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
         )}
-      >
-        <Menu className="w-5 h-5" />
-      </Button>
+      </div>
     </>
   );
 }

@@ -42,24 +42,16 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-3">
+    <div className="bg-white border-b border-gray-200 px-4 py-3 lg:pl-6">
       <div className="flex items-center justify-between">
         {/* Left Section */}
-        <div className="flex items-center space-x-4">
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={onMenuClick}
-            className="lg:hidden"
-          >
-            <Menu className="w-5 h-5" />
-          </Button>
+        <div className="flex items-center space-x-4 pl-12 lg:pl-0">
           <h1 className="text-xl font-semibold text-gray-800">{title}</h1>
         </div>
 
         {/* Center Section - Search */}
         {showSearch && (
-          <div className="flex-1 max-w-md mx-4">
+          <div className="flex-1 max-w-md mx-4 hidden sm:block">
             <div className="relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
               <Input
@@ -75,11 +67,19 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
 
         {/* Right Section */}
         <div className="flex items-center space-x-2">
+          {/* Mobile Search Button */}
+          {showSearch && (
+            <Button variant="ghost" size="sm" className="sm:hidden">
+              <Search className="w-4 h-4" />
+            </Button>
+          )}
+          
           <Button 
             variant="ghost" 
             size="sm"
             onClick={handleRefresh}
             disabled={refreshing}
+            className="hidden sm:flex"
           >
             <RefreshCw className={`w-4 h-4 ${refreshing ? 'animate-spin' : ''}`} />
           </Button>
@@ -123,13 +123,13 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
           {/* User Profile */}
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" className="flex items-center space-x-2 px-3">
+              <Button variant="ghost" className="hidden lg:flex items-center space-x-2 px-3">
                 <Avatar className="w-8 h-8">
                   <AvatarFallback className="bg-blue-600 text-white text-sm">
                     JD
                   </AvatarFallback>
                 </Avatar>
-                <div className="hidden md:block text-left">
+                <div className="text-left">
                   <p className="text-sm font-medium">Dr. Juan Dela Cruz</p>
                   <p className="text-xs text-gray-600">Internal Medicine</p>
                 </div>
