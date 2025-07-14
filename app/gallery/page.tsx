@@ -23,16 +23,17 @@ import {
   Heart,
   Share2,
   MapPin,
-  Users
-} from 'lucide-react';
-import Sidebar from '@/components/Sidebar';
-import TopBar from '@/components/TopBar';
-
+  Users,
   WifiOff,
   Upload,
   Plus,
   Edit,
   Trash2
+} from 'lucide-react';
+import Sidebar from '@/components/Sidebar';
+import TopBar from '@/components/TopBar';
+
+interface GalleryItem {
   id: number;
   title: string;
   description: string;
