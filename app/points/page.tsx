@@ -150,6 +150,9 @@ export default function PointsPage() {
     .filter(activity => activity.status === 'pending')
     .reduce((sum, activity) => sum + activity.points, 0);
 
+  // This will be automatically updated when attendance is marked via the API
+  // The backend should create CMEPoint records when attendance is confirmed
+
   const cogsRequirement = 60; // Points needed for COGS
   const cogsProgress = (totalPoints / cogsRequirement) * 100;
   const isEligibleForCogs = totalPoints >= cogsRequirement;

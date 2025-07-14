@@ -68,5 +68,35 @@ export const eventService = {
     formData.append('file', file);
     if (description) formData.append('description', description);
     await api.upload<ApiResponse<void>>(`/events/${eventId}/attachments`, formData);
+  },
+
+  async markAttendance(registrationId: number): Promise<void> {
+    await api.post<ApiResponse<void>>(`/events/registrations/${registrationId}/mark-attendance`);
+  },
+
+  async markBulkAttendance(registrationIds: number[]): Promise<void> {
+    await api.post<ApiResponse<void>>('/events/registrations/bulk-attendance', { registrationIds });
+  },
+
+  async getEventAttendanceStats(eventId: number): Promise<{
+    totalRegistered: number;
+    totalAttended: number;
+    attendanceRate: number;
+  }> {
+    const response = await api.get<ApiResponse<any>>(`/events/${eventId}/attendance-stats`);
+    return response.data;
+  },
+
+  async getMemberByQRCode(qrCode: string, eventId: number): Promise<{
+    member: Member;
+    registration: EventRegistration;
+  }> {
+    const response = await api.get<ApiResponse<any>>(`/events/${eventId}/member-by-qr/${qrCode}`);
+    return response.data;
+  },
+
+  async exportAttendanceReport(eventId: number): Promise<Blob> {
+    const response = await api.get(`/events/${eventId}/attendance-report`, { responseType: 'blob' });
+    return response;
   }
 };

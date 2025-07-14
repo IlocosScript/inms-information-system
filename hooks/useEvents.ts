@@ -41,3 +41,15 @@ export function useMyRegistrations() {
 export function useUpcomingEvents() {
   return useApi(() => eventService.getUpcomingEvents());
 }
+
+export function useEventRegistrations(eventId: number) {
+  return useApi(() => eventService.getEventRegistrations(eventId));
+}
+
+export function useMarkAttendance() {
+  return useMutation((registrationId: number) => eventService.markAttendance(registrationId));
+}
+
+export function useEventAttendanceStats(eventId: number) {
+  return useApi(() => eventService.getEventAttendanceStats(eventId));
+}

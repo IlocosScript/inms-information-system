@@ -18,6 +18,7 @@ import TopBar from '@/components/TopBar';
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [attendedEventsCount, setAttendedEventsCount] = useState(12);
 
   const recentActivities = [
     {
@@ -135,7 +136,7 @@ export default function Dashboard() {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm text-gray-600">Events Attended</p>
-                    <p className="text-2xl font-bold text-purple-600">12</p>
+                    <p className="text-2xl font-bold text-purple-600">{attendedEventsCount}</p>
                   </div>
                   <Calendar className="w-8 h-8 text-purple-600" />
                 </div>
