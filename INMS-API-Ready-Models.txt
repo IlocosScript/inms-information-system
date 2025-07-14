@@ -1,0 +1,1664 @@
+// INMS (Ilocos Norte Medical Society) - C# Models and DTOs
+// API-Ready Entity Models and Data Transfer Objects
+// Created: 2024
+
+using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
+using System.Text.Json.Serialization;
+
+namespace INMS.API.Models
+{
+    // ============================================================================
+    // ENTITY MODELS
+    // ============================================================================
+
+    public class Member
+    {
+        [Key]
+        public int MemberId { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string FirstName { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string LastName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        [EmailAddress]
+        public string Email { get; set; }
+        
+        [StringLength(20)]
+        public string Phone { get; set; }
+        
+        public DateTime? Birthday { get; set; }
+        
+        [StringLength(10)]
+        public string Gender { get; set; }
+        
+        [StringLength(500)]
+        public string Address { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string PMANumber { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string LicenseNumber { get; set; }
+        
+        [Required]
+        public int SpecialtyId { get; set; }
+        
+        public int? SubspecialtyId { get; set; }
+        
+        public int? HospitalId { get; set; }
+        
+        [StringLength(200)]
+        public string ClinicAddress { get; set; }
+        
+        [StringLength(100)]
+        public string ClinicHours { get; set; }
+        
+        [StringLength(20)]
+        public string ClinicPhone { get; set; }
+        
+        [Required]
+        public MembershipType MembershipType { get; set; }
+        
+        [Required]
+        public MembershipStatus Status { get; set; }
+        
+        public DateTime JoinDate { get; set; }
+        
+        public DateTime? LastLoginDate { get; set; }
+        
+        [StringLength(255)]
+        public string ProfileImageUrl { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        [JsonIgnore]
+        public string PasswordHash { get; set; }
+        
+        [StringLength(255)]
+        [JsonIgnore]
+        public string RefreshToken { get; set; }
+        
+        [JsonIgnore]
+        public DateTime? RefreshTokenExpiryTime { get; set; }
+        
+        public bool IsEmailVerified { get; set; }
+        
+        [StringLength(255)]
+        [JsonIgnore]
+        public string EmailVerificationToken { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+
+        // Navigation Properties
+        public virtual Specialty Specialty { get; set; }
+        public virtual Specialty Subspecialty { get; set; }
+        public virtual Hospital Hospital { get; set; }
+        public virtual EmergencyContact EmergencyContact { get; set; }
+        public virtual ICollection<MembershipDue> MembershipDues { get; set; }
+        public virtual ICollection<EventRegistration> EventRegistrations { get; set; }
+        public virtual ICollection<CMEPoint> CMEPoints { get; set; }
+        public virtual ICollection<Message> SentMessages { get; set; }
+        public virtual ICollection<Message> ReceivedMessages { get; set; }
+        public virtual ICollection<AnnouncementResponse> AnnouncementResponses { get; set; }
+        public virtual ICollection<GalleryLike> GalleryLikes { get; set; }
+        public virtual ICollection<Bookmark> Bookmarks { get; set; }
+        public virtual ICollection<UserRole> UserRoles { get; set; }
+    }
+
+    public class UserRole
+    {
+        [Key]
+        public int UserRoleId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public Role Role { get; set; }
+        
+        public DateTime AssignedAt { get; set; }
+        
+        public int AssignedByMemberId { get; set; }
+
+        public virtual Member Member { get; set; }
+        public virtual Member AssignedBy { get; set; }
+    }
+
+    public class EmergencyContact
+    {
+        [Key]
+        public int EmergencyContactId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; }
+        
+        [Required]
+        [StringLength(50)]
+        public string Relationship { get; set; }
+        
+        [Required]
+        [StringLength(20)]
+        public string Phone { get; set; }
+        
+        [StringLength(255)]
+        [EmailAddress]
+        public string Email { get; set; }
+
+        public virtual Member Member { get; set; }
+    }
+
+    public class Specialty
+    {
+        [Key]
+        public int SpecialtyId { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Name { get; set; }
+        
+        [StringLength(500)]
+        public string Description { get; set; }
+        
+        public bool IsActive { get; set; }
+
+        public virtual ICollection<Member> Members { get; set; }
+        public virtual ICollection<Member> SubspecialtyMembers { get; set; }
+        public virtual ICollection<Event> Events { get; set; }
+    }
+
+    public class Hospital
+    {
+        [Key]
+        public int HospitalId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Name { get; set; }
+        
+        [StringLength(500)]
+        public string Address { get; set; }
+        
+        [StringLength(20)]
+        public string Phone { get; set; }
+        
+        [StringLength(255)]
+        [EmailAddress]
+        public string Email { get; set; }
+        
+        [StringLength(255)]
+        public string Website { get; set; }
+        
+        public bool IsActive { get; set; }
+
+        public virtual ICollection<Member> Members { get; set; }
+        public virtual ICollection<Event> Events { get; set; }
+    }
+
+    public class Event
+    {
+        [Key]
+        public int EventId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(2000)]
+        public string Description { get; set; }
+        
+        [Required]
+        public DateTime EventDate { get; set; }
+        
+        [Required]
+        public TimeSpan StartTime { get; set; }
+        
+        public TimeSpan? EndTime { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Venue { get; set; }
+        
+        [StringLength(500)]
+        public string VenueAddress { get; set; }
+        
+        [Required]
+        public EventType EventType { get; set; }
+        
+        public int? SpecialtyId { get; set; }
+        
+        public int? HospitalId { get; set; }
+        
+        [Required]
+        public int CMEPoints { get; set; }
+        
+        public int? MaxCapacity { get; set; }
+        
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? RegistrationFee { get; set; }
+        
+        public DateTime RegistrationDeadline { get; set; }
+        
+        [Required]
+        public EventStatus Status { get; set; }
+        
+        [Required]
+        public int CreatedByMemberId { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+
+        public virtual Specialty Specialty { get; set; }
+        public virtual Hospital Hospital { get; set; }
+        public virtual Member CreatedBy { get; set; }
+        public virtual ICollection<EventRegistration> Registrations { get; set; }
+        public virtual ICollection<EventSpeaker> Speakers { get; set; }
+        public virtual ICollection<EventAttachment> Attachments { get; set; }
+    }
+
+    public class EventRegistration
+    {
+        [Key]
+        public int RegistrationId { get; set; }
+        
+        [Required]
+        public int EventId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public RegistrationStatus Status { get; set; }
+        
+        public DateTime RegistrationDate { get; set; }
+        
+        public DateTime? AttendanceDate { get; set; }
+        
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal? AmountPaid { get; set; }
+        
+        public DateTime? PaymentDate { get; set; }
+        
+        [StringLength(100)]
+        public string PaymentMethod { get; set; }
+        
+        [StringLength(100)]
+        public string PaymentReference { get; set; }
+        
+        [StringLength(500)]
+        public string Notes { get; set; }
+
+        public virtual Event Event { get; set; }
+        public virtual Member Member { get; set; }
+    }
+
+    public class EventSpeaker
+    {
+        [Key]
+        public int EventSpeakerId { get; set; }
+        
+        [Required]
+        public int EventId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Name { get; set; }
+        
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [StringLength(200)]
+        public string Organization { get; set; }
+        
+        [StringLength(1000)]
+        public string Biography { get; set; }
+        
+        [StringLength(255)]
+        public string ProfileImageUrl { get; set; }
+        
+        public int DisplayOrder { get; set; }
+
+        public virtual Event Event { get; set; }
+    }
+
+    public class EventAttachment
+    {
+        [Key]
+        public int AttachmentId { get; set; }
+        
+        [Required]
+        public int EventId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string FileName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string FileUrl { get; set; }
+        
+        [StringLength(100)]
+        public string FileType { get; set; }
+        
+        public long FileSize { get; set; }
+        
+        [StringLength(500)]
+        public string Description { get; set; }
+        
+        public DateTime UploadedAt { get; set; }
+
+        public virtual Event Event { get; set; }
+    }
+
+    public class Announcement
+    {
+        [Key]
+        public int AnnouncementId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(5000)]
+        public string Content { get; set; }
+        
+        [Required]
+        public AnnouncementType Type { get; set; }
+        
+        [Required]
+        public Priority Priority { get; set; }
+        
+        public DateTime? EventDate { get; set; }
+        
+        [StringLength(200)]
+        public string EventVenue { get; set; }
+        
+        [Required]
+        public int AuthorMemberId { get; set; }
+        
+        public DateTime PublishDate { get; set; }
+        
+        public DateTime? ExpiryDate { get; set; }
+        
+        public bool IsEmailSent { get; set; }
+        
+        public DateTime? EmailSentAt { get; set; }
+        
+        [Required]
+        public AnnouncementStatus Status { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+
+        public virtual Member Author { get; set; }
+        public virtual ICollection<AnnouncementResponse> Responses { get; set; }
+        public virtual ICollection<AnnouncementAttachment> Attachments { get; set; }
+        public virtual ICollection<Bookmark> Bookmarks { get; set; }
+    }
+
+    public class AnnouncementResponse
+    {
+        [Key]
+        public int ResponseId { get; set; }
+        
+        [Required]
+        public int AnnouncementId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public ResponseType ResponseType { get; set; }
+        
+        public DateTime ResponseDate { get; set; }
+        
+        [StringLength(500)]
+        public string Notes { get; set; }
+
+        public virtual Announcement Announcement { get; set; }
+        public virtual Member Member { get; set; }
+    }
+
+    public class AnnouncementAttachment
+    {
+        [Key]
+        public int AttachmentId { get; set; }
+        
+        [Required]
+        public int AnnouncementId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string FileName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string FileUrl { get; set; }
+        
+        [StringLength(100)]
+        public string FileType { get; set; }
+        
+        public long FileSize { get; set; }
+        
+        public DateTime UploadedAt { get; set; }
+
+        public virtual Announcement Announcement { get; set; }
+    }
+
+    public class CMEPoint
+    {
+        [Key]
+        public int CMEPointId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string ActivityName { get; set; }
+        
+        [Required]
+        public CMEActivityType ActivityType { get; set; }
+        
+        [Required]
+        public DateTime ActivityDate { get; set; }
+        
+        [Required]
+        public int Points { get; set; }
+        
+        [StringLength(200)]
+        public string Venue { get; set; }
+        
+        [StringLength(200)]
+        public string Organizer { get; set; }
+        
+        [Required]
+        public CMEStatus Status { get; set; }
+        
+        [StringLength(100)]
+        public string CertificateNumber { get; set; }
+        
+        [StringLength(255)]
+        public string CertificateUrl { get; set; }
+        
+        public int? EventId { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime? ApprovedAt { get; set; }
+        
+        public int? ApprovedByMemberId { get; set; }
+
+        public virtual Member Member { get; set; }
+        public virtual Event Event { get; set; }
+        public virtual Member ApprovedBy { get; set; }
+    }
+
+    public class COGSRequest
+    {
+        [Key]
+        public int COGSRequestId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public int Year { get; set; }
+        
+        [Required]
+        public int TotalPoints { get; set; }
+        
+        [Required]
+        public COGSStatus Status { get; set; }
+        
+        public DateTime RequestDate { get; set; }
+        
+        public DateTime? ApprovedDate { get; set; }
+        
+        public int? ApprovedByMemberId { get; set; }
+        
+        [StringLength(100)]
+        public string CertificateNumber { get; set; }
+        
+        [StringLength(255)]
+        public string CertificateUrl { get; set; }
+        
+        [StringLength(500)]
+        public string Notes { get; set; }
+
+        public virtual Member Member { get; set; }
+        public virtual Member ApprovedBy { get; set; }
+    }
+
+    public class MembershipDue
+    {
+        [Key]
+        public int DueId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public DueType DueType { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Description { get; set; }
+        
+        [Required]
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal Amount { get; set; }
+        
+        [Required]
+        public int Year { get; set; }
+        
+        [Required]
+        public DateTime DueDate { get; set; }
+        
+        [Required]
+        public PaymentStatus Status { get; set; }
+        
+        public DateTime? PaymentDate { get; set; }
+        
+        [StringLength(100)]
+        public string PaymentMethod { get; set; }
+        
+        [StringLength(100)]
+        public string PaymentReference { get; set; }
+        
+        [StringLength(100)]
+        public string ReceiptNumber { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+
+        public virtual Member Member { get; set; }
+    }
+
+    public class Payment
+    {
+        [Key]
+        public int PaymentId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public PaymentType PaymentType { get; set; }
+        
+        public int? DueId { get; set; }
+        
+        public int? EventRegistrationId { get; set; }
+        
+        [Required]
+        [Column(TypeName = "decimal(10,2)")]
+        public decimal Amount { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string PaymentMethod { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string PaymentReference { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string ReceiptNumber { get; set; }
+        
+        [Required]
+        public PaymentStatus Status { get; set; }
+        
+        public DateTime PaymentDate { get; set; }
+        
+        [StringLength(500)]
+        public string Notes { get; set; }
+
+        public virtual Member Member { get; set; }
+        public virtual MembershipDue Due { get; set; }
+        public virtual EventRegistration EventRegistration { get; set; }
+    }
+
+    public class Message
+    {
+        [Key]
+        public int MessageId { get; set; }
+        
+        [Required]
+        public int SenderMemberId { get; set; }
+        
+        [Required]
+        public int ReceiverMemberId { get; set; }
+        
+        [StringLength(200)]
+        public string Subject { get; set; }
+        
+        [Required]
+        [StringLength(2000)]
+        public string Content { get; set; }
+        
+        [Required]
+        public MessageType MessageType { get; set; }
+        
+        public bool IsRead { get; set; }
+        
+        public DateTime? ReadAt { get; set; }
+        
+        public DateTime SentAt { get; set; }
+        
+        public int? ParentMessageId { get; set; }
+
+        public virtual Member Sender { get; set; }
+        public virtual Member Receiver { get; set; }
+        public virtual Message ParentMessage { get; set; }
+        public virtual ICollection<Message> Replies { get; set; }
+        public virtual ICollection<MessageAttachment> Attachments { get; set; }
+    }
+
+    public class MessageAttachment
+    {
+        [Key]
+        public int AttachmentId { get; set; }
+        
+        [Required]
+        public int MessageId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string FileName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string FileUrl { get; set; }
+        
+        [StringLength(100)]
+        public string FileType { get; set; }
+        
+        public long FileSize { get; set; }
+
+        public virtual Message Message { get; set; }
+    }
+
+    public class GalleryAlbum
+    {
+        [Key]
+        public int AlbumId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(1000)]
+        public string Description { get; set; }
+        
+        [Required]
+        public DateTime EventDate { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string EventName { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Venue { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Photographer { get; set; }
+        
+        [Required]
+        public GalleryCategory Category { get; set; }
+        
+        public int Views { get; set; }
+        
+        public int Likes { get; set; }
+        
+        [Required]
+        public int CreatedByMemberId { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+
+        public virtual Member CreatedBy { get; set; }
+        public virtual ICollection<GalleryImage> Images { get; set; }
+        public virtual ICollection<GalleryLike> GalleryLikes { get; set; }
+    }
+
+    public class GalleryImage
+    {
+        [Key]
+        public int ImageId { get; set; }
+        
+        [Required]
+        public int AlbumId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string FileName { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string ImageUrl { get; set; }
+        
+        [StringLength(255)]
+        public string ThumbnailUrl { get; set; }
+        
+        [StringLength(500)]
+        public string Caption { get; set; }
+        
+        public int DisplayOrder { get; set; }
+        
+        public long FileSize { get; set; }
+        
+        public DateTime UploadedAt { get; set; }
+
+        public virtual GalleryAlbum Album { get; set; }
+    }
+
+    public class GalleryLike
+    {
+        [Key]
+        public int LikeId { get; set; }
+        
+        [Required]
+        public int AlbumId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        public DateTime LikedAt { get; set; }
+
+        public virtual GalleryAlbum Album { get; set; }
+        public virtual Member Member { get; set; }
+    }
+
+    public class LibraryResource
+    {
+        [Key]
+        public int ResourceId { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Author { get; set; }
+        
+        [Required]
+        public ResourceCategory Category { get; set; }
+        
+        public int? SpecialtyId { get; set; }
+        
+        [Required]
+        [StringLength(2000)]
+        public string Description { get; set; }
+        
+        [Required]
+        [StringLength(255)]
+        public string FileUrl { get; set; }
+        
+        [StringLength(255)]
+        public string ThumbnailUrl { get; set; }
+        
+        [StringLength(100)]
+        public string FileType { get; set; }
+        
+        public long FileSize { get; set; }
+        
+        public int Pages { get; set; }
+        
+        [StringLength(50)]
+        public string Language { get; set; }
+        
+        public DateTime PublishDate { get; set; }
+        
+        [Column(TypeName = "decimal(3,2)")]
+        public decimal Rating { get; set; }
+        
+        public int Downloads { get; set; }
+        
+        public int Views { get; set; }
+        
+        [StringLength(500)]
+        public string Tags { get; set; }
+        
+        [Required]
+        public int UploadedByMemberId { get; set; }
+        
+        public DateTime UploadedAt { get; set; }
+
+        public virtual Specialty Specialty { get; set; }
+        public virtual Member UploadedBy { get; set; }
+        public virtual ICollection<Bookmark> Bookmarks { get; set; }
+    }
+
+    public class Bookmark
+    {
+        [Key]
+        public int BookmarkId { get; set; }
+        
+        [Required]
+        public int MemberId { get; set; }
+        
+        [Required]
+        public BookmarkType BookmarkType { get; set; }
+        
+        public int? AnnouncementId { get; set; }
+        
+        public int? ResourceId { get; set; }
+        
+        public DateTime BookmarkedAt { get; set; }
+
+        public virtual Member Member { get; set; }
+        public virtual Announcement Announcement { get; set; }
+        public virtual LibraryResource Resource { get; set; }
+    }
+
+    public class SystemLog
+    {
+        [Key]
+        public int LogId { get; set; }
+        
+        [Required]
+        public LogLevel LogLevel { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Action { get; set; }
+        
+        [Required]
+        [StringLength(1000)]
+        public string Message { get; set; }
+        
+        public int? MemberId { get; set; }
+        
+        [StringLength(45)]
+        public string IPAddress { get; set; }
+        
+        [StringLength(500)]
+        public string UserAgent { get; set; }
+        
+        public DateTime CreatedAt { get; set; }
+
+        public virtual Member Member { get; set; }
+    }
+
+    public class SystemSetting
+    {
+        [Key]
+        public int SettingId { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Key { get; set; }
+        
+        [Required]
+        [StringLength(1000)]
+        public string Value { get; set; }
+        
+        [StringLength(500)]
+        public string Description { get; set; }
+        
+        public DateTime UpdatedAt { get; set; }
+        
+        public int UpdatedByMemberId { get; set; }
+
+        public virtual Member UpdatedBy { get; set; }
+    }
+
+    // ============================================================================
+    // ENUMERATIONS
+    // ============================================================================
+
+    public enum MembershipType
+    {
+        Regular = 1,
+        Associate = 2,
+        Senior = 3,
+        Emeritus = 4
+    }
+
+    public enum MembershipStatus
+    {
+        Active = 1,
+        Inactive = 2,
+        Suspended = 3,
+        Pending = 4
+    }
+
+    public enum Role
+    {
+        Member = 1,
+        Admin = 2,
+        SuperAdmin = 3,
+        Moderator = 4
+    }
+
+    public enum EventType
+    {
+        Conference = 1,
+        Workshop = 2,
+        Seminar = 3,
+        Training = 4,
+        Meeting = 5,
+        Social = 6
+    }
+
+    public enum EventStatus
+    {
+        Draft = 1,
+        Published = 2,
+        RegistrationOpen = 3,
+        RegistrationClosed = 4,
+        InProgress = 5,
+        Completed = 6,
+        Cancelled = 7
+    }
+
+    public enum RegistrationStatus
+    {
+        Registered = 1,
+        Attended = 2,
+        NoShow = 3,
+        Cancelled = 4,
+        Waitlisted = 5
+    }
+
+    public enum AnnouncementType
+    {
+        General = 1,
+        Event = 2,
+        Urgent = 3,
+        Dues = 4,
+        CME = 5
+    }
+
+    public enum AnnouncementStatus
+    {
+        Draft = 1,
+        Published = 2,
+        Archived = 3
+    }
+
+    public enum Priority
+    {
+        Low = 1,
+        Medium = 2,
+        High = 3
+    }
+
+    public enum ResponseType
+    {
+        Attending = 1,
+        NotAttending = 2,
+        Maybe = 3,
+        Read = 4
+    }
+
+    public enum CMEActivityType
+    {
+        Conference = 1,
+        Workshop = 2,
+        Seminar = 3,
+        Training = 4,
+        Research = 5,
+        OnlineCourse = 6
+    }
+
+    public enum CMEStatus
+    {
+        Pending = 1,
+        Approved = 2,
+        Rejected = 3
+    }
+
+    public enum COGSStatus
+    {
+        Pending = 1,
+        Approved = 2,
+        Rejected = 3,
+        Issued = 4
+    }
+
+    public enum DueType
+    {
+        AnnualDues = 1,
+        PMADues = 2,
+        SpecialAssessment = 3,
+        EventFee = 4,
+        Merchandise = 5
+    }
+
+    public enum PaymentType
+    {
+        MembershipDues = 1,
+        EventRegistration = 2,
+        Merchandise = 3,
+        Other = 4
+    }
+
+    public enum PaymentStatus
+    {
+        Pending = 1,
+        Paid = 2,
+        Overdue = 3,
+        Cancelled = 4,
+        Refunded = 5
+    }
+
+    public enum MessageType
+    {
+        General = 1,
+        Referral = 2,
+        Consultation = 3,
+        Administrative = 4
+    }
+
+    public enum GalleryCategory
+    {
+        Conference = 1,
+        Workshop = 2,
+        Social = 3,
+        Awards = 4,
+        Community = 5
+    }
+
+    public enum ResourceCategory
+    {
+        Guidelines = 1,
+        Textbook = 2,
+        Journal = 3,
+        Reference = 4,
+        Research = 5
+    }
+
+    public enum BookmarkType
+    {
+        Announcement = 1,
+        Resource = 2
+    }
+
+    public enum LogLevel
+    {
+        Information = 1,
+        Warning = 2,
+        Error = 3,
+        Critical = 4
+    }
+
+    // ============================================================================
+    // DTOs (Data Transfer Objects)
+    // ============================================================================
+
+    // Authentication DTOs
+    public class LoginRequestDto
+    {
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+        
+        [Required]
+        public string Password { get; set; }
+    }
+
+    public class LoginResponseDto
+    {
+        public string AccessToken { get; set; }
+        public string RefreshToken { get; set; }
+        public DateTime ExpiresAt { get; set; }
+        public MemberDto Member { get; set; }
+    }
+
+    public class RegisterRequestDto
+    {
+        [Required]
+        [StringLength(100)]
+        public string FirstName { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string LastName { get; set; }
+        
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+        
+        [Required]
+        [StringLength(100, MinimumLength = 6)]
+        public string Password { get; set; }
+        
+        [Required]
+        public string Phone { get; set; }
+        
+        [Required]
+        public string PMANumber { get; set; }
+        
+        [Required]
+        public string LicenseNumber { get; set; }
+        
+        [Required]
+        public int SpecialtyId { get; set; }
+        
+        public int? SubspecialtyId { get; set; }
+        
+        public int? HospitalId { get; set; }
+    }
+
+    public class RefreshTokenRequestDto
+    {
+        [Required]
+        public string RefreshToken { get; set; }
+    }
+
+    public class ChangePasswordRequestDto
+    {
+        [Required]
+        public string CurrentPassword { get; set; }
+        
+        [Required]
+        [StringLength(100, MinimumLength = 6)]
+        public string NewPassword { get; set; }
+    }
+
+    // Member DTOs
+    public class MemberDto
+    {
+        public int MemberId { get; set; }
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string FullName => $"{FirstName} {LastName}";
+        public string Email { get; set; }
+        public string Phone { get; set; }
+        public DateTime? Birthday { get; set; }
+        public string Gender { get; set; }
+        public string Address { get; set; }
+        public string PMANumber { get; set; }
+        public string LicenseNumber { get; set; }
+        public SpecialtyDto Specialty { get; set; }
+        public SpecialtyDto Subspecialty { get; set; }
+        public HospitalDto Hospital { get; set; }
+        public string ClinicAddress { get; set; }
+        public string ClinicHours { get; set; }
+        public string ClinicPhone { get; set; }
+        public MembershipType MembershipType { get; set; }
+        public MembershipStatus Status { get; set; }
+        public DateTime JoinDate { get; set; }
+        public string ProfileImageUrl { get; set; }
+        public List<Role> Roles { get; set; }
+        public EmergencyContactDto EmergencyContact { get; set; }
+    }
+
+    public class CreateMemberDto
+    {
+        [Required]
+        [StringLength(100)]
+        public string FirstName { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string LastName { get; set; }
+        
+        [Required]
+        [EmailAddress]
+        public string Email { get; set; }
+        
+        public string Phone { get; set; }
+        public DateTime? Birthday { get; set; }
+        public string Gender { get; set; }
+        public string Address { get; set; }
+        
+        [Required]
+        public string PMANumber { get; set; }
+        
+        [Required]
+        public string LicenseNumber { get; set; }
+        
+        [Required]
+        public int SpecialtyId { get; set; }
+        
+        public int? SubspecialtyId { get; set; }
+        public int? HospitalId { get; set; }
+        public string ClinicAddress { get; set; }
+        public string ClinicHours { get; set; }
+        public string ClinicPhone { get; set; }
+        public MembershipType MembershipType { get; set; }
+        public EmergencyContactDto EmergencyContact { get; set; }
+    }
+
+    public class UpdateMemberDto
+    {
+        public string FirstName { get; set; }
+        public string LastName { get; set; }
+        public string Phone { get; set; }
+        public DateTime? Birthday { get; set; }
+        public string Gender { get; set; }
+        public string Address { get; set; }
+        public int? SubspecialtyId { get; set; }
+        public int? HospitalId { get; set; }
+        public string ClinicAddress { get; set; }
+        public string ClinicHours { get; set; }
+        public string ClinicPhone { get; set; }
+        public EmergencyContactDto EmergencyContact { get; set; }
+    }
+
+    public class EmergencyContactDto
+    {
+        public string Name { get; set; }
+        public string Relationship { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+    }
+
+    // Event DTOs
+    public class EventDto
+    {
+        public int EventId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime EventDate { get; set; }
+        public TimeSpan StartTime { get; set; }
+        public TimeSpan? EndTime { get; set; }
+        public string Venue { get; set; }
+        public string VenueAddress { get; set; }
+        public EventType EventType { get; set; }
+        public SpecialtyDto Specialty { get; set; }
+        public HospitalDto Hospital { get; set; }
+        public int CMEPoints { get; set; }
+        public int? MaxCapacity { get; set; }
+        public decimal? RegistrationFee { get; set; }
+        public DateTime RegistrationDeadline { get; set; }
+        public EventStatus Status { get; set; }
+        public MemberDto CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public int RegistrationCount { get; set; }
+        public bool IsRegistered { get; set; }
+        public List<EventSpeakerDto> Speakers { get; set; }
+        public List<EventAttachmentDto> Attachments { get; set; }
+    }
+
+    public class CreateEventDto
+    {
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(2000)]
+        public string Description { get; set; }
+        
+        [Required]
+        public DateTime EventDate { get; set; }
+        
+        [Required]
+        public TimeSpan StartTime { get; set; }
+        
+        public TimeSpan? EndTime { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Venue { get; set; }
+        
+        public string VenueAddress { get; set; }
+        
+        [Required]
+        public EventType EventType { get; set; }
+        
+        public int? SpecialtyId { get; set; }
+        public int? HospitalId { get; set; }
+        
+        [Required]
+        public int CMEPoints { get; set; }
+        
+        public int? MaxCapacity { get; set; }
+        public decimal? RegistrationFee { get; set; }
+        
+        [Required]
+        public DateTime RegistrationDeadline { get; set; }
+        
+        public List<CreateEventSpeakerDto> Speakers { get; set; }
+    }
+
+    public class UpdateEventDto
+    {
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime? EventDate { get; set; }
+        public TimeSpan? StartTime { get; set; }
+        public TimeSpan? EndTime { get; set; }
+        public string Venue { get; set; }
+        public string VenueAddress { get; set; }
+        public EventType? EventType { get; set; }
+        public int? SpecialtyId { get; set; }
+        public int? HospitalId { get; set; }
+        public int? CMEPoints { get; set; }
+        public int? MaxCapacity { get; set; }
+        public decimal? RegistrationFee { get; set; }
+        public DateTime? RegistrationDeadline { get; set; }
+        public EventStatus? Status { get; set; }
+    }
+
+    public class EventSpeakerDto
+    {
+        public int EventSpeakerId { get; set; }
+        public string Name { get; set; }
+        public string Title { get; set; }
+        public string Organization { get; set; }
+        public string Biography { get; set; }
+        public string ProfileImageUrl { get; set; }
+        public int DisplayOrder { get; set; }
+    }
+
+    public class CreateEventSpeakerDto
+    {
+        [Required]
+        public string Name { get; set; }
+        public string Title { get; set; }
+        public string Organization { get; set; }
+        public string Biography { get; set; }
+        public string ProfileImageUrl { get; set; }
+        public int DisplayOrder { get; set; }
+    }
+
+    public class EventAttachmentDto
+    {
+        public int AttachmentId { get; set; }
+        public string FileName { get; set; }
+        public string FileUrl { get; set; }
+        public string FileType { get; set; }
+        public long FileSize { get; set; }
+        public string Description { get; set; }
+        public DateTime UploadedAt { get; set; }
+    }
+
+    public class EventRegistrationDto
+    {
+        public int RegistrationId { get; set; }
+        public EventDto Event { get; set; }
+        public MemberDto Member { get; set; }
+        public RegistrationStatus Status { get; set; }
+        public DateTime RegistrationDate { get; set; }
+        public DateTime? AttendanceDate { get; set; }
+        public decimal? AmountPaid { get; set; }
+        public DateTime? PaymentDate { get; set; }
+        public string PaymentMethod { get; set; }
+        public string PaymentReference { get; set; }
+        public string Notes { get; set; }
+    }
+
+    public class CreateEventRegistrationDto
+    {
+        [Required]
+        public int EventId { get; set; }
+        public string Notes { get; set; }
+    }
+
+    // Announcement DTOs
+    public class AnnouncementDto
+    {
+        public int AnnouncementId { get; set; }
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public AnnouncementType Type { get; set; }
+        public Priority Priority { get; set; }
+        public DateTime? EventDate { get; set; }
+        public string EventVenue { get; set; }
+        public MemberDto Author { get; set; }
+        public DateTime PublishDate { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public bool IsEmailSent { get; set; }
+        public AnnouncementStatus Status { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public List<AnnouncementAttachmentDto> Attachments { get; set; }
+        public bool IsBookmarked { get; set; }
+        public ResponseType? UserResponse { get; set; }
+    }
+
+    public class CreateAnnouncementDto
+    {
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(5000)]
+        public string Content { get; set; }
+        
+        [Required]
+        public AnnouncementType Type { get; set; }
+        
+        [Required]
+        public Priority Priority { get; set; }
+        
+        public DateTime? EventDate { get; set; }
+        public string EventVenue { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public bool SendEmail { get; set; } = true;
+    }
+
+    public class UpdateAnnouncementDto
+    {
+        public string Title { get; set; }
+        public string Content { get; set; }
+        public AnnouncementType? Type { get; set; }
+        public Priority? Priority { get; set; }
+        public DateTime? EventDate { get; set; }
+        public string EventVenue { get; set; }
+        public DateTime? ExpiryDate { get; set; }
+        public AnnouncementStatus? Status { get; set; }
+    }
+
+    public class AnnouncementAttachmentDto
+    {
+        public int AttachmentId { get; set; }
+        public string FileName { get; set; }
+        public string FileUrl { get; set; }
+        public string FileType { get; set; }
+        public long FileSize { get; set; }
+        public DateTime UploadedAt { get; set; }
+    }
+
+    public class AnnouncementResponseDto
+    {
+        [Required]
+        public int AnnouncementId { get; set; }
+        
+        [Required]
+        public ResponseType ResponseType { get; set; }
+        
+        public string Notes { get; set; }
+    }
+
+    // CME DTOs
+    public class CMEPointDto
+    {
+        public int CMEPointId { get; set; }
+        public MemberDto Member { get; set; }
+        public string ActivityName { get; set; }
+        public CMEActivityType ActivityType { get; set; }
+        public DateTime ActivityDate { get; set; }
+        public int Points { get; set; }
+        public string Venue { get; set; }
+        public string Organizer { get; set; }
+        public CMEStatus Status { get; set; }
+        public string CertificateNumber { get; set; }
+        public string CertificateUrl { get; set; }
+        public EventDto Event { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public DateTime? ApprovedAt { get; set; }
+        public MemberDto ApprovedBy { get; set; }
+    }
+
+    public class CreateCMEPointDto
+    {
+        [Required]
+        public string ActivityName { get; set; }
+        
+        [Required]
+        public CMEActivityType ActivityType { get; set; }
+        
+        [Required]
+        public DateTime ActivityDate { get; set; }
+        
+        [Required]
+        public int Points { get; set; }
+        
+        public string Venue { get; set; }
+        public string Organizer { get; set; }
+        public string CertificateNumber { get; set; }
+        public string CertificateUrl { get; set; }
+        public int? EventId { get; set; }
+    }
+
+    public class COGSRequestDto
+    {
+        public int COGSRequestId { get; set; }
+        public MemberDto Member { get; set; }
+        public int Year { get; set; }
+        public int TotalPoints { get; set; }
+        public COGSStatus Status { get; set; }
+        public DateTime RequestDate { get; set; }
+        public DateTime? ApprovedDate { get; set; }
+        public MemberDto ApprovedBy { get; set; }
+        public string CertificateNumber { get; set; }
+        public string CertificateUrl { get; set; }
+        public string Notes { get; set; }
+    }
+
+    public class CreateCOGSRequestDto
+    {
+        [Required]
+        public int Year { get; set; }
+        public string Notes { get; set; }
+    }
+
+    // Gallery DTOs
+    public class GalleryAlbumDto
+    {
+        public int AlbumId { get; set; }
+        public string Title { get; set; }
+        public string Description { get; set; }
+        public DateTime EventDate { get; set; }
+        public string EventName { get; set; }
+        public string Venue { get; set; }
+        public string Photographer { get; set; }
+        public GalleryCategory Category { get; set; }
+        public int Views { get; set; }
+        public int Likes { get; set; }
+        public MemberDto CreatedBy { get; set; }
+        public DateTime CreatedAt { get; set; }
+        public List<GalleryImageDto> Images { get; set; }
+        public bool IsLiked { get; set; }
+    }
+
+    public class CreateGalleryAlbumDto
+    {
+        [Required]
+        [StringLength(200)]
+        public string Title { get; set; }
+        
+        [Required]
+        [StringLength(1000)]
+        public string Description { get; set; }
+        
+        [Required]
+        public DateTime EventDate { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string EventName { get; set; }
+        
+        [Required]
+        [StringLength(200)]
+        public string Venue { get; set; }
+        
+        [Required]
+        [StringLength(100)]
+        public string Photographer { get; set; }
+        
+        [Required]
+        public GalleryCategory Category { get; set; }
+    }
+
+    public class GalleryImageDto
+    {
+        public int ImageId { get; set; }
+        public string FileName { get; set; }
+        public string ImageUrl { get; set; }
+        public string ThumbnailUrl { get; set; }
+        public string Caption { get; set; }
+        public int DisplayOrder { get; set; }
+        public long FileSize { get; set; }
+        public DateTime UploadedAt { get; set; }
+    }
+
+    // Lookup DTOs
+    public class SpecialtyDto
+    {
+        public int SpecialtyId { get; set; }
+        public string Name { get; set; }
+        public string Description { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    public class HospitalDto
+    {
+        public int HospitalId { get; set; }
+        public string Name { get; set; }
+        public string Address { get; set; }
+        public string Phone { get; set; }
+        public string Email { get; set; }
+        public string Website { get; set; }
+        public bool IsActive { get; set; }
+    }
+
+    // Common DTOs
+    public class PagedResultDto<T>
+    {
+        public List<T> Items { get; set; }
+        public int TotalCount { get; set; }
+        public int PageNumber { get; set; }
+        public int PageSize { get; set; }
+        public int TotalPages => (int)Math.Ceiling((double)TotalCount / PageSize);
+        public bool HasPreviousPage => PageNumber > 1;
+        public bool HasNextPage => PageNumber < TotalPages;
+    }
+
+    public class ApiResponseDto<T>
+    {
+        public bool Success { get; set; }
+        public string Message { get; set; }
+        public T Data { get; set; }
+        public List<string> Errors { get; set; }
+    }
+
+    public class SearchFilterDto
+    {
+        public string SearchTerm { get; set; }
+        public int PageNumber { get; set; } = 1;
+        public int PageSize { get; set; } = 10;
+        public string SortBy { get; set; }
+        public bool SortDescending { get; set; } = false;
+    }
+}
