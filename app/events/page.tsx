@@ -39,7 +39,6 @@ import {
   Plus,
   Edit,
   X,
-  Edit,
   Trash2
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
