@@ -67,6 +67,7 @@ export default function EventsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
+  const [userRole, setUserRole] = useState<'admin' | 'member'>('member'); // In real app, get from auth context
   const [showCreateEvent, setShowCreateEvent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [newEvent, setNewEvent] = useState({
