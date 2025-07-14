@@ -28,7 +28,11 @@ import {
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
 
-interface GalleryItem {
+  WifiOff,
+  Upload,
+  Plus,
+  Edit,
+  Trash2
   id: number;
   title: string;
   description: string;
