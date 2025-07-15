@@ -20,6 +20,8 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { StatsCard } from '@/components/ui/stats-card';
+import { useSecurityContext } from '@/components/SecurityProvider';
 
 export default function AdminPage() {
   const [stats] = useState({
@@ -33,6 +35,29 @@ export default function AdminPage() {
     announcements: 12
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { logSecurityEvent } = useSecurityContext();
+
+  // Enhanced admin analytics
+  const adminAnalytics = {
+    systemHealth: {
+      uptime: '99.9%',
+      responseTime: '120ms',
+      errorRate: '0.1%',
+      activeUsers: 45
+    },
+    securityMetrics: {
+      loginAttempts: 234,
+      failedLogins: 3,
+      suspiciousActivity: 0,
+      lastSecurityScan: '2024-01-20'
+    },
+    membershipTrends: {
+      newThisMonth: 12,
+      renewals: 156,
+      churnRate: '2.1%',
+      satisfaction: '4.8/5'
+    }
+  };
 
   const recentActivities = [
     {
@@ -116,50 +141,123 @@ export default function AdminPage() {
 
           {/* Quick Stats */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+            <StatsCard
+              title="Total Members"
+              value={stats.totalMembers}
+              icon={Users}
+              trend={{ value: 6, isPositive: true }}
+              color="blue"
+            />
+            <StatsCard
+              title="Active Members"
+              value={stats.activeMembers}
+              icon={UserCheck}
+              trend={{ value: 3, isPositive: true }}
+              color="green"
+            />
+            <StatsCard
+              title="Pending Applications"
+              value={stats.pendingApplications}
+              icon={AlertTriangle}
+              trend={{ value: 2, isPositive: false }}
+              color="orange"
+            />
+            <StatsCard
+              title="Total Revenue"
+              value={`₱${stats.totalRevenue.toLocaleString()}`}
+              icon={TrendingUp}
+              trend={{ value: 12, isPositive: true }}
+              color="purple"
+            />
+          </div>
+
+          {/* System Health Dashboard */}
+          <div className="grid lg:grid-cols-3 gap-6 mb-8">
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Members</p>
-                    <p className="text-2xl font-bold text-blue-600">{stats.totalMembers}</p>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Database className="w-5 h-5 mr-2" />
+                  System Health
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Uptime</span>
+                    <Badge className="bg-green-100 text-green-700">{adminAnalytics.systemHealth.uptime}</Badge>
                   </div>
-                  <Users className="w-8 h-8 text-blue-600" />
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Response Time</span>
+                    <span className="text-sm font-medium">{adminAnalytics.systemHealth.responseTime}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Error Rate</span>
+                    <span className="text-sm font-medium">{adminAnalytics.systemHealth.errorRate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Active Users</span>
+                    <span className="text-sm font-medium">{adminAnalytics.systemHealth.activeUsers}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Active Members</p>
-                    <p className="text-2xl font-bold text-green-600">{stats.activeMembers}</p>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <Shield className="w-5 h-5 mr-2" />
+                  Security Metrics
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Login Attempts</span>
+                    <span className="text-sm font-medium">{adminAnalytics.securityMetrics.loginAttempts}</span>
                   </div>
-                  <UserCheck className="w-8 h-8 text-green-600" />
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Failed Logins</span>
+                    <Badge variant={adminAnalytics.securityMetrics.failedLogins > 5 ? "destructive" : "secondary"}>
+                      {adminAnalytics.securityMetrics.failedLogins}
+                    </Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Suspicious Activity</span>
+                    <Badge className="bg-green-100 text-green-700">{adminAnalytics.securityMetrics.suspiciousActivity}</Badge>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Last Scan</span>
+                    <span className="text-xs text-gray-500">{adminAnalytics.securityMetrics.lastSecurityScan}</span>
+                  </div>
                 </div>
               </CardContent>
             </Card>
 
             <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Pending Applications</p>
-                    <p className="text-2xl font-bold text-orange-600">{stats.pendingApplications}</p>
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2" />
+                  Membership Trends
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">New This Month</span>
+                    <Badge className="bg-blue-100 text-blue-700">{adminAnalytics.membershipTrends.newThisMonth}</Badge>
                   </div>
-                  <AlertTriangle className="w-8 h-8 text-orange-600" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Revenue</p>
-                    <p className="text-2xl font-bold text-purple-600">₱{stats.totalRevenue.toLocaleString()}</p>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Renewals</span>
+                    <span className="text-sm font-medium">{adminAnalytics.membershipTrends.renewals}</span>
                   </div>
-                  <TrendingUp className="w-8 h-8 text-purple-600" />
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Churn Rate</span>
+                    <span className="text-sm font-medium">{adminAnalytics.membershipTrends.churnRate}</span>
+                  </div>
+                  <div className="flex justify-between">
+                    <span className="text-sm text-gray-600">Satisfaction</span>
+                    <Badge className="bg-green-100 text-green-700">{adminAnalytics.membershipTrends.satisfaction}</Badge>
+                  </div>
                 </div>
               </CardContent>
             </Card>
