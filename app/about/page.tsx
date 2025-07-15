@@ -162,7 +162,7 @@ export default function AboutPage() {
           sidebarCollapsed={sidebarCollapsed}
         />
         
-        <div className="p-6">
+        <div className="p-6 pt-20">
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-6">

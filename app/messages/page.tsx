@@ -197,7 +197,7 @@ export default function MessagesPage() {
           sidebarCollapsed={sidebarCollapsed}
         />
         
-        <div className="p-6">
+        <div className="p-6 pt-20">
           <div className="grid lg:grid-cols-3 gap-6 h-[calc(100vh-200px)]">
             {/* Conversations List */}
             <div className="lg:col-span-1">

@@ -107,7 +107,7 @@ export default function AdminPage() {
           sidebarCollapsed={sidebarCollapsed}
         />
         
-        <div className="p-6">
+        <div className="p-6 pt-20">
           {/* Welcome Message */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Admin Dashboard</h2>

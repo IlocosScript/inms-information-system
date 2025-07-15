@@ -223,7 +223,7 @@ export default function GalleryPage() {
           sidebarCollapsed={sidebarCollapsed}
         />
         
-        <div className="p-6">
+        <div className="p-6 pt-20">
           <div className="flex justify-between items-center mb-8">
             <div>
               <p className="text-gray-600">Capturing moments from INMS events and activities</p>

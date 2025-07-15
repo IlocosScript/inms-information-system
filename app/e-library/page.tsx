@@ -270,7 +270,7 @@ export default function ELibraryPage() {
           sidebarCollapsed={sidebarCollapsed}
         />
         
-        <div className="p-6">
+        <div className="p-6 pt-20">
           <div className="flex justify-between items-center mb-8">
             <div>
               <p className="text-gray-600">Access medical references, guidelines, and educational materials</p>

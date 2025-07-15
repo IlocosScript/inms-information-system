@@ -147,7 +147,7 @@ export default function ContactPage() {
           sidebarCollapsed={sidebarCollapsed}
         />
         
-        <div className="p-6">
+        <div className="p-6 pt-20">
           {/* Header */}
           <div className="text-center mb-12">
             <h1 className="text-3xl font-bold text-gray-800 mb-4">Get in Touch</h1>

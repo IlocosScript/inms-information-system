@@ -52,12 +52,15 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   };
 
   return (
-    <div className={`bg-white border-b border-gray-200 px-4 py-3 relative z-30 w-full transition-all duration-300 ${
-      sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
-    }`}>
+    <div className="bg-white border-b border-gray-200 px-4 py-3 fixed top-0 left-0 right-0 z-30 transition-all duration-300" 
+         style={{ 
+           marginLeft: typeof window !== 'undefined' && window.innerWidth >= 1024 
+             ? (sidebarCollapsed ? '64px' : '256px') 
+             : '0px' 
+         }}>
       <div className="flex items-center justify-between">
         {/* Left Section */}
-        <div className="flex items-center space-x-4 lg:pl-0">
+        <div className="flex items-center space-x-4">
           {/* Mobile Menu Button */}
           <Button
             variant="ghost"

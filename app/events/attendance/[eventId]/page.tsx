@@ -193,7 +193,7 @@ export default function EventAttendancePage() {
             sidebarCollapsed={sidebarCollapsed}
           />
           
-          <div className="p-6">
+          <div className="p-6 pt-20">
             {/* Header */}
             <div className="mb-8">
               <div className="flex justify-between items-start">

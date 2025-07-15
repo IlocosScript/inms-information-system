@@ -69,7 +69,7 @@ export default function ViewProfilePage() {
           sidebarCollapsed={sidebarCollapsed}
         />
         
-        <div className="p-6">
+        <div className="p-6 pt-20">
           {/* Header */}
           <div className="flex justify-between items-center mb-8">
             <div>
