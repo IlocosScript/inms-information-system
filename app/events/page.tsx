@@ -32,6 +32,9 @@ import TopBar from '@/components/TopBar';
 import Link from 'next/link';
 import { useAuth } from '@/contexts/AuthContext';
 import { Role } from '@/types/api';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { EmptyState } from '@/components/ui/empty-state';
+import { MobileDrawer } from '@/components/ui/mobile-drawer';
 
 interface Event {
   id: number;
@@ -58,6 +61,7 @@ export default function EventsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const events: Event[] = [
     {
@@ -190,6 +194,14 @@ export default function EventsPage() {
                   Create Event
                 </Button>
               )}
+              <Button 
+                variant="outline" 
+                className="md:hidden"
+                onClick={() => setShowMobileFilters(true)}
+              >
+                <Filter className="w-4 h-4 mr-2" />
+                Filters
+              </Button>
               <Badge variant="outline" className="text-sm">
                 {filteredEvents.length} events found
               </Badge>
@@ -353,14 +365,79 @@ export default function EventsPage() {
           </div>
 
           {filteredEvents.length === 0 && (
-            <Card>
-              <CardContent className="text-center py-12">
-                <Calendar className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                <h3 className="text-lg font-medium text-gray-600 mb-2">No events found</h3>
-                <p className="text-gray-500">Try adjusting your search or filter criteria</p>
-              </CardContent>
-            </Card>
+            <EmptyState
+              icon={Calendar}
+              title="No events found"
+              description="Try adjusting your search or filter criteria"
+              action={{
+                label: "Clear Filters",
+                onClick: () => {
+                  setSearchQuery('');
+                  setTypeFilter('all');
+                  setStatusFilter('all');
+                }
+              }}
+            />
           )}
+
+          {/* Mobile Filters Drawer */}
+          <MobileDrawer
+            isOpen={showMobileFilters}
+            onClose={() => setShowMobileFilters(false)}
+            title="Filter Events"
+          >
+            <div className="space-y-4">
+              <div>
+                <Label htmlFor="mobileSearch">Search Events</Label>
+                <Input
+                  id="mobileSearch"
+                  placeholder="Title, venue, description..."
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                />
+              </div>
+              
+              <div>
+                <Label htmlFor="mobileType">Event Type</Label>
+                <Select value={typeFilter} onValueChange={setTypeFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All types" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Types</SelectItem>
+                    <SelectItem value="conference">Conference</SelectItem>
+                    <SelectItem value="workshop">Workshop</SelectItem>
+                    <SelectItem value="seminar">Seminar</SelectItem>
+                    <SelectItem value="training">Training</SelectItem>
+                    <SelectItem value="meeting">Meeting</SelectItem>
+                    <SelectItem value="social">Social</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              
+              <div>
+                <Label htmlFor="mobileStatus">Status</Label>
+                <Select value={statusFilter} onValueChange={setStatusFilter}>
+                  <SelectTrigger>
+                    <SelectValue placeholder="All statuses" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All Statuses</SelectItem>
+                    <SelectItem value="upcoming">Upcoming</SelectItem>
+                    <SelectItem value="ongoing">Ongoing</SelectItem>
+                    <SelectItem value="completed">Completed</SelectItem>
+                    <SelectItem value="cancelled">Cancelled</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+              <Button 
+                className="w-full" 
+                onClick={() => setShowMobileFilters(false)}
+              >
+                Apply Filters
+              </Button>
+            </div>
+          </MobileDrawer>
         </div>
       </div>
     </div>

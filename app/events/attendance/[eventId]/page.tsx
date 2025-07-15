@@ -37,7 +37,9 @@ import {
   Clock,
   Award,
   AlertCircle,
-  RefreshCw
+  RefreshCw,
+  Plus,
+  X
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
@@ -45,6 +47,10 @@ import ProtectedRoute from '@/components/ProtectedRoute';
 import { Role } from '@/types/api';
 import { eventService } from '@/services/eventService';
 import { useEvent, useEventRegistrations } from '@/hooks/useEvents';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { EmptyState } from '@/components/ui/empty-state';
+import { MobileDrawer } from '@/components/ui/mobile-drawer';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 export default function EventAttendancePage() {
   const params = useParams();
@@ -62,6 +68,10 @@ export default function EventAttendancePage() {
   });
   const [lastScannedMember, setLastScannedMember] = useState<any>(null);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showMobileScanner, setShowMobileScanner] = useState(false);
+  const [bulkScanMode, setBulkScanMode] = useState(false);
+  const [scannedQueue, setScannedQueue] = useState<string[]>([]);
+  const isOnline = useOnlineStatus();
 
   const { data: event, loading: eventLoading } = useEvent(eventId);
   const { data: registrations, loading: registrationsLoading, refetch: refetchRegistrations } = useEventRegistrations(eventId);
@@ -145,6 +155,46 @@ export default function EventAttendancePage() {
     }
   };
 
+  const handleBulkScan = async () => {
+    if (scannedQueue.length === 0) {
+      alert('No QR codes scanned for bulk processing');
+      return;
+    }
+
+    setIsLoading(true);
+    try {
+      const results = [];
+      for (const qrCode of scannedQueue) {
+        try {
+          const memberData = await eventService.getMemberByQRCode(qrCode, eventId);
+          if (memberData.registration.status !== 'Attended') {
+            await eventService.markAttendance(memberData.registration.registrationId);
+            results.push(memberData.member.fullName);
+          }
+        } catch (error) {
+          console.error('Failed to process QR code:', qrCode);
+        }
+      }
+      
+      await refetchRegistrations();
+      await loadAttendanceStats();
+      setScannedQueue([]);
+      setBulkScanMode(false);
+      alert(`✅ ${results.length} members marked as attended!`);
+    } catch (error) {
+      alert('Failed to process bulk attendance');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const addToScanQueue = () => {
+    if (qrInput.trim() && !scannedQueue.includes(qrInput.trim())) {
+      setScannedQueue(prev => [...prev, qrInput.trim()]);
+      setQrInput('');
+    }
+  };
+
   const handleExportReport = async () => {
     try {
       const blob = await eventService.exportAttendanceReport(eventId);
@@ -175,7 +225,7 @@ export default function EventAttendancePage() {
   if (eventLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
-        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600"></div>
+        <LoadingSpinner size="lg" />
       </div>
     );
   }
@@ -209,6 +259,14 @@ export default function EventAttendancePage() {
                   <Button onClick={loadAttendanceStats} variant="outline" size="sm">
                     <RefreshCw className="w-4 h-4 mr-2" />
                     Refresh
+                  </Button>
+                  <Button 
+                    onClick={() => setShowMobileScanner(true)} 
+                    variant="outline" 
+                    className="md:hidden"
+                  >
+                    <QrCode className="w-4 h-4 mr-2" />
+                    Mobile Scanner
                   </Button>
                   <Button onClick={handleExportReport} variant="outline">
                     <Download className="w-4 h-4 mr-2" />
@@ -279,10 +337,27 @@ export default function EventAttendancePage() {
                     <CardTitle className="flex items-center">
                       <QrCode className="w-5 h-5 mr-2" />
                       QR Code Scanner
+                      {!isOnline && (
+                        <Badge variant="destructive" className="ml-2 text-xs">
+                          Offline
+                        </Badge>
+                      )}
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
                     <div className="space-y-4">
+                      {/* Bulk Scan Mode Toggle */}
+                      <div className="flex items-center justify-between">
+                        <Label className="text-sm">Bulk Scan Mode</Label>
+                        <Button
+                          variant={bulkScanMode ? "default" : "outline"}
+                          size="sm"
+                          onClick={() => setBulkScanMode(!bulkScanMode)}
+                        >
+                          {bulkScanMode ? 'Exit Bulk' : 'Bulk Mode'}
+                        </Button>
+                      </div>
+
                       <div>
                         <Label htmlFor="qrInput">Scan QR Code or Enter Member ID</Label>
                         <div className="flex space-x-2 mt-1">
@@ -293,15 +368,57 @@ export default function EventAttendancePage() {
                             placeholder="INMS-2024-001234"
                             onKeyPress={(e) => e.key === 'Enter' && handleQRScan()}
                           />
-                          <Button onClick={handleQRScan} disabled={isLoading}>
+                          <Button 
+                            onClick={bulkScanMode ? addToScanQueue : handleQRScan} 
+                            disabled={isLoading}
+                          >
                             {isLoading ? (
-                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                              <LoadingSpinner size="sm" />
                             ) : (
-                              <UserCheck className="w-4 h-4" />
+                              {bulkScanMode ? <Plus className="w-4 h-4" /> : <UserCheck className="w-4 h-4" />}
                             )}
                           </Button>
                         </div>
                       </div>
+
+                      {/* Bulk Scan Queue */}
+                      {bulkScanMode && (
+                        <div className="space-y-2">
+                          <Label className="text-sm">Scan Queue ({scannedQueue.length})</Label>
+                          <div className="max-h-32 overflow-y-auto border rounded p-2">
+                            {scannedQueue.length === 0 ? (
+                              <p className="text-sm text-gray-500">No QR codes scanned yet</p>
+                            ) : (
+                              scannedQueue.map((qr, index) => (
+                                <div key={index} className="flex justify-between items-center text-sm py-1">
+                                  <span>{qr}</span>
+                                  <Button
+                                    variant="ghost"
+                                    size="sm"
+                                    onClick={() => setScannedQueue(prev => prev.filter((_, i) => i !== index))}
+                                  >
+                                    <X className="w-3 h-3" />
+                                  </Button>
+                                </div>
+                              ))
+                            )}
+                          </div>
+                          {scannedQueue.length > 0 && (
+                            <div className="flex space-x-2">
+                              <Button onClick={handleBulkScan} disabled={isLoading} className="flex-1">
+                                Process {scannedQueue.length} Scans
+                              </Button>
+                              <Button 
+                                variant="outline" 
+                                onClick={() => setScannedQueue([])}
+                                disabled={isLoading}
+                              >
+                                Clear
+                              </Button>
+                            </div>
+                          )}
+                        </div>
+                      )}
 
                       <div className="text-center">
                         <div className="border-2 border-dashed border-gray-300 rounded-lg p-8 mb-4">
@@ -491,16 +608,47 @@ export default function EventAttendancePage() {
                     </Table>
 
                     {filteredRegistrations.length === 0 && (
-                      <div className="text-center py-8">
-                        <Users className="w-16 h-16 mx-auto text-gray-300 mb-4" />
-                        <h3 className="text-lg font-medium text-gray-600 mb-2">No registrations found</h3>
-                        <p className="text-gray-500">No members match your search criteria</p>
-                      </div>
+                      <EmptyState
+                        icon={Users}
+                        title="No registrations found"
+                        description="No members match your search criteria"
+                      />
                     )}
                   </CardContent>
                 </Card>
               </div>
             </div>
+
+            {/* Mobile Scanner Drawer */}
+            <MobileDrawer
+              isOpen={showMobileScanner}
+              onClose={() => setShowMobileScanner(false)}
+              title="Mobile QR Scanner"
+            >
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="mobileQrInput">Scan QR Code</Label>
+                  <div className="flex space-x-2 mt-1">
+                    <Input
+                      id="mobileQrInput"
+                      value={qrInput}
+                      onChange={(e) => setQrInput(e.target.value)}
+                      placeholder="INMS-2024-001234"
+                    />
+                    <Button onClick={handleQRScan} disabled={isLoading}>
+                      {isLoading ? <LoadingSpinner size="sm" /> : <UserCheck className="w-4 h-4" />}
+                    </Button>
+                  </div>
+                </div>
+                
+                <div className="text-center p-8 border-2 border-dashed border-gray-300 rounded-lg">
+                  <QrCode className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                  <p className="text-sm text-gray-600">
+                    Use your device camera to scan QR codes or enter member ID manually
+                  </p>
+                </div>
+              </div>
+            </MobileDrawer>
           </div>
         </div>
       </div>

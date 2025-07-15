@@ -15,11 +15,39 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { StatsCard } from '@/components/ui/stats-card';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useLocalStorage } from '@/hooks/useLocalStorage';
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [attendedEventsCount, setAttendedEventsCount] = useState(12);
+  const [dashboardPreferences, setDashboardPreferences] = useLocalStorage('dashboardPreferences', {
+    showQuickStats: true,
+    showRecentActivities: true,
+    showUpcomingEvents: true,
+    showAnnouncements: true
+  });
+  const isOnline = useOnlineStatus();
 
+  // Enhanced analytics data
+  const analyticsData = {
+    totalPoints: { value: 45, trend: { value: 12, isPositive: true } },
+    duesStatus: { value: 'PAID', trend: { value: 0, isPositive: true } },
+    eventsAttended: { value: attendedEventsCount, trend: { value: 8, isPositive: true } },
+    messages: { value: 3, trend: { value: 2, isPositive: false } },
+    monthlyActivity: {
+      eventsAttended: 4,
+      pointsEarned: 15,
+      hoursOfCME: 12,
+      networkConnections: 8
+    },
+    upcomingDeadlines: [
+      { type: 'Event Registration', name: 'Cardiology Symposium', date: '2024-02-10', urgent: true },
+      { type: 'CME Requirement', name: 'Annual CME Points', date: '2024-12-31', urgent: false },
+      { type: 'Dues Payment', name: 'Q2 Assessment', date: '2024-06-30', urgent: false }
+    ]
+  };
   const recentActivities = [
     {
       id: 1,
@@ -104,60 +132,96 @@ export default function Dashboard() {
           </div>
 
           {/* Quick Stats */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Total Points</p>
-                    <p className="text-2xl font-bold text-blue-600">45</p>
-                  </div>
-                  <Award className="w-8 h-8 text-blue-600" />
-                </div>
-              </CardContent>
-            </Card>
+          {dashboardPreferences.showQuickStats && (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+              <StatsCard
+                title="Total Points"
+                value={analyticsData.totalPoints.value}
+                icon={Award}
+                trend={analyticsData.totalPoints.trend}
+                color="blue"
+              />
+              <StatsCard
+                title="Dues Status"
+                value={analyticsData.duesStatus.value}
+                icon={CreditCard}
+                color="green"
+              />
+              <StatsCard
+                title="Events Attended"
+                value={analyticsData.eventsAttended.value}
+                icon={Calendar}
+                trend={analyticsData.eventsAttended.trend}
+                color="purple"
+              />
+              <StatsCard
+                title="Messages"
+                value={analyticsData.messages.value}
+                icon={MessageSquare}
+                trend={analyticsData.messages.trend}
+                color="orange"
+              />
+            </div>
+          )}
 
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Dues Status</p>
-                    <Badge variant="secondary" className="bg-green-100 text-green-700">
-                      <CheckCircle className="w-3 h-3 mr-1" />
-                      PAID
-                    </Badge>
-                  </div>
-                  <CreditCard className="w-8 h-8 text-green-600" />
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
+          {/* Enhanced Analytics Section */}
+          <div className="grid lg:grid-cols-4 gap-6 mb-8">
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <TrendingUp className="w-5 h-5 mr-2" />
+                  Monthly Activity Summary
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="text-center p-4 bg-blue-50 rounded-lg">
+                    <p className="text-2xl font-bold text-blue-600">{analyticsData.monthlyActivity.eventsAttended}</p>
                     <p className="text-sm text-gray-600">Events Attended</p>
-                    <p className="text-2xl font-bold text-purple-600">{attendedEventsCount}</p>
                   </div>
-                  <Calendar className="w-8 h-8 text-purple-600" />
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">{analyticsData.monthlyActivity.pointsEarned}</p>
+                    <p className="text-sm text-gray-600">Points Earned</p>
+                  </div>
+                  <div className="text-center p-4 bg-purple-50 rounded-lg">
+                    <p className="text-2xl font-bold text-purple-600">{analyticsData.monthlyActivity.hoursOfCME}</p>
+                    <p className="text-sm text-gray-600">CME Hours</p>
+                  </div>
+                  <div className="text-center p-4 bg-orange-50 rounded-lg">
+                    <p className="text-2xl font-bold text-orange-600">{analyticsData.monthlyActivity.networkConnections}</p>
+                    <p className="text-sm text-gray-600">New Connections</p>
+                  </div>
                 </div>
               </CardContent>
             </Card>
-
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="text-sm text-gray-600">Messages</p>
-                    <p className="text-2xl font-bold text-orange-600">3</p>
-                  </div>
-                  <MessageSquare className="w-8 h-8 text-orange-600" />
+          {/* Main Content */}
+            <Card className="lg:col-span-2">
+              <CardHeader>
+                <CardTitle className="flex items-center">
+                  <AlertCircle className="w-5 h-5 mr-2" />
+                  Upcoming Deadlines
+                </CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-3">
+                  {analyticsData.upcomingDeadlines.map((deadline, index) => (
+                    <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
+                      <div>
+                        <p className="font-medium text-sm">{deadline.name}</p>
+                        <p className="text-xs text-gray-600">{deadline.type}</p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-sm font-medium">{deadline.date}</p>
+                        <Badge variant={deadline.urgent ? "destructive" : "secondary"} className="text-xs">
+                          {deadline.urgent ? "Urgent" : "Upcoming"}
+                        </Badge>
+                      </div>
+                    </div>
+                  ))}
                 </div>
               </CardContent>
             </Card>
           </div>
-
-          {/* Main Content */}
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-6">
@@ -329,8 +393,23 @@ export default function Dashboard() {
                     <p className="text-sm opacity-90">Up to 30% off on diagnostic equipment</p>
                   </div>
                 </CardContent>
-              </Card>
+              <div className="flex items-center space-x-2">
+                <p className="text-gray-600">Here's what's happening with your INMS account today.</p>
+                {!isOnline && (
+                  <Badge variant="destructive" className="text-xs">
+                    Offline Mode
+                  </Badge>
+                )}
+              </div>
             </div>
+            <Button 
+              variant="outline" 
+              size="sm"
+              onClick={() => setDashboardPreferences(prev => ({ ...prev, showQuickStats: !prev.showQuickStats }))}
+            >
+              <Settings className="w-4 h-4 mr-2" />
+              Customize
+            </Button>
           </div>
         </div>
       </div>

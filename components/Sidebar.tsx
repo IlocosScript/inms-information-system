@@ -34,6 +34,7 @@ import {
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface SidebarProps {
   className?: string;
@@ -45,6 +46,7 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [notificationCount] = useState(3);
+  const isOnline = useOnlineStatus();
 
   // Notify parent component of mobile state changes
   useEffect(() => {
@@ -181,6 +183,11 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
                         {notificationCount}
                       </Badge>
                     )}
+                    {!isOnline && item.name === 'Events' && (
+                      <Badge variant="secondary" className="text-xs px-1 py-0">
+                        Offline
+                      </Badge>
+                    )}
                   </>
                 )}
                 
@@ -242,6 +249,10 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
                     <div className="text-left">
                       <p className="text-sm font-medium">Dr. Juan Dela Cruz</p>
                       <p className="text-xs text-gray-600">Internal Medicine</p>
+                      <div className="flex items-center mt-1">
+                        <div className={`w-2 h-2 rounded-full mr-1 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                        <span className="text-xs text-gray-500">{isOnline ? 'Online' : 'Offline'}</span>
+                      </div>
                     </div>
                     <ChevronDown className="w-4 h-4 text-gray-400 ml-auto" />
                   </div>

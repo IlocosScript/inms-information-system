@@ -24,6 +24,8 @@ import {
   LogOut,
   ChevronDown
 } from 'lucide-react';
+import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useSecurityContext } from '@/components/SecurityProvider';
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -36,6 +38,8 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationCount] = useState(3);
   const [refreshing, setRefreshing] = useState(false);
+  const isOnline = useOnlineStatus();
+  const { lastActivity } = useSecurityContext();
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -98,6 +102,12 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
             </Button>
           )}
           
+          {/* Online Status Indicator */}
+          <div className="hidden sm:flex items-center">
+            <div className={`w-2 h-2 rounded-full mr-2 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
+            <span className="text-xs text-gray-600">{isOnline ? 'Online' : 'Offline'}</span>
+          </div>
+          
           <Button 
             variant="ghost" 
             size="sm"
@@ -139,6 +149,9 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
                     <p className="text-sm font-medium">Points Updated</p>
                     <p className="text-xs text-gray-600">You earned 5 points from last event</p>
                   </div>
+                </div>
+                <div className="text-xs text-gray-500 mt-2">
+                  Last activity: {lastActivity.toLocaleTimeString()}
                 </div>
               </div>
             </DropdownMenuContent>

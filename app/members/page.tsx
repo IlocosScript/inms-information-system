@@ -49,6 +49,9 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { LoadingSpinner } from '@/components/ui/loading-spinner';
+import { EmptyState } from '@/components/ui/empty-state';
+import { MobileDrawer } from '@/components/ui/mobile-drawer';
 
 interface Member {
   id: number;
@@ -80,6 +83,8 @@ export default function MembersPage() {
   const [patientDetails, setPatientDetails] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [showMobileFilters, setShowMobileFilters] = useState(false);
+  const [showMobileProfile, setShowMobileProfile] = useState<Member | null>(null);
 
   const members: Member[] = [
     {
@@ -238,6 +243,14 @@ export default function MembersPage() {
               <Badge variant="outline" className="text-sm">
                 {filteredMembers.length} members found
               </Badge>
+              <Button 
+                variant="outline" 
+                className="md:hidden"
+                onClick={() => setShowMobileFilters(true)}
+              >
+                <Filter className="w-4 h-4 mr-2" />
+                Filters
+              </Button>
             </div>
           </div>
 
@@ -371,7 +384,13 @@ export default function MembersPage() {
                           <Button size="sm" variant="outline">
                             <Dialog>
                               <DialogTrigger asChild>
-                                <span onClick={() => handleViewMember(member)} className="flex items-center cursor-pointer">
+                                <span 
+                                  onClick={() => {
+                                    handleViewMember(member);
+                                    setShowMobileProfile(member);
+                                  }} 
+                                  className="flex items-center cursor-pointer"
+                                >
                                   <Eye className="w-4 h-4 mr-1" />
                                   View
                                 </span>
@@ -662,8 +681,110 @@ export default function MembersPage() {
                     </div>
                   </CardContent>
                 </Card>
+
+            {/* Mobile Filters Drawer */}
+            <MobileDrawer
+              isOpen={showMobileFilters}
+              onClose={() => setShowMobileFilters(false)}
+              title="Filter Members"
+            >
+              <div className="space-y-4">
+                <div>
+                  <Label htmlFor="mobileSearch">Search Members</Label>
+                  <Input
+                    id="mobileSearch"
+                    placeholder="Name, specialty, hospital..."
+                    value={searchQuery}
+                    onChange={(e) => setSearchQuery(e.target.value)}
+                  />
+                </div>
+                
+                <div>
+                  <Label htmlFor="mobileSpecialty">Specialty</Label>
+                  <Select value={specialtyFilter} onValueChange={setSpecialtyFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All specialties" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Specialties</SelectItem>
+                      {specialties.map(specialty => (
+                        <SelectItem key={specialty} value={specialty}>
+                          {specialty}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                
+                <div>
+                  <Label htmlFor="mobileGender">Gender</Label>
+                  <Select value={genderFilter} onValueChange={setGenderFilter}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="All genders" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="all">All Genders</SelectItem>
+                      <SelectItem value="Male">Male</SelectItem>
+                      <SelectItem value="Female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
               ))}
+                <Button 
+                  className="w-full" 
+                  onClick={() => setShowMobileFilters(false)}
+                >
+                  Apply Filters
+                </Button>
+              </div>
+            </MobileDrawer>
             </div>
+            {/* Mobile Member Profile Drawer */}
+            <MobileDrawer
+              isOpen={showMobileProfile !== null}
+              onClose={() => setShowMobileProfile(null)}
+              title="Member Profile"
+            >
+              {showMobileProfile && (
+                <div className="space-y-4">
+                  <div className="text-center">
+                    <div className="w-20 h-20 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                      <span className="text-lg font-medium text-blue-600">
+                        {showMobileProfile.name.split(' ').map(n => n[0]).join('')}
+                      </span>
+                    </div>
+                    <h3 className="text-lg font-semibold">{showMobileProfile.name}</h3>
+                    <p className="text-gray-600">{showMobileProfile.specialty}</p>
+                  </div>
+                  
+                  <div className="space-y-3 text-sm">
+                    <div>
+                      <span className="font-medium">Hospital:</span>
+                      <p className="text-gray-600">{showMobileProfile.hospital}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium">Contact:</span>
+                      <p className="text-gray-600">{showMobileProfile.contact}</p>
+                    </div>
+                    <div>
+                      <span className="font-medium">Email:</span>
+                      <p className="text-gray-600">{showMobileProfile.email}</p>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Button className="w-full">
+                      <MessageSquare className="w-4 h-4 mr-2" />
+                      Send Message
+                    </Button>
+                    <Button variant="outline" className="w-full">
+                      <UserPlus className="w-4 h-4 mr-2" />
+                      Refer Patient
+                    </Button>
+                  </div>
+                </div>
+              )}
+            </MobileDrawer>
           </div>
         </div>
       </div>
