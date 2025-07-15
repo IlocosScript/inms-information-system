@@ -91,7 +91,7 @@ export default function Dashboard() {
       
       <div className="flex-1 lg:ml-64">
         <TopBar 
-          onMenuClick={() => setSidebarCollapsed(!sidebarCollapsed)}
+          onMenuClick={() => {}}
           title="Dashboard"
         />
         

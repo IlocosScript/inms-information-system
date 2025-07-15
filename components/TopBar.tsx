@@ -26,7 +26,7 @@ import {
 } from 'lucide-react';
 
 interface TopBarProps {
-  onMenuClick: () => void;
+  onMenuClick?: () => void;
   title?: string;
   showSearch?: boolean;
 }
@@ -41,11 +41,29 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
     setTimeout(() => setRefreshing(false), 1000);
   };
 
+  const handleMobileMenuClick = () => {
+    if (onMenuClick) {
+      onMenuClick();
+    } else {
+      // Fallback to global function
+      (window as any).toggleMobileSidebar?.();
+    }
+  };
+
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-3 lg:pl-6">
+    <div className="bg-white border-b border-gray-200 px-4 py-3 lg:pl-6 relative z-10">
       <div className="flex items-center justify-between">
         {/* Left Section */}
-        <div className="flex items-center space-x-4 pl-12 lg:pl-0">
+        <div className="flex items-center space-x-4 lg:pl-0">
+          {/* Mobile Menu Button */}
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={handleMobileMenuClick}
+            className="lg:hidden"
+          >
+            <Menu className="w-5 h-5" />
+          </Button>
           <h1 className="text-xl font-semibold text-gray-800">{title}</h1>
         </div>
 

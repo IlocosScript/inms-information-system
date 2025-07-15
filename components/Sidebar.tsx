@@ -37,12 +37,18 @@ import { cn } from '@/lib/utils';
 
 interface SidebarProps {
   className?: string;
+  onMobileToggle?: (isOpen: boolean) => void;
 }
 
-export default function Sidebar({ className }: SidebarProps) {
+export default function Sidebar({ className, onMobileToggle }: SidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [notificationCount] = useState(3);
+
+  // Notify parent component of mobile state changes
+  useEffect(() => {
+    onMobileToggle?.(isMobileOpen);
+  }, [isMobileOpen, onMobileToggle]);
 
   // Close mobile menu when clicking outside or on navigation
   useEffect(() => {
@@ -54,6 +60,11 @@ export default function Sidebar({ className }: SidebarProps) {
 
     window.addEventListener('resize', handleResize);
     return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  // Expose mobile toggle function
+  useEffect(() => {
+    (window as any).toggleMobileSidebar = () => setIsMobileOpen(prev => !prev);
   }, []);
 
   const navigationItems = [
@@ -83,19 +94,6 @@ export default function Sidebar({ className }: SidebarProps) {
 
   return (
     <>
-      {/* Mobile Menu Button - Fixed Position */}
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => setIsMobileOpen(true)}
-        className={cn(
-          "fixed top-4 left-4 z-50 lg:hidden bg-white shadow-md border",
-          isMobileOpen && "hidden"
-        )}
-      >
-        <Menu className="w-5 h-5" />
-      </Button>
-
       {/* Mobile Overlay */}
       {isMobileOpen && (
         <div 
@@ -106,7 +104,7 @@ export default function Sidebar({ className }: SidebarProps) {
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed left-0 top-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col",
+        "fixed left-0 top-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col shadow-lg lg:shadow-none",
         // Mobile styles
         "lg:translate-x-0",
         isMobileOpen ? "translate-x-0 w-80" : "-translate-x-full w-80",
@@ -123,6 +121,14 @@ export default function Sidebar({ className }: SidebarProps) {
                 <Users className="w-6 h-6" />
               </div>
               <span className="text-xl font-bold text-gray-800">INMS</span>
+            </Link>
+          )}
+          
+          {isDesktopCollapsed && !isMobileOpen && (
+            <Link href="/dashboard" className="flex items-center justify-center">
+              <div className="bg-blue-600 text-white p-2 rounded-lg">
+                <Users className="w-6 h-6" />
+              </div>
             </Link>
           )}
           
@@ -143,7 +149,7 @@ export default function Sidebar({ className }: SidebarProps) {
             onClick={() => setIsDesktopCollapsed(!isDesktopCollapsed)}
             className="hidden lg:block"
           >
-            {isDesktopCollapsed ? <ChevronRight className="w-4 h-4" /> : <X className="w-4 h-4" />}
+            {isDesktopCollapsed ? <ChevronRight className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </Button>
         </div>
 
