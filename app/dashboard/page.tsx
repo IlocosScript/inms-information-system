@@ -11,13 +11,16 @@ import {
   CheckCircle,
   TrendingUp,
   MessageSquare,
-  Bell
+  Bell,
+  AlertCircle,
+  Settings
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
 import { StatsCard } from '@/components/ui/stats-card';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
@@ -393,6 +396,7 @@ export default function Dashboard() {
                     <p className="text-sm opacity-90">Up to 30% off on diagnostic equipment</p>
                   </div>
                 </CardContent>
+              </Card>
               <div className="flex items-center space-x-2">
                 <p className="text-gray-600">Here's what's happening with your INMS account today.</p>
                 {!isOnline && (
@@ -402,14 +406,6 @@ export default function Dashboard() {
                 )}
               </div>
             </div>
-            <Button 
-              variant="outline" 
-              size="sm"
-              onClick={() => setDashboardPreferences(prev => ({ ...prev, showQuickStats: !prev.showQuickStats }))}
-            >
-              <Settings className="w-4 h-4 mr-2" />
-              Customize
-            </Button>
           </div>
         </div>
       </div>
