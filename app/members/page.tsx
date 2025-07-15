@@ -680,6 +680,7 @@ export default function MembersPage() {
                       </div>
                     </div>
                   </CardContent>
+                </Card>
               ))}
             </div>
           </div>
