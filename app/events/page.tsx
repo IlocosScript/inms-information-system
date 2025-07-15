@@ -57,6 +57,7 @@ export default function EventsPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const events: Event[] = [
     {
@@ -168,12 +169,13 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar onDesktopToggle={setSidebarCollapsed} />
       
-      <div className="lg:ml-64">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
           onMenuClick={() => {}}
           title="Events"
+          sidebarCollapsed={sidebarCollapsed}
         />
         
         <div className="p-6">

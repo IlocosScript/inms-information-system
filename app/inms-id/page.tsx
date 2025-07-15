@@ -36,6 +36,7 @@ interface Discount {
 
 export default function INMSIDPage() {
   const [isOffline, setIsOffline] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const memberData = {
     id: "INMS-2024-001234",
@@ -118,12 +119,13 @@ export default function INMSIDPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar onDesktopToggle={setSidebarCollapsed} />
       
-      <div className="lg:ml-64">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
           onMenuClick={() => {}}
           title="INMS Digital ID"
+          sidebarCollapsed={sidebarCollapsed}
         />
         
         <div className="p-6">

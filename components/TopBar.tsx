@@ -29,9 +29,10 @@ interface TopBarProps {
   onMenuClick?: () => void;
   title?: string;
   showSearch?: boolean;
+  sidebarCollapsed?: boolean;
 }
 
-export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = true }: TopBarProps) {
+export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = true, sidebarCollapsed = false }: TopBarProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [notificationCount] = useState(3);
   const [refreshing, setRefreshing] = useState(false);
@@ -51,7 +52,9 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-3 relative z-30 w-full">
+    <div className={`bg-white border-b border-gray-200 px-4 py-3 relative z-30 w-full transition-all duration-300 ${
+      sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'
+    }`}>
       <div className="flex items-center justify-between">
         {/* Left Section */}
         <div className="flex items-center space-x-4 lg:pl-0">

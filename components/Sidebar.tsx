@@ -38,9 +38,10 @@ import { cn } from '@/lib/utils';
 interface SidebarProps {
   className?: string;
   onMobileToggle?: (isOpen: boolean) => void;
+  onDesktopToggle?: (isCollapsed: boolean) => void;
 }
 
-export default function Sidebar({ className, onMobileToggle }: SidebarProps) {
+export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: SidebarProps) {
   const [isMobileOpen, setIsMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [notificationCount] = useState(3);
@@ -49,6 +50,11 @@ export default function Sidebar({ className, onMobileToggle }: SidebarProps) {
   useEffect(() => {
     onMobileToggle?.(isMobileOpen);
   }, [isMobileOpen, onMobileToggle]);
+
+  // Notify parent of desktop collapse state changes
+  useEffect(() => {
+    onDesktopToggle?.(isDesktopCollapsed);
+  }, [isDesktopCollapsed, onDesktopToggle]);
 
   // Close mobile menu when clicking outside or on navigation
   useEffect(() => {

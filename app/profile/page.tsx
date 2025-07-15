@@ -25,6 +25,8 @@ import TopBar from '@/components/TopBar';
 import Link from 'next/link';
 
 export default function ViewProfilePage() {
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+
   const memberData = {
     id: "INMS-2024-001234",
     name: "Dr. Juan Dela Cruz",
@@ -57,13 +59,14 @@ export default function ViewProfilePage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar onDesktopToggle={setSidebarCollapsed} />
       
-      <div className="lg:ml-64">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
           onMenuClick={() => {}}
           title="My Profile"
           showSearch={false}
+          sidebarCollapsed={sidebarCollapsed}
         />
         
         <div className="p-6">

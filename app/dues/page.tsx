@@ -60,6 +60,7 @@ interface PaymentMethod {
 export default function DuesPage() {
   const [selectedYear, setSelectedYear] = useState('2024');
   const [selectedPayment, setSelectedPayment] = useState<string>('');
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const duesRecords: DuesRecord[] = [
     {
@@ -199,12 +200,13 @@ export default function DuesPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar onDesktopToggle={setSidebarCollapsed} />
       
-      <div className="lg:ml-64">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
           onMenuClick={() => {}}
           title="Dues & Payments"
+          sidebarCollapsed={sidebarCollapsed}
         />
         
         <div className="p-6">

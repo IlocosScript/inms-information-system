@@ -51,6 +51,7 @@ interface PointsActivity {
 export default function PointsPage() {
   const [selectedYear, setSelectedYear] = useState('2024');
   const [cogsRequested, setCogsRequested] = useState(false);
+  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
   const pointsActivities: PointsActivity[] = [
     {
@@ -205,12 +206,13 @@ export default function PointsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Sidebar />
+      <Sidebar onDesktopToggle={setSidebarCollapsed} />
       
-      <div className="lg:ml-64">
+      <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
           onMenuClick={() => {}}
           title="Points & Certification"
+          sidebarCollapsed={sidebarCollapsed}
         />
         
         <div className="p-6">
