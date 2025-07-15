@@ -104,12 +104,12 @@ export default function Sidebar({ className, onMobileToggle }: SidebarProps) {
 
       {/* Sidebar */}
       <div className={cn(
-        "fixed left-0 top-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col shadow-lg lg:shadow-none",
+        "fixed left-0 top-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col shadow-lg lg:shadow-sm",
         // Mobile styles
         "lg:translate-x-0",
         isMobileOpen ? "translate-x-0 w-80" : "-translate-x-full w-80",
         // Desktop styles
-        "lg:relative lg:z-auto",
+        "lg:z-40",
         isDesktopCollapsed ? "lg:w-16" : "lg:w-64",
         className
       )}>

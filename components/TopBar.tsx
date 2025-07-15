@@ -51,7 +51,7 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   };
 
   return (
-    <div className="bg-white border-b border-gray-200 px-4 py-3 lg:pl-6 relative z-10">
+    <div className="bg-white border-b border-gray-200 px-4 py-3 relative z-30 w-full">
       <div className="flex items-center justify-between">
         {/* Left Section */}
         <div className="flex items-center space-x-4 lg:pl-0">

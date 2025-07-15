@@ -232,10 +232,10 @@ Amendment 2023-01 (Effective January 1, 2023):
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex">
+    <div className="min-h-screen bg-gray-50">
       <Sidebar />
       
-      <div className="flex-1 lg:ml-64">
+      <div className="lg:ml-64">
         <TopBar 
           onMenuClick={() => {}}
           title="Constitution & By-laws"
