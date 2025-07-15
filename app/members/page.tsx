@@ -680,9 +680,11 @@ export default function MembersPage() {
                       </div>
                     </div>
                   </CardContent>
-                </Card>
+              ))}
+            </div>
+          </div>
 
-            {/* Mobile Filters Drawer */}
+          {/* Mobile Filters Drawer */}
             <MobileDrawer
               isOpen={showMobileFilters}
               onClose={() => setShowMobileFilters(false)}
@@ -738,7 +740,7 @@ export default function MembersPage() {
                 </Button>
               </div>
             </MobileDrawer>
-            </div>
+
             {/* Mobile Member Profile Drawer */}
             <MobileDrawer
               isOpen={showMobileProfile !== null}
@@ -785,7 +787,6 @@ export default function MembersPage() {
                 </div>
               )}
             </MobileDrawer>
-          </div>
         </div>
       </div>
     </div>
