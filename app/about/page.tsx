@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { 
@@ -406,12 +407,12 @@ export default function AboutPage() {
                       <span className="font-medium">15</span>
                     </div>
                     <div className="flex justify-between items-center">
-            <div className="bg-inms-primary text-white p-4 rounded-full mr-4">
+                      <span className="text-sm text-gray-600">Annual CME Events</span>
                       <span className="font-medium">50+</span>
                     </div>
                   </div>
                 </CardContent>
-              <p className="text-xl text-inms-primary font-medium">Ilocos Norte Medical Society</p>
+              </Card>
             </div>
           </div>
         </div>
