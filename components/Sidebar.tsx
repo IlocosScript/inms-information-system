@@ -125,18 +125,22 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
         <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
           {(!isDesktopCollapsed || isMobileOpen) && (
             <Link href="/dashboard" className="flex items-center space-x-2" onClick={handleMobileNavClick}>
-              <div className="bg-inms-primary text-white p-2 rounded-lg flex-shrink-0">
-                <Users className="w-6 h-6" />
-              </div>
+              <img 
+                src="https://static.wixstatic.com/media/d26da8_84af75d85a764d6284abc56355731316~mv2.png/v1/fill/w_214,h_206,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/d26da8_84af75d85a764d6284abc56355731316~mv2.png"
+                alt="INMS Logo"
+                className="w-8 h-8 flex-shrink-0 object-contain"
+              />
               <span className="text-xl font-bold text-gray-800">INMS</span>
             </Link>
           )}
           
           {isDesktopCollapsed && !isMobileOpen && (
             <Link href="/dashboard" className="flex items-center justify-center">
-              <div className="bg-inms-primary text-white p-2 rounded-lg">
-                <Users className="w-6 h-6" />
-              </div>
+              <img 
+                src="https://static.wixstatic.com/media/d26da8_84af75d85a764d6284abc56355731316~mv2.png/v1/fill/w_214,h_206,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/d26da8_84af75d85a764d6284abc56355731316~mv2.png"
+                alt="INMS Logo"
+                className="w-8 h-8 object-contain"
+              />
             </Link>
           )}
           

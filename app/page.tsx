@@ -110,9 +110,11 @@ export default function Home() {
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
-            <div className="bg-inms-primary text-white p-4 rounded-full mr-4 shadow-lg">
-              <Users className="w-10 h-10" />
-            </div>
+            <img 
+              src="https://static.wixstatic.com/media/d26da8_84af75d85a764d6284abc56355731316~mv2.png/v1/fill/w_214,h_206,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/d26da8_84af75d85a764d6284abc56355731316~mv2.png"
+              alt="INMS Logo"
+              className="w-16 h-16 mr-4 object-contain"
+            />
             <div>
               <h1 className="text-5xl font-bold text-gray-800 mb-2">INMS</h1>
               <p className="text-xl text-inms-primary font-medium">Ilocos Norte Medical Society</p>
