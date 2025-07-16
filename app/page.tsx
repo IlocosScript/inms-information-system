@@ -121,20 +121,17 @@ export default function Home() {
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
-          <div className="flex items-center justify-center mb-6">
+          <div className="flex items-start justify-center mb-6">
             <img 
               src="https://static.wixstatic.com/media/d26da8_84af75d85a764d6284abc56355731316~mv2.png/v1/fill/w_214,h_206,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/d26da8_84af75d85a764d6284abc56355731316~mv2.png"
               alt="INMS Logo"
-              className="w-16 h-16 mr-4 object-contain"
+              className="w-16 h-16 mr-4 object-contain flex-shrink-0"
             />
-            <div>
-              <h1 className="text-5xl font-bold text-gray-800 mb-2">INMS</h1>
-              <p className="text-xl text-inms-primary font-medium">Ilocos Norte Medical Society</p>
+            <div className="text-left">
+              <h1 className="text-3xl font-bold text-gray-800 mb-2">Ilocos Norte Medical Society</h1>
+              <p className="text-lg text-gray-600">Connect, collaborate, and advance healthcare together in the digital age</p>
             </div>
           </div>
-          <p className="text-gray-600 text-lg max-w-2xl mx-auto">
-            Connect, collaborate, and advance healthcare together in the digital age
-          </p>
         </div>
 
         <div className="grid lg:grid-cols-3 gap-12 max-w-7xl mx-auto">
