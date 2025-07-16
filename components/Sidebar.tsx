@@ -125,7 +125,7 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
         <div className="flex items-center justify-between p-4 border-b border-gray-200 flex-shrink-0">
           {(!isDesktopCollapsed || isMobileOpen) && (
             <Link href="/dashboard" className="flex items-center space-x-2" onClick={handleMobileNavClick}>
-              <div className="bg-blue-600 text-white p-2 rounded-lg flex-shrink-0">
+              <div className="bg-inms-primary text-white p-2 rounded-lg flex-shrink-0">
                 <Users className="w-6 h-6" />
               </div>
               <span className="text-xl font-bold text-gray-800">INMS</span>
@@ -134,7 +134,7 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
           
           {isDesktopCollapsed && !isMobileOpen && (
             <Link href="/dashboard" className="flex items-center justify-center">
-              <div className="bg-blue-600 text-white p-2 rounded-lg">
+              <div className="bg-inms-primary text-white p-2 rounded-lg">
                 <Users className="w-6 h-6" />
               </div>
             </Link>
@@ -170,7 +170,7 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
                 href={item.href}
                 onClick={handleMobileNavClick}
                 className={cn(
-                  "flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-blue-50 hover:text-blue-600 transition-colors group",
+                 "flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-inms-light hover:text-inms-primary transition-colors group",
                   isDesktopCollapsed && "lg:justify-center lg:px-2"
                 )}
               >
@@ -215,7 +215,7 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
                   href={item.href}
                   onClick={handleMobileNavClick}
                   className={cn(
-                    "flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-red-600 transition-colors group",
+                   "flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-inms-secondary transition-colors group",
                     isDesktopCollapsed && "lg:justify-center lg:px-2"
                   )}
                 >
@@ -243,7 +243,7 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="w-full justify-start p-2">
                   <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-blue-600 text-white rounded-full flex items-center justify-center text-sm font-medium">
+                    <div className="w-8 h-8 bg-inms-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
                       JD
                     </div>
                     <div className="text-left">

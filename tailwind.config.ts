@@ -9,6 +9,59 @@ const config: Config = {
   ],
   theme: {
     extend: {
+      colors: {
+        // INMS Brand Colors based on logo
+        'inms': {
+          'primary': '#1e40af', // Deep blue from logo
+          'secondary': '#dc2626', // Medical red from logo
+          'accent': '#0ea5e9', // Lighter blue accent
+          'dark': '#1e3a8a', // Darker blue
+          'light': '#dbeafe', // Very light blue
+          'red-light': '#fecaca', // Light red
+          'gray': {
+            '50': '#f8fafc',
+            '100': '#f1f5f9',
+            '200': '#e2e8f0',
+            '300': '#cbd5e1',
+            '400': '#94a3b8',
+            '500': '#64748b',
+            '600': '#475569',
+            '700': '#334155',
+            '800': '#1e293b',
+            '900': '#0f172a',
+          }
+        },
+        // Override default colors to use INMS branding
+        primary: {
+          DEFAULT: '#1e40af',
+          50: '#eff6ff',
+          100: '#dbeafe',
+          200: '#bfdbfe',
+          300: '#93c5fd',
+          400: '#60a5fa',
+          500: '#3b82f6',
+          600: '#1e40af',
+          700: '#1d4ed8',
+          800: '#1e3a8a',
+          900: '#1e3a8a',
+          950: '#172554',
+          foreground: 'hsl(var(--primary-foreground))',
+        },
+        secondary: {
+          DEFAULT: '#dc2626',
+          50: '#fef2f2',
+          100: '#fee2e2',
+          200: '#fecaca',
+          300: '#fca5a5',
+          400: '#f87171',
+          500: '#ef4444',
+          600: '#dc2626',
+          700: '#b91c1c',
+          800: '#991b1b',
+          900: '#7f1d1d',
+          950: '#450a0a',
+        },
+      },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',
         'gradient-conic':
@@ -19,7 +72,7 @@ const config: Config = {
         md: 'calc(var(--radius) - 2px)',
         sm: 'calc(var(--radius) - 4px)',
       },
-      colors: {
+      extend: {
         background: 'hsl(var(--background))',
         foreground: 'hsl(var(--foreground))',
         card: {
@@ -29,14 +82,6 @@ const config: Config = {
         popover: {
           DEFAULT: 'hsl(var(--popover))',
           foreground: 'hsl(var(--popover-foreground))',
-        },
-        primary: {
-          DEFAULT: 'hsl(var(--primary))',
-          foreground: 'hsl(var(--primary-foreground))',
-        },
-        secondary: {
-          DEFAULT: 'hsl(var(--secondary))',
-          foreground: 'hsl(var(--secondary-foreground))',
         },
         muted: {
           DEFAULT: 'hsl(var(--muted))',

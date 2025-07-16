@@ -105,17 +105,17 @@ export default function Home() {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-indigo-50">
+    <div className="min-h-screen bg-gradient-to-br from-inms-light via-white to-blue-50">
       <div className="container mx-auto px-4 py-8">
         {/* Header */}
         <div className="text-center mb-12">
           <div className="flex items-center justify-center mb-6">
-            <div className="bg-blue-600 text-white p-4 rounded-full mr-4 shadow-lg">
+            <div className="bg-inms-primary text-white p-4 rounded-full mr-4 shadow-lg">
               <Users className="w-10 h-10" />
             </div>
             <div>
               <h1 className="text-5xl font-bold text-gray-800 mb-2">INMS</h1>
-              <p className="text-xl text-blue-600 font-medium">Ilocos Norte Medical Society</p>
+              <p className="text-xl text-inms-primary font-medium">Ilocos Norte Medical Society</p>
             </div>
           </div>
           <p className="text-gray-600 text-lg max-w-2xl mx-auto">
@@ -143,8 +143,8 @@ export default function Home() {
                 <Card key={index} className="hover:shadow-lg transition-all duration-300 border-0 shadow-md">
                   <CardHeader className="pb-3">
                     <div className="flex items-center space-x-3">
-                      <div className={`${feature.bgColor} p-3 rounded-lg`}>
-                        <feature.icon className={`w-6 h-6 ${feature.color}`} />
+                      <div className="bg-inms-light p-3 rounded-lg">
+                        <feature.icon className="w-6 h-6 text-inms-primary" />
                       </div>
                       <CardTitle className="text-lg">{feature.title}</CardTitle>
                     </div>
@@ -159,9 +159,9 @@ export default function Home() {
             </div>
 
             {/* Additional Info */}
-            <div className="mt-8 p-6 bg-blue-50 rounded-xl border border-blue-100">
+            <div className="mt-8 p-6 bg-inms-light rounded-xl border border-inms-primary/20">
               <div className="flex items-start space-x-4">
-                <div className="bg-blue-600 p-2 rounded-lg">
+                <div className="bg-inms-primary p-2 rounded-lg">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -178,7 +178,7 @@ export default function Home() {
 
           {/* Right Side - Login Form */}
           <div className="lg:col-span-1">
-            <Card className="shadow-xl border-0 bg-white/80 backdrop-blur-sm">
+            <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm border border-inms-primary/10">
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-2xl font-bold text-gray-800">
                   Welcome Back
@@ -246,7 +246,7 @@ export default function Home() {
                 </Button>
 
                 <div className="text-center space-y-3">
-                  <button className="text-blue-600 hover:underline text-sm font-medium">
+                  <button className="text-inms-primary hover:underline text-sm font-medium">
                     Forgot your password?
                   </button>
                   
@@ -273,14 +273,14 @@ export default function Home() {
             </Card>
 
             {/* Registration Notice */}
-            <div className="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
               <div className="flex items-start space-x-3">
-                <Bell className="w-5 h-5 text-yellow-600 mt-0.5" />
+                <Bell className="w-5 h-5 text-amber-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-yellow-800">
+                  <p className="text-sm font-medium text-amber-800">
                     New Member Registration
                   </p>
-                  <p className="text-xs text-yellow-700 mt-1">
+                  <p className="text-xs text-amber-700 mt-1">
                     Registration requires admin approval. You'll receive an email once your 
                     account is activated by the INMS administration.
                   </p>
@@ -295,11 +295,11 @@ export default function Home() {
           <div className="flex items-center justify-center space-x-8 text-sm text-gray-500">
             <span>© 2024 Ilocos Norte Medical Society</span>
             <span>•</span>
-            <button className="hover:text-blue-600">Privacy Policy</button>
+            <button className="hover:text-inms-primary">Privacy Policy</button>
             <span>•</span>
-            <button className="hover:text-blue-600">Terms of Service</button>
+            <button className="hover:text-inms-primary">Terms of Service</button>
             <span>•</span>
-            <button className="hover:text-blue-600">Contact Support</button>
+            <button className="hover:text-inms-primary">Contact Support</button>
           </div>
         </div>
       </div>
