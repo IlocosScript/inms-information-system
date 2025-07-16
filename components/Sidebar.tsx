@@ -215,7 +215,7 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
                   href={item.href}
                   onClick={handleMobileNavClick}
                   className={cn(
-                   "flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-red-50 hover:text-inms-secondary transition-colors group",
+                   "flex items-center space-x-3 px-3 py-3 rounded-lg text-gray-700 hover:bg-inms-yellow-light hover:text-inms-secondary transition-colors group",
                     isDesktopCollapsed && "lg:justify-center lg:px-2"
                   )}
                 >

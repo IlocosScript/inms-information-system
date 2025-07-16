@@ -281,11 +281,11 @@ export default function Home() {
                     New Member Registration
                   </p>
                   <p className="text-xs text-amber-700 mt-1">
-                    Registration requires admin approval. You'll receive an email once your 
+              <button className="hover:text-inms-primary">Privacy Policy</button>
                     account is activated by the INMS administration.
-                  </p>
+              <button className="hover:text-inms-primary">Terms of Service</button>
                 </div>
-              </div>
+              <button className="hover:text-inms-primary">Contact Support</button>
             </div>
           </div>
         </div>

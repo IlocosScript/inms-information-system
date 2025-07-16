@@ -12,12 +12,13 @@ const config: Config = {
       colors: {
         // INMS Brand Colors based on logo
         'inms': {
-          'primary': '#1e40af', // Deep blue from logo
-          'secondary': '#dc2626', // Medical red from logo
-          'accent': '#0ea5e9', // Lighter blue accent
-          'dark': '#1e3a8a', // Darker blue
-          'light': '#dbeafe', // Very light blue
-          'red-light': '#fecaca', // Light red
+          'primary': '#16a34a', // Medical green from logo
+          'secondary': '#eab308', // Medical yellow from logo
+          'accent': '#22c55e', // Lighter green accent
+          'dark': '#15803d', // Darker green
+          'light': '#dcfce7', // Very light green
+          'yellow-light': '#fef3c7', // Light yellow
+          'black': '#1f2937', // Professional black
           'gray': {
             '50': '#f8fafc',
             '100': '#f1f5f9',
@@ -33,33 +34,33 @@ const config: Config = {
         },
         // Override default colors to use INMS branding
         primary: {
-          DEFAULT: '#1e40af',
-          50: '#eff6ff',
-          100: '#dbeafe',
-          200: '#bfdbfe',
-          300: '#93c5fd',
-          400: '#60a5fa',
-          500: '#3b82f6',
-          600: '#1e40af',
-          700: '#1d4ed8',
-          800: '#1e3a8a',
-          900: '#1e3a8a',
-          950: '#172554',
+          DEFAULT: '#16a34a',
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+          950: '#052e16',
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: '#dc2626',
-          50: '#fef2f2',
-          100: '#fee2e2',
-          200: '#fecaca',
-          300: '#fca5a5',
-          400: '#f87171',
-          500: '#ef4444',
-          600: '#dc2626',
-          700: '#b91c1c',
-          800: '#991b1b',
-          900: '#7f1d1d',
-          950: '#450a0a',
+          DEFAULT: '#eab308',
+          50: '#fefce8',
+          100: '#fef3c7',
+          200: '#fde68a',
+          300: '#fcd34d',
+          400: '#fbbf24',
+          500: '#f59e0b',
+          600: '#eab308',
+          700: '#ca8a04',
+          800: '#a16207',
+          900: '#854d0e',
+          950: '#713f12',
         },
       },
       backgroundImage: {
