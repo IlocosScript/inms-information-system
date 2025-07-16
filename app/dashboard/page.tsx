@@ -131,7 +131,14 @@ export default function Dashboard() {
           {/* Welcome Message */}
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Welcome back, Dr. Juan Dela Cruz</h2>
-            <p className="text-gray-600">Here's what's happening with your INMS account today.</p>
+            <div className="flex items-center space-x-2">
+              <p className="text-gray-600">Here's what's happening with your INMS account today.</p>
+              {!isOnline && (
+                <Badge className="bg-inms-secondary text-inms-black text-xs">
+                  Offline Mode
+                </Badge>
+              )}
+            </div>
           </div>
 
           {/* Quick Stats */}
@@ -142,27 +149,27 @@ export default function Dashboard() {
                 value={analyticsData.totalPoints.value}
                 icon={Award}
                 trend={analyticsData.totalPoints.trend}
-                color="inms-primary"
+                color="green"
               />
               <StatsCard
                 title="Dues Status"
                 value={analyticsData.duesStatus.value}
                 icon={CreditCard}
-                color="green"
+                color="yellow"
               />
               <StatsCard
                 title="Events Attended"
                 value={analyticsData.eventsAttended.value}
                 icon={Calendar}
                 trend={analyticsData.eventsAttended.trend}
-                color="inms-accent"
+                color="green"
               />
               <StatsCard
                 title="Messages"
                 value={analyticsData.messages.value}
                 icon={MessageSquare}
                 trend={analyticsData.messages.trend}
-                color="orange"
+                color="yellow"
               />
             </div>
           )}
@@ -182,16 +189,16 @@ export default function Dashboard() {
                     <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.eventsAttended}</p>
                     <p className="text-sm text-gray-600">Events Attended</p>
                   </div>
-                  <div className="text-center p-4 bg-green-50 rounded-lg">
-                    <p className="text-2xl font-bold text-green-600">{analyticsData.monthlyActivity.pointsEarned}</p>
+                  <div className="text-center p-4 bg-inms-yellow-light rounded-lg">
+                    <p className="text-2xl font-bold text-inms-secondary">{analyticsData.monthlyActivity.pointsEarned}</p>
                     <p className="text-sm text-gray-600">Points Earned</p>
                   </div>
-                  <div className="text-center p-4 bg-inms-accent/10 rounded-lg">
-                    <p className="text-2xl font-bold text-inms-accent">{analyticsData.monthlyActivity.hoursOfCME}</p>
+                  <div className="text-center p-4 bg-inms-light rounded-lg">
+                    <p className="text-2xl font-bold text-inms-dark">{analyticsData.monthlyActivity.hoursOfCME}</p>
                     <p className="text-sm text-gray-600">CME Hours</p>
                   </div>
-                  <div className="text-center p-4 bg-orange-50 rounded-lg">
-                    <p className="text-2xl font-bold text-orange-600">{analyticsData.monthlyActivity.networkConnections}</p>
+                  <div className="text-center p-4 bg-inms-yellow-light rounded-lg">
+                    <p className="text-2xl font-bold text-inms-black">{analyticsData.monthlyActivity.networkConnections}</p>
                     <p className="text-sm text-gray-600">New Connections</p>
                   </div>
                 </div>
@@ -321,7 +328,7 @@ export default function Dashboard() {
                         <div className="flex items-start justify-between">
                           <h4 className="font-medium text-sm">{announcement.title}</h4>
                           <Badge 
-                            className={announcement.priority === 'high' ? 'bg-inms-secondary text-white text-xs' : 'bg-gray-100 text-gray-700 text-xs'}
+                            className={announcement.priority === 'high' ? 'bg-inms-secondary text-inms-black text-xs' : 'bg-gray-100 text-gray-700 text-xs'}
                           >
                             {announcement.priority}
                           </Badge>
@@ -346,14 +353,14 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Annual Dues (2024)</span>
-                      <Badge variant="secondary" className="bg-green-100 text-green-700">
+                      <Badge variant="secondary" className="bg-inms-light text-inms-primary">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         PAID
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">PMA Dues</span>
-                      <Badge variant="secondary" className="bg-green-100 text-green-700">
+                      <Badge variant="secondary" className="bg-inms-light text-inms-primary">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         PAID
                       </Badge>
@@ -398,14 +405,6 @@ export default function Dashboard() {
                   </div>
                 </CardContent>
               </Card>
-              <div className="flex items-center space-x-2">
-                <p className="text-gray-600">Here's what's happening with your INMS account today.</p>
-                {!isOnline && (
-                  <Badge className="bg-inms-secondary text-white text-xs">
-                    Offline Mode
-                  </Badge>
-                )}
-              </div>
             </div>
           </div>
         </div>

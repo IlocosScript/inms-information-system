@@ -1,6 +1,7 @@
-import { DivideIcon as LucideIcon } from 'lucide-react';
-import { Card, CardContent } from './card';
-import { cn } from '@/lib/utils';
+import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { TrendingUp, TrendingDown } from 'lucide-react';
+import { LucideIcon } from 'lucide-react';
 
 interface StatsCardProps {
   title: string;
@@ -10,45 +11,83 @@ interface StatsCardProps {
     value: number;
     isPositive: boolean;
   };
-  color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'inms-primary' | 'inms-accent';
-  className?: string;
+  color?: 'green' | 'yellow' | 'blue' | 'red' | 'purple' | 'orange' | 'gray';
 }
 
-export function StatsCard({ title, value, icon: Icon, trend, color = 'blue', className }: StatsCardProps) {
+export function StatsCard({ title, value, icon: Icon, trend, color = 'green' }: StatsCardProps) {
   const colorClasses = {
-    blue: 'text-blue-600',
-    green: 'text-green-600',
-    purple: 'text-purple-600',
-    orange: 'text-orange-600',
-    red: 'text-red-600'
+    green: {
+      icon: 'text-inms-primary',
+      iconBg: 'bg-inms-light',
+      value: 'text-inms-primary',
+      trend: 'text-inms-primary'
+    },
+    yellow: {
+      icon: 'text-inms-secondary',
+      iconBg: 'bg-inms-yellow-light',
+      value: 'text-inms-secondary',
+      trend: 'text-inms-secondary'
+    },
+    blue: {
+      icon: 'text-blue-600',
+      iconBg: 'bg-blue-100',
+      value: 'text-blue-600',
+      trend: 'text-blue-600'
+    },
+    red: {
+      icon: 'text-red-600',
+      iconBg: 'bg-red-100',
+      value: 'text-red-600',
+      trend: 'text-red-600'
+    },
+    purple: {
+      icon: 'text-purple-600',
+      iconBg: 'bg-purple-100',
+      value: 'text-purple-600',
+      trend: 'text-purple-600'
+    },
+    orange: {
+      icon: 'text-orange-600',
+      iconBg: 'bg-orange-100',
+      value: 'text-orange-600',
+      trend: 'text-orange-600'
+    },
+    gray: {
+      icon: 'text-gray-600',
+      iconBg: 'bg-gray-100',
+      value: 'text-gray-600',
+      trend: 'text-gray-600'
+    }
   };
 
-      case 'inms-primary':
-        return {
-          icon: 'text-inms-primary',
-          bg: 'bg-inms-light',
-          value: 'text-inms-primary'
-        };
-      case 'inms-accent':
-        return {
-          icon: 'text-inms-accent',
-          bg: 'bg-inms-accent/10',
-          value: 'text-inms-accent'
-        };
+  const colors = colorClasses[color];
+
   return (
-    <Card className={cn('hover:shadow-lg transition-shadow', className)}>
+    <Card className="hover:shadow-lg transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
-          <div>
-            <p className="text-sm text-gray-600">{title}</p>
-            <p className={cn('text-2xl font-bold', colorClasses[color])}>{value}</p>
+          <div className="flex-1">
+            <p className="text-sm text-gray-600 mb-1">{title}</p>
+            <p className={`text-2xl font-bold ${colors.value}`}>{value}</p>
             {trend && (
-              <p className={cn('text-xs mt-1', trend.isPositive ? 'text-green-600' : 'text-red-600')}>
-                {trend.isPositive ? '↗' : '↘'} {Math.abs(trend.value)}% from last month
-              </p>
+              <div className="flex items-center mt-2">
+                {trend.isPositive ? (
+                  <TrendingUp className={`w-4 h-4 mr-1 ${colors.trend}`} />
+                ) : (
+                  <TrendingDown className="w-4 h-4 mr-1 text-red-500" />
+                )}
+                <Badge 
+                  variant="outline" 
+                  className={`text-xs ${trend.isPositive ? colors.trend : 'text-red-500'}`}
+                >
+                  {trend.isPositive ? '+' : ''}{trend.value}%
+                </Badge>
+              </div>
             )}
           </div>
-          <Icon className={cn('w-8 h-8', colorClasses[color])} />
+          <div className={`p-3 rounded-lg ${colors.iconBg}`}>
+            <Icon className={`w-8 h-8 ${colors.icon}`} />
+          </div>
         </div>
       </CardContent>
     </Card>

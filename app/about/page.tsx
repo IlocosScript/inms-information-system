@@ -167,12 +167,12 @@ export default function AboutPage() {
           {/* Header */}
           <div className="text-center mb-12">
             <div className="flex items-center justify-center mb-6">
-              <div className="bg-blue-600 text-white p-4 rounded-full mr-4">
+              <div className="bg-inms-primary text-white p-4 rounded-full mr-4">
                 <Users className="w-10 h-10" />
               </div>
               <div>
                 <h1 className="text-4xl font-bold text-gray-800 mb-2">INMS</h1>
-                <p className="text-xl text-blue-600 font-medium">Ilocos Norte Medical Society</p>
+                <p className="text-xl text-inms-primary font-medium">Ilocos Norte Medical Society</p>
               </div>
             </div>
             <p className="text-gray-600 text-lg max-w-3xl mx-auto">
@@ -266,8 +266,8 @@ export default function AboutPage() {
                     {currentOfficers.map((officer) => (
                       <div key={officer.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
                         <div className="flex items-start space-x-4">
-                          <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
-                            <span className="text-lg font-medium text-blue-600">
+                          <div className="w-16 h-16 bg-inms-light rounded-full flex items-center justify-center">
+                            <span className="text-lg font-medium text-inms-primary">
                               {officer.name.split(' ').map(n => n[0]).join('').slice(0, 2)}
                             </span>
                           </div>
@@ -279,7 +279,7 @@ export default function AboutPage() {
                             <div className="space-y-1 text-sm text-gray-600">
                               <p>{officer.specialty}</p>
                               <p>{officer.hospital}</p>
-                              <p className="text-blue-600">Term: {officer.term}</p>
+                              <p className="text-inms-primary">Term: {officer.term}</p>
                             </div>
                           </div>
                         </div>
@@ -304,7 +304,7 @@ export default function AboutPage() {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <h3 className="font-semibold text-lg">{president.name}</h3>
-                            <p className="text-gray-600">{president.specialty}</p>
+                            <p className="text-sm text-inms-primary font-medium">{director.region}</p>
                           </div>
                           <Badge variant="outline">{president.term}</Badge>
                         </div>
