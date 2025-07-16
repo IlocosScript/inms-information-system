@@ -142,13 +142,13 @@ export default function Home() {
             {/* Features Grid */}
             <div className="grid md:grid-cols-2 gap-6">
               {features.map((feature, index) => (
-                <Card key={index} className="hover:shadow-lg transition-all duration-300 border-0 shadow-md">
+                <Card key={index} className="hover:shadow-lg transition-all duration-300 border border-gray-100 shadow-sm bg-white">
                   <CardHeader className="pb-3">
                     <div className="flex items-center space-x-3">
-                      <div className="bg-inms-light p-3 rounded-lg">
+                      <div className="bg-green-100 p-3 rounded-lg">
                         <feature.icon className="w-6 h-6 text-inms-primary" />
                       </div>
-                      <CardTitle className="text-lg">{feature.title}</CardTitle>
+                      <CardTitle className="text-lg text-gray-800">{feature.title}</CardTitle>
                     </div>
                   </CardHeader>
                   <CardContent>
@@ -161,9 +161,9 @@ export default function Home() {
             </div>
 
             {/* Additional Info */}
-            <div className="mt-8 p-6 bg-inms-light rounded-xl border border-inms-primary/20">
+            <div className="mt-8 p-6 bg-green-50 rounded-xl border border-green-200">
               <div className="flex items-start space-x-4">
-                <div className="bg-inms-primary p-2 rounded-lg">
+                <div className="bg-green-600 p-2 rounded-lg">
                   <Shield className="w-6 h-6 text-white" />
                 </div>
                 <div>
@@ -180,7 +180,7 @@ export default function Home() {
 
           {/* Right Side - Login Form */}
           <div className="lg:col-span-1">
-            <Card className="shadow-xl border-0 bg-white/90 backdrop-blur-sm border border-inms-primary/10">
+            <Card className="shadow-xl border border-green-100 bg-white">
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-2xl font-bold text-gray-800">
                   Welcome Back
@@ -248,7 +248,7 @@ export default function Home() {
                 </Button>
 
                 <div className="text-center space-y-3">
-                  <button className="text-inms-primary hover:underline text-sm font-medium">
+                  <button className="text-green-600 hover:underline text-sm font-medium">
                     Forgot your password?
                   </button>
                   
@@ -275,18 +275,18 @@ export default function Home() {
             </Card>
 
             {/* Registration Notice */}
-            <div className="mt-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+            <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-lg">
               <div className="flex items-start space-x-3">
-                <Bell className="w-5 h-5 text-amber-600 mt-0.5" />
+                <Bell className="w-5 h-5 text-green-600 mt-0.5" />
                 <div>
-                  <p className="text-sm font-medium text-amber-800">
+                  <p className="text-sm font-medium text-green-800">
                     New Member Registration
                   </p>
-                  <p className="text-xs text-amber-700 mt-1">
+              <button className="hover:text-green-600">Privacy Policy</button>
                     Registration requests are reviewed and your account is activated by the INMS administration.
-                  </p>
+              <button className="hover:text-green-600">Terms of Service</button>
                 </div>
-              </div>
+              <button className="hover:text-green-600">Contact Support</button>
             </div>
           </div>
         </div>
