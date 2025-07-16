@@ -142,7 +142,7 @@ export default function Dashboard() {
                 value={analyticsData.totalPoints.value}
                 icon={Award}
                 trend={analyticsData.totalPoints.trend}
-                color="blue"
+                color="inms-primary"
               />
               <StatsCard
                 title="Dues Status"
@@ -155,7 +155,7 @@ export default function Dashboard() {
                 value={analyticsData.eventsAttended.value}
                 icon={Calendar}
                 trend={analyticsData.eventsAttended.trend}
-                color="purple"
+                color="inms-accent"
               />
               <StatsCard
                 title="Messages"
@@ -178,16 +178,16 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-blue-50 rounded-lg">
-                    <p className="text-2xl font-bold text-blue-600">{analyticsData.monthlyActivity.eventsAttended}</p>
+                  <div className="text-center p-4 bg-inms-light rounded-lg">
+                    <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.eventsAttended}</p>
                     <p className="text-sm text-gray-600">Events Attended</p>
                   </div>
                   <div className="text-center p-4 bg-green-50 rounded-lg">
                     <p className="text-2xl font-bold text-green-600">{analyticsData.monthlyActivity.pointsEarned}</p>
                     <p className="text-sm text-gray-600">Points Earned</p>
                   </div>
-                  <div className="text-center p-4 bg-purple-50 rounded-lg">
-                    <p className="text-2xl font-bold text-purple-600">{analyticsData.monthlyActivity.hoursOfCME}</p>
+                  <div className="text-center p-4 bg-inms-accent/10 rounded-lg">
+                    <p className="text-2xl font-bold text-inms-accent">{analyticsData.monthlyActivity.hoursOfCME}</p>
                     <p className="text-sm text-gray-600">CME Hours</p>
                   </div>
                   <div className="text-center p-4 bg-orange-50 rounded-lg">
@@ -241,10 +241,10 @@ export default function Dashboard() {
                     {recentActivities.map((activity) => (
                       <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center">
-                          <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center mr-3">
-                            {activity.type === 'event' && <Calendar className="w-5 h-5 text-blue-600" />}
-                            {activity.type === 'training' && <Award className="w-5 h-5 text-blue-600" />}
-                            {activity.type === 'payment' && <CreditCard className="w-5 h-5 text-blue-600" />}
+                          <div className="w-10 h-10 bg-inms-light rounded-full flex items-center justify-center mr-3">
+                            {activity.type === 'event' && <Calendar className="w-5 h-5 text-inms-primary" />}
+                            {activity.type === 'training' && <Award className="w-5 h-5 text-inms-primary" />}
+                            {activity.type === 'payment' && <CreditCard className="w-5 h-5 text-inms-primary" />}
                           </div>
                           <div>
                             <p className="font-medium">{activity.title}</p>
@@ -288,7 +288,7 @@ export default function Dashboard() {
                         <div className="flex justify-between items-center mt-4">
                           <div className="flex items-center">
                             {event.registered ? (
-                              <Badge variant="secondary" className="bg-green-100 text-green-700">
+                              <Badge className="bg-green-100 text-green-800">
                                 <CheckCircle className="w-3 h-3 mr-1" />
                                 Registered
                               </Badge>
@@ -317,12 +317,11 @@ export default function Dashboard() {
                 <CardContent>
                   <div className="space-y-4">
                     {announcements.map((announcement) => (
-                      <div key={announcement.id} className="border-l-4 border-blue-500 pl-4">
+                      <div key={announcement.id} className="border-l-4 border-inms-primary pl-4">
                         <div className="flex items-start justify-between">
                           <h4 className="font-medium text-sm">{announcement.title}</h4>
                           <Badge 
-                            variant={announcement.priority === 'high' ? 'destructive' : 'secondary'}
-                            className="text-xs"
+                            className={announcement.priority === 'high' ? 'bg-inms-secondary text-white text-xs' : 'bg-gray-100 text-gray-700 text-xs'}
                           >
                             {announcement.priority}
                           </Badge>
@@ -378,7 +377,9 @@ export default function Dashboard() {
                         <span className="text-sm">Current Points</span>
                         <span className="text-sm font-medium">45/60</span>
                       </div>
-                      <Progress value={75} className="h-2" />
+                      <div className="w-full bg-gray-200 rounded-full h-2">
+                        <div className="bg-inms-primary h-2 rounded-full" style={{width: '75%'}}></div>
+                      </div>
                       <p className="text-xs text-gray-600 mt-1">15 more points needed for COGS eligibility</p>
                     </div>
                   </div>
@@ -391,7 +392,7 @@ export default function Dashboard() {
                   <CardTitle className="text-sm">Sponsored</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-gradient-to-r from-blue-500 to-purple-600 text-white p-4 rounded-lg text-center">
+                  <div className="bg-gradient-to-r from-inms-primary to-inms-accent text-white p-4 rounded-lg text-center">
                     <h4 className="font-semibold mb-2">Medical Equipment Sale</h4>
                     <p className="text-sm opacity-90">Up to 30% off on diagnostic equipment</p>
                   </div>
@@ -400,7 +401,7 @@ export default function Dashboard() {
               <div className="flex items-center space-x-2">
                 <p className="text-gray-600">Here's what's happening with your INMS account today.</p>
                 {!isOnline && (
-                  <Badge variant="destructive" className="text-xs">
+                  <Badge className="bg-inms-secondary text-white text-xs">
                     Offline Mode
                   </Badge>
                 )}

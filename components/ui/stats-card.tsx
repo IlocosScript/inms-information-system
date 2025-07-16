@@ -10,7 +10,7 @@ interface StatsCardProps {
     value: number;
     isPositive: boolean;
   };
-  color?: 'blue' | 'green' | 'purple' | 'orange' | 'red';
+  color?: 'blue' | 'green' | 'purple' | 'orange' | 'red' | 'inms-primary' | 'inms-accent';
   className?: string;
 }
 
@@ -23,6 +23,18 @@ export function StatsCard({ title, value, icon: Icon, trend, color = 'blue', cla
     red: 'text-red-600'
   };
 
+      case 'inms-primary':
+        return {
+          icon: 'text-inms-primary',
+          bg: 'bg-inms-light',
+          value: 'text-inms-primary'
+        };
+      case 'inms-accent':
+        return {
+          icon: 'text-inms-accent',
+          bg: 'bg-inms-accent/10',
+          value: 'text-inms-accent'
+        };
   return (
     <Card className={cn('hover:shadow-lg transition-shadow', className)}>
       <CardContent className="p-6">

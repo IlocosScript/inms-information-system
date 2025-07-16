@@ -299,7 +299,7 @@ export default function AboutPage() {
                 <CardContent>
                   <div className="space-y-6">
                     {pastPresidents.map((president) => (
-                      <div key={president.id} className="border-l-4 border-blue-500 pl-6">
+                      <div key={president.id} className="border-l-4 border-inms-primary pl-6">
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <h3 className="font-semibold text-lg">{president.name}</h3>
@@ -406,12 +406,12 @@ export default function AboutPage() {
                       <span className="font-medium">15</span>
                     </div>
                     <div className="flex justify-between items-center">
-                      <span className="text-sm text-gray-600">Annual CME Events</span>
+            <div className="bg-inms-primary text-white p-4 rounded-full mr-4">
                       <span className="font-medium">50+</span>
                     </div>
                   </div>
                 </CardContent>
-              </Card>
+              <p className="text-xl text-inms-primary font-medium">Ilocos Norte Medical Society</p>
             </div>
           </div>
         </div>
