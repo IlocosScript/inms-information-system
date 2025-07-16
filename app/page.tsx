@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -23,26 +24,37 @@ import {
 } from 'lucide-react';
 
 export default function Home() {
+  const router = useRouter();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
   const handleLogin = async () => {
+    if (!email || !password) {
+      alert('Please enter both email and password');
+      return;
+    }
+    
     setIsLoading(true);
     
-    // Simulate login process
-    setTimeout(() => {
+    try {
+      // Simulate login process
+      await new Promise(resolve => setTimeout(resolve, 1500));
+      
       // For demo purposes, check if it's admin credentials
       if (email.includes('admin') || email === 'admin@inms.org') {
         // Redirect to admin dashboard
-        window.location.href = '/dashboard?role=admin';
+        router.push('/admin');
       } else {
         // Redirect to member dashboard
-        window.location.href = '/dashboard';
+        router.push('/dashboard');
       }
+    } catch (error) {
+      alert('Login failed. Please try again.');
+    } finally {
       setIsLoading(false);
-    }, 1500);
+    }
   };
 
   const features = [
@@ -233,6 +245,7 @@ export default function Home() {
                   className="w-full h-11 text-base font-medium" 
                   onClick={handleLogin}
                   disabled={isLoading || !email || !password}
+                 type="button"
                 >
                   {isLoading ? (
                     <div className="flex items-center">
@@ -269,6 +282,28 @@ export default function Home() {
                   <div className="space-y-1 text-xs text-gray-600">
                     <p><strong>Member:</strong> member@inms.org / password123</p>
                     <p><strong>Admin:</strong> admin@inms.org / admin123</p>
+                  </div>
+                  <div className="mt-2 space-x-2">
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setEmail('member@inms.org');
+                        setPassword('password123');
+                      }}
+                      className="text-xs text-green-600 hover:underline"
+                    >
+                      Use Member
+                    </button>
+                    <button 
+                      type="button"
+                      onClick={() => {
+                        setEmail('admin@inms.org');
+                        setPassword('admin123');
+                      }}
+                      className="text-xs text-green-600 hover:underline"
+                    >
+                      Use Admin
+                    </button>
                   </div>
                 </div>
               </CardContent>
