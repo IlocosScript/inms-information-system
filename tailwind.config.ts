@@ -13,12 +13,12 @@ const config: Config = {
         // INMS Brand Colors based on logo
         'inms': {
           'primary': '#16a34a', // Medical green from logo
-          'secondary': '#eab308', // Medical yellow from logo
+          'secondary': '#22c55e', // Lighter green instead of yellow
           'accent': '#22c55e', // Lighter green accent
           'dark': '#15803d', // Darker green
           'light': '#dcfce7', // Very light green
-          'yellow-light': '#fef3c7', // Light yellow
-          'black': '#1f2937', // Professional black
+          'yellow-light': '#f0fdf4', // Very light green instead of yellow
+          'black': '#15803d', // Dark green instead of black
           'gray': {
             '50': '#f8fafc',
             '100': '#f1f5f9',
@@ -49,18 +49,18 @@ const config: Config = {
           foreground: 'hsl(var(--primary-foreground))',
         },
         secondary: {
-          DEFAULT: '#eab308',
-          50: '#fefce8',
-          100: '#fef3c7',
-          200: '#fde68a',
-          300: '#fcd34d',
-          400: '#fbbf24',
-          500: '#f59e0b',
-          600: '#eab308',
-          700: '#ca8a04',
-          800: '#a16207',
-          900: '#854d0e',
-          950: '#713f12',
+          DEFAULT: '#22c55e',
+          50: '#f0fdf4',
+          100: '#dcfce7',
+          200: '#bbf7d0',
+          300: '#86efac',
+          400: '#4ade80',
+          500: '#22c55e',
+          600: '#16a34a',
+          700: '#15803d',
+          800: '#166534',
+          900: '#14532d',
+          950: '#052e16',
         },
         // Shadcn/UI color system
         background: 'hsl(var(--background))',

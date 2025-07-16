@@ -189,16 +189,16 @@ export default function Dashboard() {
                     <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.eventsAttended}</p>
                     <p className="text-sm text-gray-600">Events Attended</p>
                   </div>
-                  <div className="text-center p-4 bg-inms-yellow-light rounded-lg">
-                    <p className="text-2xl font-bold text-inms-secondary">{analyticsData.monthlyActivity.pointsEarned}</p>
+                  <div className="text-center p-4 bg-inms-light rounded-lg">
+                    <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.pointsEarned}</p>
                     <p className="text-sm text-gray-600">Points Earned</p>
                   </div>
                   <div className="text-center p-4 bg-inms-light rounded-lg">
-                    <p className="text-2xl font-bold text-inms-dark">{analyticsData.monthlyActivity.hoursOfCME}</p>
+                    <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.hoursOfCME}</p>
                     <p className="text-sm text-gray-600">CME Hours</p>
                   </div>
-                  <div className="text-center p-4 bg-inms-yellow-light rounded-lg">
-                    <p className="text-2xl font-bold text-inms-black">{analyticsData.monthlyActivity.networkConnections}</p>
+                  <div className="text-center p-4 bg-inms-light rounded-lg">
+                    <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.networkConnections}</p>
                     <p className="text-sm text-gray-600">New Connections</p>
                   </div>
                 </div>
