@@ -282,11 +282,11 @@ export default function Home() {
                   <p className="text-sm font-medium text-green-800">
                     New Member Registration
                   </p>
-              <button className="hover:text-green-600">Privacy Policy</button>
+                  <p className="text-sm text-green-700 mt-1">
                     Registration requests are reviewed and your account is activated by the INMS administration.
-              <button className="hover:text-green-600">Terms of Service</button>
+                  </p>
                 </div>
-              <button className="hover:text-green-600">Contact Support</button>
+              </div>
             </div>
           </div>
         </div>
