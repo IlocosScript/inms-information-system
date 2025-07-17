@@ -306,13 +306,12 @@ export default function AboutPage() {
                         <div className="flex justify-between items-start mb-2">
                           <div>
                             <h3 className="font-semibold text-lg">{president.name}</h3>
-                            <p className="text-sm text-inms-primary font-medium">{director.region}</p>
+                            <p className="text-sm text-inms-primary font-medium">{president.specialty}</p>
                           </div>
                           <Badge variant="outline">{president.term}</Badge>
                         </div>
                         <div>
                           <h4 className="font-medium mb-2">Key Achievements:</h4>
-                          <p className="text-sm text-gray-600">{president.specialty}</p>
                           <ul className="list-disc list-inside text-sm text-gray-600">
                             {president.achievements.map((achievement, index) => (
                               <li key={index}>{achievement}</li>
