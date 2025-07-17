@@ -233,7 +233,7 @@ Amendment 2023-01 (Effective January 1, 2023):
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-white">
       <Sidebar onDesktopToggle={setSidebarCollapsed} />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
