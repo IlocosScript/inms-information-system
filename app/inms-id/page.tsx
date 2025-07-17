@@ -148,28 +148,28 @@ export default function INMSIDPage() {
           <div className="grid lg:grid-cols-3 gap-8">
             {/* Digital ID Card */}
             <div className="lg:col-span-1">
-              <Card className="bg-gradient-to-br from-blue-600 to-blue-800 text-white">
+              <Card className="bg-gradient-to-br from-green-600 to-green-800 text-white">
                 <CardHeader className="text-center pb-4">
                   <div className="flex items-center justify-center mb-4">
                     <div className="bg-white p-2 rounded-full">
-                      <Shield className="w-8 h-8 text-blue-600" />
+                      <Shield className="w-8 h-8 text-green-600" />
                     </div>
                   </div>
                   <h2 className="text-xl font-bold">ILOCOS NORTE MEDICAL SOCIETY</h2>
-                  <p className="text-blue-100 text-sm">Official Member ID</p>
+                  <p className="text-green-100 text-sm">Official Member ID</p>
                 </CardHeader>
                 <CardContent className="space-y-4">
                   {/* Member Photo */}
                   <div className="flex justify-center">
                     <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center">
-                      <User className="w-16 h-16 text-blue-600" />
+                      <User className="w-16 h-16 text-green-600" />
                     </div>
                   </div>
 
                   {/* Member Information */}
                   <div className="text-center space-y-2">
                     <h3 className="text-lg font-semibold">{memberData.name}</h3>
-                    <div className="text-sm text-blue-100 space-y-1">
+                    <div className="text-sm text-green-100 space-y-1">
                       <p>ID: {memberData.id}</p>
                       <p>Age: {memberData.age}</p>
                       <p>Birthday: {memberData.birthday}</p>
@@ -186,7 +186,7 @@ export default function INMSIDPage() {
 
                   {/* Validity */}
                   <div className="text-center">
-                    <p className="text-xs text-blue-100">Valid until: {memberData.validity}</p>
+                    <p className="text-xs text-green-100">Valid until: {memberData.validity}</p>
                     <div className="flex items-center justify-center mt-2">
                       {memberData.membershipStatus === 'Active' ? (
                         <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
@@ -200,7 +200,7 @@ export default function INMSIDPage() {
                   {/* Download Button */}
                   <Button 
                     onClick={handleDownloadID}
-                    className="w-full bg-white text-blue-600 hover:bg-blue-50"
+                    className="w-full bg-white text-green-600 hover:bg-green-50"
                   >
                     <Download className="w-4 h-4 mr-2" />
                     Download ID
