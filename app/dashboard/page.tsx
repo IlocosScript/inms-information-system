@@ -176,7 +176,7 @@ export default function Dashboard() {
 
           {/* Enhanced Analytics Section */}
           <div className="grid lg:grid-cols-4 gap-6 mb-8">
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 bg-white">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <TrendingUp className="w-5 h-5 mr-2" />
@@ -185,27 +185,27 @@ export default function Dashboard() {
               </CardHeader>
               <CardContent>
                 <div className="grid grid-cols-2 gap-4">
-                  <div className="text-center p-4 bg-inms-light rounded-lg">
-                    <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.eventsAttended}</p>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">{analyticsData.monthlyActivity.eventsAttended}</p>
                     <p className="text-sm text-gray-600">Events Attended</p>
                   </div>
-                  <div className="text-center p-4 bg-inms-light rounded-lg">
-                    <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.pointsEarned}</p>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">{analyticsData.monthlyActivity.pointsEarned}</p>
                     <p className="text-sm text-gray-600">Points Earned</p>
                   </div>
-                  <div className="text-center p-4 bg-inms-light rounded-lg">
-                    <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.hoursOfCME}</p>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">{analyticsData.monthlyActivity.hoursOfCME}</p>
                     <p className="text-sm text-gray-600">CME Hours</p>
                   </div>
-                  <div className="text-center p-4 bg-inms-light rounded-lg">
-                    <p className="text-2xl font-bold text-inms-primary">{analyticsData.monthlyActivity.networkConnections}</p>
+                  <div className="text-center p-4 bg-green-50 rounded-lg">
+                    <p className="text-2xl font-bold text-green-600">{analyticsData.monthlyActivity.networkConnections}</p>
                     <p className="text-sm text-gray-600">New Connections</p>
                   </div>
                 </div>
               </CardContent>
             </Card>
           {/* Main Content */}
-            <Card className="lg:col-span-2">
+            <Card className="lg:col-span-2 bg-white">
               <CardHeader>
                 <CardTitle className="flex items-center">
                   <AlertCircle className="w-5 h-5 mr-2" />
@@ -236,7 +236,7 @@ export default function Dashboard() {
             {/* Left Column */}
             <div className="lg:col-span-2 space-y-6">
               {/* Recent Activities */}
-              <Card>
+              <Card className="bg-white">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <TrendingUp className="w-5 h-5 mr-2" />
@@ -248,10 +248,10 @@ export default function Dashboard() {
                     {recentActivities.map((activity) => (
                       <div key={activity.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
                         <div className="flex items-center">
-                          <div className="w-10 h-10 bg-inms-light rounded-full flex items-center justify-center mr-3">
-                            {activity.type === 'event' && <Calendar className="w-5 h-5 text-inms-primary" />}
-                            {activity.type === 'training' && <Award className="w-5 h-5 text-inms-primary" />}
-                            {activity.type === 'payment' && <CreditCard className="w-5 h-5 text-inms-primary" />}
+                          <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center mr-3">
+                            {activity.type === 'event' && <Calendar className="w-5 h-5 text-green-600" />}
+                            {activity.type === 'training' && <Award className="w-5 h-5 text-green-600" />}
+                            {activity.type === 'payment' && <CreditCard className="w-5 h-5 text-green-600" />}
                           </div>
                           <div>
                             <p className="font-medium">{activity.title}</p>
@@ -273,7 +273,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Upcoming Events */}
-              <Card>
+              <Card className="bg-white">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Calendar className="w-5 h-5 mr-2" />
@@ -314,7 +314,7 @@ export default function Dashboard() {
             {/* Right Column */}
             <div className="space-y-6">
               {/* Announcements */}
-              <Card>
+              <Card className="bg-white">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Bell className="w-5 h-5 mr-2" />
@@ -324,11 +324,11 @@ export default function Dashboard() {
                 <CardContent>
                   <div className="space-y-4">
                     {announcements.map((announcement) => (
-                      <div key={announcement.id} className="border-l-4 border-inms-primary pl-4">
+                      <div key={announcement.id} className="border-l-4 border-green-500 pl-4">
                         <div className="flex items-start justify-between">
                           <h4 className="font-medium text-sm">{announcement.title}</h4>
                           <Badge 
-                            className={announcement.priority === 'high' ? 'bg-inms-secondary text-inms-black text-xs' : 'bg-gray-100 text-gray-700 text-xs'}
+                            className={announcement.priority === 'high' ? 'bg-green-100 text-green-700 text-xs' : 'bg-gray-100 text-gray-700 text-xs'}
                           >
                             {announcement.priority}
                           </Badge>
@@ -342,7 +342,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Dues Status */}
-              <Card>
+              <Card className="bg-white">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <CreditCard className="w-5 h-5 mr-2" />
@@ -353,14 +353,14 @@ export default function Dashboard() {
                   <div className="space-y-4">
                     <div className="flex justify-between items-center">
                       <span className="text-sm">Annual Dues (2024)</span>
-                      <Badge variant="secondary" className="bg-inms-light text-inms-primary">
+                      <Badge variant="secondary" className="bg-green-100 text-green-700">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         PAID
                       </Badge>
                     </div>
                     <div className="flex justify-between items-center">
                       <span className="text-sm">PMA Dues</span>
-                      <Badge variant="secondary" className="bg-inms-light text-inms-primary">
+                      <Badge variant="secondary" className="bg-green-100 text-green-700">
                         <CheckCircle className="w-3 h-3 mr-1" />
                         PAID
                       </Badge>
@@ -370,7 +370,7 @@ export default function Dashboard() {
               </Card>
 
               {/* Points Progress */}
-              <Card>
+              <Card className="bg-white">
                 <CardHeader>
                   <CardTitle className="flex items-center">
                     <Award className="w-5 h-5 mr-2" />
@@ -385,7 +385,7 @@ export default function Dashboard() {
                         <span className="text-sm font-medium">45/60</span>
                       </div>
                       <div className="w-full bg-gray-200 rounded-full h-2">
-                        <div className="bg-inms-primary h-2 rounded-full" style={{width: '75%'}}></div>
+                        <div className="bg-green-600 h-2 rounded-full" style={{width: '75%'}}></div>
                       </div>
                       <p className="text-xs text-gray-600 mt-1">15 more points needed for COGS eligibility</p>
                     </div>
@@ -394,12 +394,12 @@ export default function Dashboard() {
               </Card>
 
               {/* Advertisements */}
-              <Card>
+              <Card className="bg-white">
                 <CardHeader>
                   <CardTitle className="text-sm">Sponsored</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="bg-gradient-to-r from-inms-primary to-inms-accent text-white p-4 rounded-lg text-center">
+                  <div className="bg-gradient-to-r from-green-600 to-green-500 text-white p-4 rounded-lg text-center">
                     <h4 className="font-semibold mb-2">Medical Equipment Sale</h4>
                     <p className="text-sm opacity-90">Up to 30% off on diagnostic equipment</p>
                   </div>
