@@ -255,7 +255,7 @@ export default function MembersPage() {
           </div>
 
           {/* Search and Filters */}
-          <Card className="mb-8">
+          <Card className="mb-8 bg-white">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Filter className="w-5 h-5 mr-2" />
@@ -327,7 +327,7 @@ export default function MembersPage() {
           </Card>
 
           {/* Members Table */}
-          <Card>
+          <Card className="bg-white">
             <CardHeader>
               <CardTitle>Members List</CardTitle>
             </CardHeader>
@@ -619,7 +619,7 @@ export default function MembersPage() {
             <h2 className="text-xl font-semibold mb-4">Featured Members</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredMembers.slice(0, 6).map((member) => (
-                <Card key={member.id} className="hover:shadow-lg transition-shadow">
+                <Card key={member.id} className="hover:shadow-lg transition-shadow bg-white">
                   <CardHeader className="pb-3">
                     <div className="flex items-center space-x-4">
                       <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
@@ -732,7 +732,7 @@ export default function MembersPage() {
                     </SelectContent>
                   </Select>
                 </div>
-              ))}
+                
                 <Button 
                   className="w-full" 
                   onClick={() => setShowMobileFilters(false)}

@@ -63,11 +63,11 @@ const config: Config = {
           950: '#052e16',
         },
         // Shadcn/UI color system
-        background: 'hsl(var(--background))',
-        foreground: 'hsl(var(--foreground))',
+        background: '0 0% 100%', // Pure white
+        foreground: '0 0% 3.9%', // Very dark gray
         card: {
-          DEFAULT: 'hsl(var(--card))',
-          foreground: 'hsl(var(--card-foreground))',
+          DEFAULT: '0 0% 100%', // Pure white
+          foreground: '0 0% 3.9%', // Very dark gray
         },
         popover: {
           DEFAULT: 'hsl(var(--popover))',

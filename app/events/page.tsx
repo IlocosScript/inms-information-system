@@ -209,7 +209,7 @@ export default function EventsPage() {
           </div>
 
           {/* Search and Filters */}
-          <Card className="mb-8">
+          <Card className="mb-8 bg-white">
             <CardHeader>
               <CardTitle className="flex items-center">
                 <Filter className="w-5 h-5 mr-2" />
@@ -272,7 +272,7 @@ export default function EventsPage() {
           {/* Events Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             {filteredEvents.map((event) => (
-              <Card key={event.id} className="hover:shadow-lg transition-shadow">
+              <Card key={event.id} className="hover:shadow-lg transition-shadow bg-white">
                 <CardHeader>
                   <div className="flex justify-between items-start">
                     <div className="flex-1">
