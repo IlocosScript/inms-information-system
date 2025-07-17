@@ -312,7 +312,7 @@ export default function AboutPage() {
                         </div>
                         <div>
                           <h4 className="font-medium mb-2">Key Achievements:</h4>
-                          <ul className="list-disc list-inside text-sm text-gray-600 space-y-1">
+                          <p className="text-sm text-gray-600">{president.specialty}</p>
                             {president.achievements.map((achievement, index) => (
                               <li key={index}>{achievement}</li>
                             ))}
