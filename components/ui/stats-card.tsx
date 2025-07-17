@@ -1,93 +1,67 @@
+import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TrendingUp, TrendingDown } from 'lucide-react';
-import { DivideIcon as LucideIcon } from 'lucide-react';
 
 interface StatsCardProps {
   title: string;
   value: string | number;
-  icon: LucideIcon;
+  icon: React.ComponentType<any>;
   trend?: {
     value: number;
     isPositive: boolean;
   };
-  color?: 'green' | 'yellow' | 'blue' | 'red' | 'purple' | 'orange' | 'gray';
+  color?: 'blue' | 'green' | 'yellow' | 'purple' | 'red' | 'orange';
 }
 
-export function StatsCard({ title, value, icon: Icon, trend, color = 'green' }: StatsCardProps) {
-  const colorClasses = {
-    green: {
-      icon: 'text-inms-primary',
-      iconBg: 'bg-inms-light',
-      value: 'text-inms-primary',
-      trend: 'text-inms-primary'
-    },
-    yellow: {
-      icon: 'text-inms-secondary',
-      iconBg: 'bg-inms-yellow-light',
-      value: 'text-inms-secondary',
-      trend: 'text-inms-secondary'
-    },
-    blue: {
-      icon: 'text-blue-600',
-      iconBg: 'bg-blue-100',
-      value: 'text-blue-600',
-      trend: 'text-blue-600'
-    },
-    red: {
-      icon: 'text-red-600',
-      iconBg: 'bg-red-100',
-      value: 'text-red-600',
-      trend: 'text-red-600'
-    },
-    purple: {
-      icon: 'text-purple-600',
-      iconBg: 'bg-purple-100',
-      value: 'text-purple-600',
-      trend: 'text-purple-600'
-    },
-    orange: {
-      icon: 'text-orange-600',
-      iconBg: 'bg-orange-100',
-      value: 'text-orange-600',
-      trend: 'text-orange-600'
-    },
-    gray: {
-      icon: 'text-gray-600',
-      iconBg: 'bg-gray-100',
-      value: 'text-gray-600',
-      trend: 'text-gray-600'
+export function StatsCard({ title, value, icon: Icon, trend, color = 'blue' }: StatsCardProps) {
+  const getIconColor = (color: string) => {
+    switch (color) {
+      case 'blue': return 'text-blue-600';
+      case 'green': return 'text-green-600';
+      case 'yellow': return 'text-yellow-600';
+      case 'purple': return 'text-purple-600';
+      case 'red': return 'text-red-600';
+      case 'orange': return 'text-orange-600';
+      default: return 'text-blue-600';
     }
   };
 
-  const colors = colorClasses[color];
+  const getValueColor = (color: string) => {
+    switch (color) {
+      case 'blue': return 'text-blue-600';
+      case 'green': return 'text-green-600';
+      case 'yellow': return 'text-yellow-600';
+      case 'purple': return 'text-purple-600';
+      case 'red': return 'text-red-600';
+      case 'orange': return 'text-orange-600';
+      default: return 'text-blue-600';
+    }
+  };
 
   return (
-    <Card className="hover:shadow-lg transition-shadow">
+    <Card className="bg-white border border-gray-200 shadow-sm hover:shadow-md transition-shadow">
       <CardContent className="p-6">
         <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <p className="text-sm text-gray-600 mb-1">{title}</p>
-            <p className={`text-2xl font-bold ${colors.value}`}>{value}</p>
+          <div>
+            <p className="text-sm font-medium text-gray-600">{title}</p>
+            <p className={`text-2xl font-bold ${getValueColor(color)}`}>
+              {value}
+            </p>
             {trend && (
-              <div className="flex items-center mt-2">
+              <div className="flex items-center mt-1">
                 {trend.isPositive ? (
-                  <TrendingUp className={`w-4 h-4 mr-1 ${colors.trend}`} />
+                  <TrendingUp className="w-4 h-4 text-green-500 mr-1" />
                 ) : (
-                  <TrendingDown className="w-4 h-4 mr-1 text-red-500" />
+                  <TrendingDown className="w-4 h-4 text-red-500 mr-1" />
                 )}
-                <Badge 
-                  variant="outline" 
-                  className={`text-xs ${trend.isPositive ? colors.trend : 'text-red-500'}`}
-                >
-                  {trend.isPositive ? '+' : ''}{trend.value}%
-                </Badge>
+                <span className={`text-sm ${trend.isPositive ? 'text-green-600' : 'text-red-600'}`}>
+                  {trend.value}%
+                </span>
               </div>
             )}
           </div>
-          <div className={`p-3 rounded-lg ${colors.iconBg}`}>
-            <Icon className={`w-8 h-8 ${colors.icon}`} />
-          </div>
+          <Icon className={`w-8 h-8 ${getIconColor(color)}`} />
         </div>
       </CardContent>
     </Card>
