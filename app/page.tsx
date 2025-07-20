@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   User, 
   Users, 
@@ -25,10 +26,22 @@ import {
 
 export default function Home() {
   const router = useRouter();
+  const { login, user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Redirect authenticated users
+  useEffect(() => {
+    if (!authLoading && isAuthenticated) {
+      if (user?.roles?.includes('Admin')) {
+        router.push('/admin');
+      } else {
+        router.push('/dashboard');
+      }
+    }
+  }, [isAuthenticated, authLoading, user, router]);
 
   const handleLogin = async () => {
     if (!email || !password) {
@@ -39,19 +52,17 @@ export default function Home() {
     setIsLoading(true);
     
     try {
-      // Simulate login process
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      const response = await login({ email, password, rememberMe: true });
       
-      // For demo purposes, check if it's admin credentials
-      if (email.includes('admin') || email === 'admin@inms.org') {
-        // Redirect to admin dashboard
+      // Redirect based on user role
+      if (response.user.roles.includes('Admin')) {
         router.push('/admin');
       } else {
-        // Redirect to member dashboard
         router.push('/dashboard');
       }
-    } catch (error) {
-      alert('Login failed. Please try again.');
+    } catch (error: any) {
+      console.error('Login error:', error);
+      alert('Login failed. Please check your credentials and try again.');
     } finally {
       setIsLoading(false);
     }
@@ -115,6 +126,15 @@ export default function Home() {
       bgColor: "bg-pink-100"
     }
   ];
+
+  // Show loading while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-inms-light via-white to-blue-50">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-inms-light via-white to-blue-50">
@@ -264,7 +284,7 @@ export default function Home() {
                   
                   <div className="border-t pt-4">
                     <p className="text-sm text-gray-600 mb-3">
-                      Don't have an account?
+                      Don&apos;t have an account?
                     </p>
                     <Button variant="outline" className="w-full h-11">
                       <User className="w-4 h-4 mr-2" />
@@ -277,25 +297,14 @@ export default function Home() {
                 <div className="mt-6 p-4 bg-gray-50 rounded-lg">
                   <p className="text-xs font-medium text-gray-700 mb-2">Demo Credentials:</p>
                   <div className="space-y-1 text-xs text-gray-600">
-                    <p><strong>Member:</strong> member@inms.org / password123</p>
-                    <p><strong>Admin:</strong> admin@inms.org / admin123</p>
+                    <p><strong>Admin:</strong> admin@ilocosscript.com / p@$$W0rd@123</p>
                   </div>
                   <div className="mt-2 space-x-2">
                     <button 
                       type="button"
                       onClick={() => {
-                        setEmail('member@inms.org');
-                        setPassword('password123');
-                      }}
-                      className="text-xs text-green-600 hover:underline"
-                    >
-                      Use Member
-                    </button>
-                    <button 
-                      type="button"
-                      onClick={() => {
-                        setEmail('admin@inms.org');
-                        setPassword('admin123');
+                        setEmail('admin@ilocosscript.com');
+                        setPassword('p@$$W0rd@123');
                       }}
                       className="text-xs text-green-600 hover:underline"
                     >

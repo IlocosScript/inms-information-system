@@ -1,120 +1,83 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
 import { 
   QrCode, 
   Download, 
-  User, 
-  Calendar, 
-  MapPin, 
+  Share2, 
+  ArrowLeft,
   Shield,
-  Store,
-  Percent,
-  CheckCircle,
-  XCircle,
-  Smartphone,
-  Wifi,
-  WifiOff
+  Award,
+  Calendar,
+  Building,
+  Stethoscope,
+  Copy,
+  Check
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
-
-interface Discount {
-  id: number;
-  establishment: string;
-  category: string;
-  discount: string;
-  description: string;
-  location: string;
-  contact: string;
-  validUntil: string;
-  terms: string;
-}
+import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function INMSIDPage() {
-  const [isOffline, setIsOffline] = useState(false);
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [copied, setCopied] = useState(false);
 
-  const memberData = {
-    id: "INMS-2024-001234",
-    name: "Dr. Juan Dela Cruz",
-    age: 45,
-    birthday: "1979-03-15",
-    address: "123 Rizal Street, Laoag City, Ilocos Norte",
-    membershipStatus: "Active",
-    pmaNumber: "PMA-12345678",
-    validity: "2024-12-31",
-    photo: "/api/placeholder/150/150",
-    qrCode: "data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KICA8cmVjdCB3aWR0aD0iMjAwIiBoZWlnaHQ9IjIwMCIgZmlsbD0iIzAwMCIvPgogIDxyZWN0IHg9IjEwIiB5PSIxMCIgd2lkdGg9IjE4MCIgaGVpZ2h0PSIxODAiIGZpbGw9IiNmZmYiLz4KICA8dGV4dCB4PSIxMDAiIHk9IjEwNSIgdGV4dC1hbmNob3I9Im1pZGRsZSIgZm9udC1mYW1pbHk9Im1vbm9zcGFjZSIgZm9udC1zaXplPSIxMiI+UVIgQ29kZTwvdGV4dD4KPC9zdmc+"
+  // Route protection
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  // Show loading while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  const memberId = `INMS-${new Date().getFullYear()}-${user?.id || '001234'}`;
+  const qrCodeData = JSON.stringify({
+    memberId,
+    name: user ? `${user.firstName} ${user.lastName}` : 'Dr. Juan Dela Cruz',
+    email: user?.email || 'juan.delacruz@example.com',
+    roles: user?.roles || ['Member'],
+    validUntil: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toISOString() // 1 year from now
+  });
+
+  const handleCopyId = async () => {
+    try {
+      await navigator.clipboard.writeText(memberId);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    } catch (error) {
+      console.error('Failed to copy:', error);
+    }
   };
 
-  const discounts: Discount[] = [
-    {
-      id: 1,
-      establishment: "Mercury Drug Store",
-      category: "Pharmacy",
-      discount: "10% off",
-      description: "Discount on prescription medicines and health products",
-      location: "All branches in Ilocos Norte",
-      contact: "(077) 123-4567",
-      validUntil: "2024-12-31",
-      terms: "Valid for INMS members only. Present ID before purchase."
-    },
-    {
-      id: 2,
-      establishment: "Laoag Eye Center",
-      category: "Medical Services",
-      discount: "15% off",
-      description: "Discount on eye examinations and optical services",
-      location: "Laoag City",
-      contact: "(077) 234-5678",
-      validUntil: "2024-12-31",
-      terms: "Not applicable to surgical procedures. Appointment required."
-    },
-    {
-      id: 3,
-      establishment: "Healthy Options",
-      category: "Health & Wellness",
-      discount: "12% off",
-      description: "Discount on vitamins, supplements, and organic products",
-      location: "SM City Laoag",
-      contact: "(077) 345-6789",
-      validUntil: "2024-12-31",
-      terms: "Minimum purchase of ₱500. Cannot be combined with other promos."
-    },
-    {
-      id: 4,
-      establishment: "Java Hotel",
-      category: "Accommodation",
-      discount: "20% off",
-      description: "Discount on room rates and conference facilities",
-      location: "Laoag City",
-      contact: "(077) 456-7890",
-      validUntil: "2024-12-31",
-      terms: "Subject to room availability. Advance booking required."
-    },
-    {
-      id: 5,
-      establishment: "Saramsam Ylocano Restaurant",
-      category: "Dining",
-      discount: "8% off",
-      description: "Discount on food and beverages",
-      location: "Laoag City",
-      contact: "(077) 567-8901",
-      validUntil: "2024-12-31",
-      terms: "Dine-in only. Not valid on special occasions and holidays."
-    }
-  ];
+  const handleDownload = () => {
+    // TODO: Implement PDF download functionality
+    console.log('Downloading INMS ID card...');
+  };
 
-  const handleDownloadID = () => {
-    // Simulate download
-    const link = document.createElement('a');
-    link.href = '#';
-    link.download = 'INMS-ID-Juan-Dela-Cruz.pdf';
-    link.click();
+  const handleShare = () => {
+    // TODO: Implement share functionality
+    console.log('Sharing INMS ID...');
   };
 
   return (
@@ -124,209 +87,243 @@ export default function INMSIDPage() {
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
           onMenuClick={() => {}}
-          title="INMS Digital ID"
+          title="My INMS ID"
+          showSearch={false}
           sidebarCollapsed={sidebarCollapsed}
         />
         
         <div className="p-6 pt-20">
+          {/* Header */}
           <div className="flex justify-between items-center mb-8">
-            <div>
-              <p className="text-gray-600">Your official INMS membership identification</p>
-            </div>
             <div className="flex items-center space-x-4">
-              <Button onClick={() => setIsOffline(!isOffline)} variant="outline" size="sm">
-                {isOffline ? <WifiOff className="w-4 h-4 mr-2" /> : <Wifi className="w-4 h-4 mr-2" />}
-                {isOffline ? 'Go Online' : 'Test Offline'}
-              </Button>
-              <Badge variant={memberData.membershipStatus === 'Active' ? 'default' : 'secondary'} 
-                     className={memberData.membershipStatus === 'Active' ? 'bg-green-100 text-green-700' : ''}>
-                {memberData.membershipStatus}
-              </Badge>
+              <Link href="/profile">
+                <Button variant="outline" size="sm">
+                  <ArrowLeft className="w-4 h-4 mr-2" />
+                  Back to Profile
+                </Button>
+              </Link>
+              <div>
+                <h1 className="text-2xl font-bold text-gray-800">My INMS ID</h1>
+                <p className="text-gray-600">Your digital membership card with QR code</p>
+              </div>
             </div>
           </div>
 
           <div className="grid lg:grid-cols-3 gap-8">
-            {/* Digital ID Card */}
-            <div className="lg:col-span-1">
-              <Card className="bg-gradient-to-br from-green-600 to-green-800 text-white">
-                <CardHeader className="text-center pb-4">
-                  <div className="flex items-center justify-center mb-4">
-                    <div className="bg-white p-2 rounded-full">
-                      <Shield className="w-8 h-8 text-green-600" />
+            {/* INMS ID Card */}
+            <div className="lg:col-span-2">
+              <Card className="bg-gradient-to-br from-green-50 to-blue-50 border-2 border-green-200">
+                <CardContent className="p-8">
+                  {/* Header */}
+                  <div className="flex justify-between items-start mb-6">
+                    <div>
+                      <div className="flex items-center space-x-2 mb-2">
+                        <img 
+                          src="https://static.wixstatic.com/media/d26da8_84af75d85a764d6284abc56355731316~mv2.png/v1/fill/w_214,h_206,al_c,q_85,usm_0.66_1.00_0.01,enc_avif,quality_auto/d26da8_84af75d85a764d6284abc56355731316~mv2.png"
+                          alt="INMS Logo"
+                          className="w-12 h-12 object-contain"
+                        />
+                        <div>
+                          <h2 className="text-xl font-bold text-gray-800">Ilocos Norte Medical Society</h2>
+                          <p className="text-sm text-gray-600">Digital Membership Card</p>
+                        </div>
+                      </div>
                     </div>
-                  </div>
-                  <h2 className="text-xl font-bold">ILOCOS NORTE MEDICAL SOCIETY</h2>
-                  <p className="text-green-100 text-sm">Official Member ID</p>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  {/* Member Photo */}
-                  <div className="flex justify-center">
-                    <div className="w-24 h-24 bg-white rounded-full flex items-center justify-center">
-                      <User className="w-16 h-16 text-green-600" />
-                    </div>
+                    <Badge className="bg-green-600 text-white">
+                      <Shield className="w-3 h-3 mr-1" />
+                      ACTIVE
+                    </Badge>
                   </div>
 
-                  {/* Member Information */}
-                  <div className="text-center space-y-2">
-                    <h3 className="text-lg font-semibold">{memberData.name}</h3>
-                    <div className="text-sm text-green-100 space-y-1">
-                      <p>ID: {memberData.id}</p>
-                      <p>Age: {memberData.age}</p>
-                      <p>Birthday: {memberData.birthday}</p>
-                      <p>PMA: {memberData.pmaNumber}</p>
+                  {/* Member Info */}
+                  <div className="grid md:grid-cols-2 gap-8 mb-6">
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Member Name</label>
+                        <p className="text-lg font-semibold text-gray-800">
+                          {user ? `${user.firstName} ${user.lastName}` : 'Dr. Juan Dela Cruz'}
+                        </p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Member ID</label>
+                        <div className="flex items-center space-x-2">
+                          <p className="text-lg font-mono text-gray-800">{memberId}</p>
+                          <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={handleCopyId}
+                            className="h-6 w-6 p-0"
+                          >
+                            {copied ? (
+                              <Check className="w-3 h-3 text-green-600" />
+                            ) : (
+                              <Copy className="w-3 h-3" />
+                            )}
+                          </Button>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Email</label>
+                        <p className="text-gray-800">{user?.email || 'juan.delacruz@example.com'}</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Member Since</label>
+                        <p className="text-gray-800">
+                          {user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : 'January 15, 2020'}
+                        </p>
+                      </div>
+                    </div>
+                    <div className="space-y-4">
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Specialty</label>
+                        <p className="text-gray-800">Internal Medicine</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Hospital</label>
+                        <p className="text-gray-800">Ilocos Training Hospital</p>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">CME Points</label>
+                        <div className="flex items-center space-x-2">
+                          <Award className="w-4 h-4 text-green-600" />
+                          <span className="text-gray-800">45 points</span>
+                        </div>
+                      </div>
+                      <div>
+                        <label className="text-sm font-medium text-gray-600">Valid Until</label>
+                        <p className="text-gray-800">
+                          {new Date(Date.now() + 365 * 24 * 60 * 60 * 1000).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
                   </div>
 
                   {/* QR Code */}
-                  <div className="flex justify-center">
-                    <div className="bg-white p-3 rounded-lg">
-                      <QrCode className="w-20 h-20 text-black" />
-                    </div>
-                  </div>
-
-                  {/* Validity */}
                   <div className="text-center">
-                    <p className="text-xs text-green-100">Valid until: {memberData.validity}</p>
-                    <div className="flex items-center justify-center mt-2">
-                      {memberData.membershipStatus === 'Active' ? (
-                        <CheckCircle className="w-4 h-4 text-green-400 mr-1" />
-                      ) : (
-                        <XCircle className="w-4 h-4 text-red-400 mr-1" />
-                      )}
-                      <span className="text-xs">{memberData.membershipStatus}</span>
-                    </div>
-                  </div>
-
-                  {/* Download Button */}
-                  <Button 
-                    onClick={handleDownloadID}
-                    className="w-full bg-white text-green-600 hover:bg-green-50"
-                  >
-                    <Download className="w-4 h-4 mr-2" />
-                    Download ID
-                  </Button>
-                </CardContent>
-              </Card>
-
-              {/* Offline Access Notice */}
-              <Card className="mt-6">
-                <CardHeader>
-                  <CardTitle className="flex items-center text-sm">
-                    <Smartphone className="w-4 h-4 mr-2" />
-                    Offline Access
-                  </CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-3 text-sm">
-                    <div className="flex items-center">
-                      {isOffline ? (
-                        <WifiOff className="w-4 h-4 text-red-500 mr-2" />
-                      ) : (
-                        <Wifi className="w-4 h-4 text-green-500 mr-2" />
-                      )}
-                      <span className={isOffline ? 'text-red-600' : 'text-green-600'}>
-                        {isOffline ? 'Offline Mode' : 'Online Mode'}
-                      </span>
-                    </div>
-                    <p className="text-gray-600">
-                      Your INMS ID can be accessed even without internet connection after downloading.
-                    </p>
-                    {memberData.membershipStatus !== 'Active' && (
-                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg">
-                        <p className="text-red-700 text-xs">
-                          ⚠️ QR code is deactivated due to inactive membership status. 
-                          Please settle your dues to reactivate.
-                        </p>
+                    <div className="inline-block p-4 bg-white rounded-lg border">
+                      <div className="w-32 h-32 bg-gray-100 rounded-lg flex items-center justify-center">
+                        <QrCode className="w-24 h-24 text-gray-400" />
                       </div>
-                    )}
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">
+                      Scan to verify membership
+                    </p>
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Action Buttons */}
+              <div className="flex justify-center space-x-4 mt-6">
+                <Button onClick={handleDownload} variant="outline">
+                  <Download className="w-4 h-4 mr-2" />
+                  Download PDF
+                </Button>
+                <Button onClick={handleShare} variant="outline">
+                  <Share2 className="w-4 h-4 mr-2" />
+                  Share Card
+                </Button>
+              </div>
             </div>
 
-            {/* Discounts and Benefits */}
-            <div className="lg:col-span-2">
+            {/* Sidebar */}
+            <div className="space-y-6">
+              {/* Member Status */}
               <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <Store className="w-5 h-5 mr-2" />
-                    Member Discounts & Benefits
-                  </CardTitle>
-                  <p className="text-gray-600 text-sm">
-                    Show your INMS ID to avail these exclusive discounts
-                  </p>
+                  <CardTitle>Membership Status</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid gap-4">
-                    {discounts.map((discount) => (
-                      <div key={discount.id} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
-                        <div className="flex justify-between items-start mb-3">
-                          <div>
-                            <h3 className="font-semibold text-lg">{discount.establishment}</h3>
-                            <Badge variant="outline" className="text-xs mt-1">
-                              {discount.category}
-                            </Badge>
-                          </div>
-                          <div className="text-right">
-                            <div className="flex items-center text-green-600 font-semibold">
-                              <Percent className="w-4 h-4 mr-1" />
-                              {discount.discount}
-                            </div>
-                          </div>
-                        </div>
-                        
-                        <p className="text-gray-600 text-sm mb-3">{discount.description}</p>
-                        
-                        <div className="grid md:grid-cols-2 gap-3 text-sm">
-                          <div className="flex items-center text-gray-600">
-                            <MapPin className="w-4 h-4 mr-2" />
-                            {discount.location}
-                          </div>
-                          <div className="flex items-center text-gray-600">
-                            <Calendar className="w-4 h-4 mr-2" />
-                            Valid until: {discount.validUntil}
-                          </div>
-                        </div>
-                        
-                        <div className="mt-3 p-3 bg-gray-50 rounded-lg">
-                          <p className="text-xs text-gray-600">
-                            <strong>Terms:</strong> {discount.terms}
-                          </p>
-                        </div>
-                      </div>
-                    ))}
+                  <div className="space-y-3">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Status</span>
+                      <Badge className={user?.isActive ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}>
+                        {user?.isActive ? 'Active' : 'Inactive'}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Type</span>
+                      <span className="text-sm font-medium">Regular Member</span>
+                    </div>
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm text-gray-600">Dues Status</span>
+                      <Badge className="bg-green-100 text-green-700">Paid</Badge>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
 
-              {/* Usage Instructions */}
-              <Card className="mt-6">
+              {/* Benefits */}
+              <Card>
                 <CardHeader>
-                  <CardTitle className="flex items-center">
-                    <QrCode className="w-5 h-5 mr-2" />
-                    How to Use Your INMS ID
-                  </CardTitle>
+                  <CardTitle>Member Benefits</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="grid md:grid-cols-2 gap-6">
-                    <div>
-                      <h4 className="font-semibold mb-3">For Discounts:</h4>
-                      <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
-                        <li>Present your INMS ID before making a purchase</li>
-                        <li>Allow the establishment to scan your QR code</li>
-                        <li>Verify your membership status</li>
-                        <li>Enjoy your discount!</li>
-                      </ol>
+                  <div className="space-y-3">
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-green-100 rounded-full flex items-center justify-center">
+                        <Award className="w-4 h-4 text-green-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">CME Points Tracking</p>
+                        <p className="text-xs text-gray-600">Earn and track continuing education points</p>
+                      </div>
                     </div>
-                    <div>
-                      <h4 className="font-semibold mb-3">For Events:</h4>
-                      <ol className="list-decimal list-inside space-y-2 text-sm text-gray-600">
-                        <li>Register for INMS events online</li>
-                        <li>Bring your INMS ID to the event</li>
-                        <li>Scan QR code for attendance confirmation</li>
-                        <li>Earn CME points automatically</li>
-                      </ol>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-blue-100 rounded-full flex items-center justify-center">
+                        <Calendar className="w-4 h-4 text-blue-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Event Access</p>
+                        <p className="text-xs text-gray-600">Priority registration for medical events</p>
+                      </div>
                     </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-purple-100 rounded-full flex items-center justify-center">
+                        <Building className="w-4 h-4 text-purple-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Hospital Discounts</p>
+                        <p className="text-xs text-gray-600">Special rates at partner hospitals</p>
+                      </div>
+                    </div>
+                    <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-orange-100 rounded-full flex items-center justify-center">
+                        <Stethoscope className="w-4 h-4 text-orange-600" />
+                      </div>
+                      <div>
+                        <p className="text-sm font-medium">Professional Network</p>
+                        <p className="text-xs text-gray-600">Connect with fellow medical professionals</p>
+                      </div>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* Quick Actions */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Quick Actions</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <Link href="/profile" className="block">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Shield className="w-4 h-4 mr-2" />
+                        View Profile
+                      </Button>
+                    </Link>
+                    <Link href="/profile/edit" className="block">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Calendar className="w-4 h-4 mr-2" />
+                        Edit Profile
+                      </Button>
+                    </Link>
+                    <Link href="/points" className="block">
+                      <Button variant="outline" className="w-full justify-start">
+                        <Award className="w-4 h-4 mr-2" />
+                        View Points
+                      </Button>
+                    </Link>
                   </div>
                 </CardContent>
               </Card>

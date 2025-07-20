@@ -2,13 +2,32 @@
 export interface LoginRequest {
   email: string;
   password: string;
+  rememberMe?: boolean;
 }
 
 export interface LoginResponse {
+  success: boolean;
+  message: string;
   accessToken: string;
   refreshToken: string;
-  expiresAt: string;
-  member: Member;
+  accessTokenExpiresAt: string;
+  refreshTokenExpiresAt: string;
+  user: User;
+}
+
+export interface User {
+  id: string;
+  firstName: string;
+  lastName: string;
+  fullName: string;
+  email: string;
+  phoneNumber?: string;
+  profileImageUrl?: string;
+  createdAt: string;
+  lastLoginAt: string;
+  isActive: boolean;
+  roles: string[];
+  member?: Member;
 }
 
 export interface RegisterRequest {

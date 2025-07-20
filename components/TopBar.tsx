@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useSecurityContext } from '@/components/SecurityProvider';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -40,6 +41,7 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   const [refreshing, setRefreshing] = useState(false);
   const isOnline = useOnlineStatus();
   const { lastActivity } = useSecurityContext();
+  const { user, logout } = useAuth();
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -163,33 +165,43 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
               <Button variant="ghost" className="hidden lg:flex items-center space-x-2 px-3">
                 <Avatar className="w-8 h-8">
                   <AvatarFallback className="bg-blue-600 text-white text-sm">
-                    JD
+                    {user ? `${user.firstName?.[0] || ''}${user.lastName?.[0] || ''}` : 'JD'}
                   </AvatarFallback>
                 </Avatar>
                 <div className="text-left">
-                  <p className="text-sm font-medium">Dr. Juan Dela Cruz</p>
-                  <p className="text-xs text-gray-600">Internal Medicine</p>
+                  <p className="text-sm font-medium">
+                    {user ? `${user.firstName} ${user.lastName}` : 'Dr. Juan Dela Cruz'}
+                  </p>
+                  <p className="text-xs text-gray-600">
+                    {user?.roles?.includes('Admin') ? 'Administrator' : 'Member'}
+                  </p>
                 </div>
                 <ChevronDown className="w-4 h-4 text-gray-400" />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56">
-              <DropdownMenuItem>
-                <User className="w-4 h-4 mr-2" />
-                <Link href="/profile">View Profile</Link>
+              <DropdownMenuItem asChild>
+                <Link href="/profile" className="flex items-center w-full">
+                  <User className="w-4 h-4 mr-2" />
+                  View Profile
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Settings className="w-4 h-4 mr-2" />
-                <Link href="/profile/edit">Edit Profile</Link>
+              <DropdownMenuItem asChild>
+                <Link href="/profile/edit" className="flex items-center w-full">
+                  <Settings className="w-4 h-4 mr-2" />
+                  Edit Profile
+                </Link>
               </DropdownMenuItem>
-              <DropdownMenuItem>
-                <QrCode className="w-4 h-4 mr-2" />
-                <Link href="/inms-id">My INMS ID</Link>
+              <DropdownMenuItem asChild>
+                <Link href="/inms-id" className="flex items-center w-full">
+                  <QrCode className="w-4 h-4 mr-2" />
+                  My INMS ID
+                </Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem className="text-red-600" onClick={logout}>
                 <LogOut className="w-4 h-4 mr-2" />
-                Log Out
+                Sign Out
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>

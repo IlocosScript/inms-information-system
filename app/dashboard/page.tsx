@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Progress } from '@/components/ui/progress';
@@ -21,8 +22,11 @@ import { StatsCard } from '@/components/ui/stats-card';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
 import { Button } from '@/components/ui/button';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function Dashboard() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [attendedEventsCount, setAttendedEventsCount] = useState(12);
   const [dashboardPreferences, setDashboardPreferences] = useLocalStorage('dashboardPreferences', {
@@ -32,6 +36,27 @@ export default function Dashboard() {
     showAnnouncements: true
   });
   const isOnline = useOnlineStatus();
+
+  // Route protection
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  // Show loading while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
 
   // Enhanced analytics data
   const analyticsData = {
@@ -132,7 +157,7 @@ export default function Dashboard() {
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Welcome back, Dr. Juan Dela Cruz</h2>
             <div className="flex items-center space-x-2">
-              <p className="text-gray-600">Here's what's happening with your INMS account today.</p>
+              <p className="text-gray-600">Here&apos;s what&apos;s happening with your INMS account today.</p>
               {!isOnline && (
                 <Badge className="bg-inms-secondary text-inms-black text-xs">
                   Offline Mode

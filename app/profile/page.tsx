@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -23,33 +24,58 @@ import {
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
 import Link from 'next/link';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function ViewProfilePage() {
+  const router = useRouter();
+  const { user, isAuthenticated, isLoading: authLoading } = useAuth();
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
 
+  // Route protection
+  useEffect(() => {
+    if (!authLoading && !isAuthenticated) {
+      router.push('/');
+    }
+  }, [isAuthenticated, authLoading, router]);
+
+  // Show loading while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated
+  if (!isAuthenticated) {
+    return null;
+  }
+
+  // Use real user data with fallbacks
   const memberData = {
-    id: "INMS-2024-001234",
-    name: "Dr. Juan Dela Cruz",
-    email: "juan.delacruz@example.com",
-    phone: "+63 917 123 4567",
-    age: 45,
-    gender: "Male",
-    birthday: "March 15, 1979",
-    address: "123 Rizal Street, Laoag City, Ilocos Norte 2900",
-    specialty: "Internal Medicine",
-    subspecialty: "Cardiology",
-    pmaNumber: "PMA-12345678",
-    licenseNumber: "LIC-98765432",
-    hospital: "Ilocos Training Hospital",
-    clinicHours: "Monday-Friday: 2:00 PM - 6:00 PM",
-    clinicAddress: "Medical Arts Building, 2nd Floor, Room 205",
-    clinicPhone: "+63 77 123 4567",
-    membershipStatus: "Active",
-    membershipType: "Regular",
-    joinDate: "January 15, 2020",
-    lastLogin: "January 20, 2024 - 2:30 PM",
-    totalPoints: 45,
-    duesStatus: "Paid",
+    id: user?.id || "INMS-2024-001234",
+    name: user ? `${user.firstName} ${user.lastName}` : "Dr. Juan Dela Cruz",
+    email: user?.email || "juan.delacruz@example.com",
+    phone: user?.phoneNumber || "+63 917 123 4567",
+    age: 45, // Not in user data, keeping default
+    gender: "Male", // Not in user data, keeping default
+    birthday: "March 15, 1979", // Not in user data, keeping default
+    address: "123 Rizal Street, Laoag City, Ilocos Norte 2900", // Not in user data, keeping default
+    specialty: "Internal Medicine", // Not in user data, keeping default
+    subspecialty: "Cardiology", // Not in user data, keeping default
+    pmaNumber: "PMA-12345678", // Not in user data, keeping default
+    licenseNumber: "LIC-98765432", // Not in user data, keeping default
+    hospital: "Ilocos Training Hospital", // Not in user data, keeping default
+    clinicHours: "Monday-Friday: 2:00 PM - 6:00 PM", // Not in user data, keeping default
+    clinicAddress: "Medical Arts Building, 2nd Floor, Room 205", // Not in user data, keeping default
+    clinicPhone: "+63 77 123 4567", // Not in user data, keeping default
+    membershipStatus: user?.isActive ? "Active" : "Inactive",
+    membershipType: "Regular", // Not in user data, keeping default
+    joinDate: user?.createdAt ? new Date(user.createdAt).toLocaleDateString() : "January 15, 2020",
+    lastLogin: user?.lastLoginAt ? new Date(user.lastLoginAt).toLocaleString() : "January 20, 2024 - 2:30 PM",
+    totalPoints: 45, // Not in user data, keeping default
+    duesStatus: "Paid", // Not in user data, keeping default
     emergencyContact: {
       name: "Maria Dela Cruz",
       relationship: "Spouse",

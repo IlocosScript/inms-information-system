@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -22,8 +23,11 @@ import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
 import { StatsCard } from '@/components/ui/stats-card';
 import { useSecurityContext } from '@/components/SecurityProvider';
+import { useAuth } from '@/contexts/AuthContext';
 
 export default function AdminPage() {
+  const router = useRouter();
+  const { isAuthenticated, isLoading: authLoading, hasRole } = useAuth();
   const [stats] = useState({
     totalMembers: 198,
     activeMembers: 185,
@@ -36,6 +40,34 @@ export default function AdminPage() {
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const { logSecurityEvent } = useSecurityContext();
+
+  // Route protection for admin
+  useEffect(() => {
+    if (!authLoading) {
+      if (!isAuthenticated) {
+        router.push('/');
+        return;
+      }
+      if (!hasRole('Admin')) {
+        router.push('/dashboard');
+        return;
+      }
+    }
+  }, [isAuthenticated, authLoading, hasRole, router]);
+
+  // Show loading while auth is initializing
+  if (authLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-green-600"></div>
+      </div>
+    );
+  }
+
+  // Don't render if not authenticated or not admin
+  if (!isAuthenticated || !hasRole('Admin')) {
+    return null;
+  }
 
   // Enhanced admin analytics
   const adminAnalytics = {

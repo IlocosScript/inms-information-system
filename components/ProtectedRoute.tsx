@@ -1,13 +1,12 @@
 "use client";
 
 import { useAuth } from '@/contexts/AuthContext';
-import { Role } from '@/types/api';
 import { useRouter } from 'next/navigation';
 import { useEffect } from 'react';
 
 interface ProtectedRouteProps {
   children: React.ReactNode;
-  requiredRole?: Role;
+  requiredRole?: string;
   fallbackPath?: string;
 }
 

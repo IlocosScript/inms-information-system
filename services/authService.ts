@@ -1,4 +1,4 @@
-import { api } from '@/lib/api';
+import { api, ApiResponse } from '@/lib/api';
 import { 
   LoginRequest, 
   LoginResponse, 
@@ -6,12 +6,12 @@ import {
   RefreshTokenRequest, 
   ChangePasswordRequest,
   Member,
-  ApiResponse 
+  User
 } from '@/types/api';
 
 export const authService = {
   async login(credentials: LoginRequest): Promise<LoginResponse> {
-    const response = await api.post<ApiResponse<LoginResponse>>('/auth/login', credentials);
+    const response = await api.post<ApiResponse<LoginResponse>>('/Auth/login', credentials);
     return response.data;
   },
 
@@ -20,16 +20,16 @@ export const authService = {
   },
 
   async refreshToken(refreshToken: string): Promise<LoginResponse> {
-    const response = await api.post<ApiResponse<LoginResponse>>('/auth/refresh', { refreshToken });
+    const response = await api.post<ApiResponse<LoginResponse>>('/auth/refresh-token', { refreshToken });
     return response.data;
   },
 
   async logout(): Promise<void> {
-    await api.post<ApiResponse<void>>('/auth/logout');
+    await api.post<ApiResponse<void>>('/auth/revoke-token');
   },
 
-  async getCurrentUser(): Promise<Member> {
-    const response = await api.get<ApiResponse<Member>>('/auth/me');
+  async getCurrentUser(): Promise<User> {
+    const response = await api.get<ApiResponse<User>>('/auth/profile');
     return response.data;
   },
 

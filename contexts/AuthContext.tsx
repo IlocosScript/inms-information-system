@@ -1,16 +1,16 @@
 "use client";
 
 import React, { createContext, useContext, useEffect, useState, ReactNode } from 'react';
-import { Member, LoginRequest, LoginResponse, Role } from '@/types/api';
+import { User, LoginRequest, LoginResponse } from '@/types/api';
 import { authService } from '@/services/authService';
 
 interface AuthContextType {
-  user: Member | null;
+  user: User | null;
   isAuthenticated: boolean;
   isLoading: boolean;
-  login: (credentials: LoginRequest) => Promise<void>;
+  login: (credentials: LoginRequest) => Promise<LoginResponse>;
   logout: () => void;
-  hasRole: (role: Role) => boolean;
+  hasRole: (role: string) => boolean;
   isAdmin: boolean;
   refreshUser: () => Promise<void>;
 }
@@ -30,7 +30,7 @@ interface AuthProviderProps {
 }
 
 export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
-  const [user, setUser] = useState<Member | null>(null);
+  const [user, setUser] = useState<User | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
   useEffect(() => {
@@ -40,28 +40,40 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const initializeAuth = async () => {
     try {
       const token = localStorage.getItem('accessToken');
-      if (token) {
-        const userData = await authService.getCurrentUser();
-        setUser(userData);
+      const userData = localStorage.getItem('userData');
+      
+      if (token && userData) {
+        try {
+          const user = JSON.parse(userData);
+          setUser(user);
+        } catch (error) {
+          console.error('Failed to parse user data from localStorage:', error);
+          localStorage.removeItem('accessToken');
+          localStorage.removeItem('refreshToken');
+          localStorage.removeItem('userData');
+        }
       }
     } catch (error) {
       console.error('Failed to initialize auth:', error);
       localStorage.removeItem('accessToken');
       localStorage.removeItem('refreshToken');
+      localStorage.removeItem('userData');
     } finally {
       setIsLoading(false);
     }
   };
 
-  const login = async (credentials: LoginRequest) => {
+  const login = async (credentials: LoginRequest): Promise<LoginResponse> => {
     try {
       setIsLoading(true);
       const response: LoginResponse = await authService.login(credentials);
       
       localStorage.setItem('accessToken', response.accessToken);
       localStorage.setItem('refreshToken', response.refreshToken);
+      localStorage.setItem('userData', JSON.stringify(response.user));
       
-      setUser(response.member);
+      setUser(response.user);
+      return response;
     } catch (error) {
       throw error;
     } finally {
@@ -72,23 +84,26 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   const logout = () => {
     localStorage.removeItem('accessToken');
     localStorage.removeItem('refreshToken');
+    localStorage.removeItem('userData');
     setUser(null);
     window.location.href = '/';
   };
 
-  const hasRole = (role: Role): boolean => {
+  const hasRole = (role: string): boolean => {
     return user?.roles?.includes(role) || false;
   };
 
-  const isAdmin = hasRole(Role.Admin) || hasRole(Role.SuperAdmin);
+  const isAdmin = hasRole('Admin') || hasRole('SuperAdmin');
 
   const refreshUser = async () => {
     try {
+      // Try to get current user, but fall back to localStorage if endpoint doesn't exist
       const userData = await authService.getCurrentUser();
       setUser(userData);
+      localStorage.setItem('userData', JSON.stringify(userData));
     } catch (error) {
-      console.error('Failed to refresh user:', error);
-      logout();
+      console.warn('getCurrentUser endpoint not available, using cached user data');
+      // Don't logout if getCurrentUser fails - user might still be valid
     }
   };
 
