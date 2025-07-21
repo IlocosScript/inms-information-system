@@ -35,12 +35,9 @@ export interface RegisterRequest {
   lastName: string;
   email: string;
   password: string;
-  phone: string;
-  pmaNumber: string;
-  licenseNumber: string;
-  specialtyId: number;
-  subspecialtyId?: number;
-  hospitalId?: number;
+  confirmPassword: string;
+  phoneNumber: string;
+  memberId: number;
 }
 
 export interface RefreshTokenRequest {

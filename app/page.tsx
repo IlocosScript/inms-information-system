@@ -286,7 +286,11 @@ export default function Home() {
                     <p className="text-sm text-gray-600 mb-3">
                       Don&apos;t have an account?
                     </p>
-                    <Button variant="outline" className="w-full h-11">
+                    <Button 
+                      variant="outline" 
+                      className="w-full h-11"
+                      onClick={() => router.push('/register')}
+                    >
                       <User className="w-4 h-4 mr-2" />
                       Request Membership
                     </Button>

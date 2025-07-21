@@ -13,6 +13,7 @@ interface AuthContextType {
   hasRole: (role: string) => boolean;
   isAdmin: boolean;
   refreshUser: () => Promise<void>;
+  updateUserData: (userData: User) => void;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -90,7 +91,30 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
   };
 
   const hasRole = (role: string): boolean => {
-    return user?.roles?.includes(role) || false;
+    if (!user?.roles) return false;
+    
+    // Normalize role names for comparison
+    const normalizedRole = role.toLowerCase();
+    const userRoles = user.roles.map(r => r.toLowerCase());
+    
+    // Handle different role formats
+    return userRoles.some(userRole => {
+      // Direct match
+      if (userRole === normalizedRole) return true;
+      
+      // Handle "Member/member" format
+      if (userRole.includes('/')) {
+        const roleParts = userRole.split('/');
+        return roleParts.some(part => part === normalizedRole);
+      }
+      
+      // Handle role variations
+      if (normalizedRole === 'member' && (userRole === 'member' || userRole === 'Member')) return true;
+      if (normalizedRole === 'admin' && (userRole === 'admin' || userRole === 'Admin')) return true;
+      if (normalizedRole === 'superadmin' && (userRole === 'superadmin' || userRole === 'SuperAdmin')) return true;
+      
+      return false;
+    });
   };
 
   const isAdmin = hasRole('Admin') || hasRole('SuperAdmin');
@@ -107,6 +131,12 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     }
   };
 
+  // Function to update user data in context (useful after role changes)
+  const updateUserData = (newUserData: User) => {
+    setUser(newUserData);
+    localStorage.setItem('userData', JSON.stringify(newUserData));
+  };
+
   const value: AuthContextType = {
     user,
     isAuthenticated: !!user,
@@ -116,6 +146,7 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     hasRole,
     isAdmin,
     refreshUser,
+    updateUserData,
   };
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;

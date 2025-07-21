@@ -52,25 +52,11 @@ import TopBar from '@/components/TopBar';
 import { LoadingSpinner } from '@/components/ui/loading-spinner';
 import { EmptyState } from '@/components/ui/empty-state';
 import { MobileDrawer } from '@/components/ui/mobile-drawer';
+import { useMembers } from '@/hooks/useMembers';
+import { Member, SearchFilter } from '@/types/api';
+import { useAuth } from '@/contexts/AuthContext';
 
-interface Member {
-  id: number;
-  name: string;
-  age: number;
-  gender: string;
-  specialty: string;
-  subspecialty?: string;
-  hospital: string;
-  contact: string;
-  email: string;
-  address: string;
-  status: 'active' | 'inactive';
-  membershipType: 'regular' | 'senior' | 'emeritus';
-  joinDate: string;
-  avatar?: string;
-  clinicAddress?: string;
-  clinicHours?: string;
-}
+// Using the Member interface from types/api.ts instead of local interface
 
 export default function MembersPage() {
   const [searchQuery, setSearchQuery] = useState('');
@@ -81,109 +67,44 @@ export default function MembersPage() {
   const [messageContent, setMessageContent] = useState('');
   const [referralContent, setReferralContent] = useState('');
   const [patientDetails, setPatientDetails] = useState('');
-  const [isLoading, setIsLoading] = useState(false);
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showMobileProfile, setShowMobileProfile] = useState<Member | null>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize] = useState(10);
 
-  const members: Member[] = [
-    {
-      id: 1,
-      name: 'Dr. Juan Dela Cruz',
-      age: 45,
-      gender: 'Male',
-      specialty: 'Internal Medicine',
-      subspecialty: 'Cardiology',
-      hospital: 'Ilocos Training Hospital',
-      contact: '+63 917 123 4567',
-      email: 'juan.delacruz@example.com',
-      address: 'Laoag City, Ilocos Norte',
-      status: 'active',
-      membershipType: 'regular',
-      joinDate: '2020-01-15',
-      clinicAddress: 'Medical Arts Building, Room 205',
-      clinicHours: 'Mon-Fri: 2:00 PM - 6:00 PM'
-    },
-    {
-      id: 2,
-      name: 'Dr. Maria Santos',
-      age: 38,
-      gender: 'Female',
-      specialty: 'Pediatrics',
-      hospital: 'Mariano Marcos Memorial Hospital',
-      contact: '+63 917 987 6543',
-      email: 'maria.santos@example.com',
-      address: 'Batac City, Ilocos Norte',
-      status: 'active',
-      membershipType: 'regular',
-      joinDate: '2021-03-22',
-      clinicAddress: 'Pediatric Center, 3rd Floor',
-      clinicHours: 'Mon-Sat: 9:00 AM - 5:00 PM'
-    },
-    {
-      id: 3,
-      name: 'Dr. Roberto Aquino',
-      age: 52,
-      gender: 'Male',
-      specialty: 'Surgery',
-      subspecialty: 'Orthopedics',
-      hospital: 'Ilocos Training Hospital',
-      contact: '+63 917 555 0123',
-      email: 'roberto.aquino@example.com',
-      address: 'Vigan City, Ilocos Sur',
-      status: 'active',
-      membershipType: 'senior',
-      joinDate: '2018-07-10',
-      clinicAddress: 'Orthopedic Clinic, Ground Floor',
-      clinicHours: 'Tue-Thu: 1:00 PM - 7:00 PM'
-    },
-    {
-      id: 4,
-      name: 'Dr. Carmen Reyes',
-      age: 42,
-      gender: 'Female',
-      specialty: 'Obstetrics & Gynecology',
-      hospital: 'Don Mariano Marcos Memorial Hospital',
-      contact: '+63 917 444 5678',
-      email: 'carmen.reyes@example.com',
-      address: 'Laoag City, Ilocos Norte',
-      status: 'active',
-      membershipType: 'regular',
-      joinDate: '2019-11-05',
-      clinicAddress: 'Women\'s Health Center, 2nd Floor',
-      clinicHours: 'Mon-Fri: 8:00 AM - 4:00 PM'
-    },
-    {
-      id: 5,
-      name: 'Dr. Eduardo Fernandez',
-      age: 65,
-      gender: 'Male',
-      specialty: 'Internal Medicine',
-      hospital: 'Retired',
-      contact: '+63 917 333 2222',
-      email: 'eduardo.fernandez@example.com',
-      address: 'San Nicolas, Ilocos Norte',
-      status: 'inactive',
-      membershipType: 'emeritus',
-      joinDate: '1995-04-12',
-      clinicAddress: 'Retired',
-      clinicHours: 'N/A'
-    }
-  ];
+  // Search filter
+  const filter: SearchFilter = {
+    searchTerm: searchQuery || undefined,
+    pageNumber: currentPage,
+    pageSize,
+    sortBy: 'fullName',
+    sortDescending: false
+  };
 
-  const filteredMembers = members.filter(member => {
-    const matchesSearch = member.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         member.specialty.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         member.hospital.toLowerCase().includes(searchQuery.toLowerCase());
+  // API hook
+  const { data: membersData, loading: isLoading, refetch } = useMembers(filter);
+
+  // Filter members based on search and filters
+  const filteredMembers = membersData?.items?.filter(member => {
+    const matchesSearch = !searchQuery || 
+                         member.fullName.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         member.specialty?.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+                         member.hospital?.name.toLowerCase().includes(searchQuery.toLowerCase());
     
-    const matchesSpecialty = specialtyFilter === 'all' || member.specialty === specialtyFilter;
+    const matchesSpecialty = specialtyFilter === 'all' || member.specialty?.name === specialtyFilter;
     const matchesGender = genderFilter === 'all' || member.gender === genderFilter;
-    const matchesStatus = statusFilter === 'all' || member.status === statusFilter;
+    const matchesStatus = statusFilter === 'all' || 
+                         (statusFilter === 'active' && member.status === 1) ||
+                         (statusFilter === 'inactive' && member.status === 2);
     
     return matchesSearch && matchesSpecialty && matchesGender && matchesStatus;
-  });
+  }) || [];
 
-  const specialties = [...new Set(members.map(m => m.specialty))];
+  // Get unique specialties from members data
+  const specialties = Array.from(new Set(
+    membersData?.items?.map(m => m.specialty?.name).filter(Boolean) || []
+  ));
 
   const handleViewMember = (member: Member) => {
     setSelectedMember(member);
@@ -192,27 +113,23 @@ export default function MembersPage() {
   const handleSendMessage = async () => {
     if (!messageContent.trim() || !selectedMember) return;
     
-    setIsLoading(true);
     // Simulate sending message
     setTimeout(() => {
-      alert(`Message sent to ${selectedMember.name}!`);
+      alert(`Message sent to ${selectedMember.fullName}!`);
       setMessageContent('');
       setSelectedMember(null);
-      setIsLoading(false);
     }, 1000);
   };
 
   const handleSendReferral = async () => {
     if (!referralContent.trim() || !patientDetails.trim() || !selectedMember) return;
     
-    setIsLoading(true);
     // Simulate sending referral
     setTimeout(() => {
-      alert(`Patient referral sent to ${selectedMember.name}!`);
+      alert(`Patient referral sent to ${selectedMember.fullName}!`);
       setReferralContent('');
       setPatientDetails('');
       setSelectedMember(null);
-      setIsLoading(false);
     }, 1000);
   };
 
@@ -222,6 +139,8 @@ export default function MembersPage() {
     setReferralContent('');
     setPatientDetails('');
   };
+
+  const { isAdmin } = useAuth();
 
   return (
     <div className="min-h-screen bg-white">
@@ -346,73 +265,65 @@ export default function MembersPage() {
                 </TableHeader>
                 <TableBody>
                   {filteredMembers.map((member) => (
-                    <TableRow key={member.id}>
+                    <TableRow key={member.memberId}>
                       <TableCell>
                         <div className="flex items-center space-x-3">
                           <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
                             <span className="text-sm font-medium text-blue-600">
-                              {member.name.split(' ').map(n => n[0]).join('')}
+                              {member.fullName.split(' ').map((n: string) => n[0]).join('')}
                             </span>
                           </div>
                           <div>
-                            <p className="font-medium">{member.name}</p>
+                            <p className="font-medium">{member.fullName}</p>
                             <p className="text-sm text-gray-600">{member.membershipType}</p>
                           </div>
                         </div>
                       </TableCell>
-                      <TableCell>{member.age}</TableCell>
+                      <TableCell>{member.birthday ? new Date().getFullYear() - new Date(member.birthday).getFullYear() : 'N/A'}</TableCell>
                       <TableCell>{member.gender}</TableCell>
                       <TableCell>
                         <div>
-                          <p className="font-medium">{member.specialty}</p>
-                          {member.subspecialty && (
-                            <p className="text-sm text-gray-600">{member.subspecialty}</p>
+                          <p className="font-medium">{member.specialty?.name || 'N/A'}</p>
+                          {member.subspecialty?.name && (
+                            <p className="text-sm text-gray-600">{member.subspecialty.name}</p>
                           )}
                         </div>
                       </TableCell>
-                      <TableCell>{member.hospital}</TableCell>
+                      <TableCell>{member.hospital?.name || 'N/A'}</TableCell>
                       <TableCell>
                         <Badge 
-                          variant={member.status === 'active' ? 'default' : 'secondary'}
-                          className={member.status === 'active' ? 'bg-green-100 text-green-700' : ''}
+                          variant={member.status === 1 ? 'default' : 'secondary'}
+                          className={member.status === 1 ? 'bg-green-100 text-green-700' : ''}
                         >
-                          {member.status}
+                          {member.status === 1 ? 'Active' : 'Inactive'}
                         </Badge>
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <span 
-                                  onClick={() => {
-                                    handleViewMember(member);
-                                    setShowMobileProfile(member);
-                                  }} 
-                                  className="flex items-center cursor-pointer"
-                                >
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  View
-                                </span>
-                              </DialogTrigger>
-                            </Dialog>
+                          <Button 
+                            size="sm" 
+                            variant="outline"
+                            onClick={() => handleViewMember(member)}
+                          >
+                            <Eye className="w-4 h-4 mr-1" />
+                            View
                           </Button>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
-                                <MessageSquare className="w-4 h-4 mr-1" />
-                                Message
-                              </Button>
-                            </DialogTrigger>
-                          </Dialog>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
-                                <UserPlus className="w-4 h-4 mr-1" />
-                                Refer
-                              </Button>
-                            </DialogTrigger>
-                          </Dialog>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => setSelectedMember(member)}
+                          >
+                            <MessageSquare className="w-4 h-4 mr-1" />
+                            Message
+                          </Button>
+                          <Button 
+                            size="sm" 
+                            variant="outline" 
+                            onClick={() => setSelectedMember(member)}
+                          >
+                            <UserPlus className="w-4 h-4 mr-1" />
+                            Refer
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -436,7 +347,10 @@ export default function MembersPage() {
                     <div className="flex items-start space-x-4">
                       <Avatar className="w-20 h-20">
                         <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
-                          {selectedMember.name.split(' ').map(n => n[0]).join('')}
+                          {(selectedMember.fullName || `${selectedMember.firstName || ''} ${selectedMember.lastName || ''}`)
+                            .split(' ')
+                            .map(n => n[0])
+                            .join('')}
                         </AvatarFallback>
                       </Avatar>
                       <div className="flex-1">
@@ -466,7 +380,7 @@ export default function MembersPage() {
                         <div className="space-y-2 text-sm">
                           <div className="flex items-center">
                             <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                            <span>{selectedMember.contact}</span>
+                            <span>{selectedMember.phone}</span>
                           </div>
                           <div className="flex items-center">
                             <Mail className="w-4 h-4 mr-2 text-gray-400" />
@@ -483,7 +397,7 @@ export default function MembersPage() {
                         <div className="space-y-2 text-sm">
                           <div className="flex items-center">
                             <Building className="w-4 h-4 mr-2 text-gray-400" />
-                            <span>{selectedMember.hospital}</span>
+                            <span>{selectedMember.hospital?.name || 'N/A'}</span>
                           </div>
                           {selectedMember.clinicAddress && (
                             <div className="flex items-start">
@@ -516,7 +430,7 @@ export default function MembersPage() {
                         </DialogTrigger>
                         <DialogContent>
                           <DialogHeader>
-                            <DialogTitle>Send Message to {selectedMember.name}</DialogTitle>
+                            <DialogTitle>Send Message to {selectedMember.fullName}</DialogTitle>
                           </DialogHeader>
                           <div className="space-y-4">
                             <div>
@@ -619,19 +533,19 @@ export default function MembersPage() {
             <h2 className="text-xl font-semibold mb-4">Featured Members</h2>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
               {filteredMembers.slice(0, 6).map((member) => (
-                <Card key={member.id} className="hover:shadow-lg transition-shadow bg-white">
+                <Card key={member.memberId} className="hover:shadow-lg transition-shadow bg-white">
                   <CardHeader className="pb-3">
                     <div className="flex items-center space-x-4">
                       <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center">
                         <span className="text-lg font-medium text-blue-600">
-                          {member.name.split(' ').map(n => n[0]).join('')}
+                          {member.fullName.split(' ').map((n: string) => n[0]).join('')}
                         </span>
                       </div>
                       <div>
-                        <h3 className="font-semibold text-lg">{member.name}</h3>
-                        <p className="text-gray-600">{member.specialty}</p>
-                        {member.subspecialty && (
-                          <p className="text-sm text-gray-500">{member.subspecialty}</p>
+                        <h3 className="font-semibold text-lg">{member.fullName}</h3>
+                        <p className="text-gray-600">{member.specialty?.name || 'N/A'}</p>
+                        {member.subspecialty?.name && (
+                          <p className="text-sm text-gray-500">{member.subspecialty.name}</p>
                         )}
                       </div>
                     </div>
@@ -640,11 +554,11 @@ export default function MembersPage() {
                     <div className="space-y-2 mb-4">
                       <div className="flex items-center text-sm text-gray-600">
                         <Calendar className="w-4 h-4 mr-2" />
-                        Age: {member.age}
+                        Age: {member.birthday ? new Date().getFullYear() - new Date(member.birthday).getFullYear() : 'N/A'}
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <Building className="w-4 h-4 mr-2" />
-                        {member.hospital}
+                        {member.hospital?.name || 'N/A'}
                       </div>
                       <div className="flex items-center text-sm text-gray-600">
                         <MapPin className="w-4 h-4 mr-2" />
@@ -654,29 +568,21 @@ export default function MembersPage() {
                     
                     <div className="flex items-center justify-between">
                       <Badge 
-                        variant={member.status === 'active' ? 'default' : 'secondary'}
-                        className={member.status === 'active' ? 'bg-green-100 text-green-700' : ''}
+                        variant={member.status === 1 ? 'default' : 'secondary'}
+                        className={member.status === 1 ? 'bg-green-100 text-green-700' : ''}
                       >
-                        {member.status}
+                        {member.status === 1 ? 'Active' : 'Inactive'}
                       </Badge>
                       <div className="flex space-x-2">
                         <Button size="sm" variant="outline" onClick={() => handleViewMember(member)}>
                           <Eye className="w-4 h-4" />
                         </Button>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
-                              <MessageSquare className="w-4 h-4" />
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
-                              <UserPlus className="w-4 h-4" />
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
+                        <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
+                          <MessageSquare className="w-4 h-4" />
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
+                          <UserPlus className="w-4 h-4" />
+                        </Button>
                       </div>
                     </div>
                   </CardContent>

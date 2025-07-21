@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -44,6 +44,8 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useAuth } from '@/contexts/AuthContext';
+import { announcementService } from '@/services/announcementService';
 
 interface Announcement {
   id: number;
@@ -77,92 +79,69 @@ export default function AnnouncementsPage() {
     eventDate: '',
     eventVenue: ''
   });
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.some(role => ['admin', 'dev'].includes(role.toLowerCase()));
+  const [sendEmail, setSendEmail] = useState(true);
+  const [expiryDate, setExpiryDate] = useState('');
+  const [announcements, setAnnouncements] = useState<any[]>([]);
+  const [apiLoading, setApiLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+  const [pageNumber, setPageNumber] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalCount, setTotalCount] = useState(0);
+  const [editingAnnouncement, setEditingAnnouncement] = useState<any | null>(null);
 
-  const announcements: Announcement[] = [
-    {
-      id: 1,
-      title: "Cardiology Symposium 2024 - Registration Open",
-      content: "We are pleased to announce that registration is now open for the Cardiology Symposium 2024. This comprehensive event will feature the latest advances in cardiovascular medicine, interventional cardiology procedures, and case discussions. The symposium will be held at the Ilocos Training Hospital Auditorium and will provide 8 CME points for attendees. Early bird registration is available until February 10, 2024. Please confirm your attendance by clicking the button below.",
-      type: "event",
-      priority: "high",
-      author: "Dr. Maria Santos",
-      publishDate: "2024-01-20",
-      eventDate: "2024-02-15",
-      eventVenue: "Ilocos Training Hospital Auditorium",
-      attendanceResponse: "attending",
-      isRead: true,
-      emailSent: true
-    },
-    {
-      id: 2,
-      title: "Annual Dues Payment Reminder",
-      content: "This is a friendly reminder that the annual INMS membership dues for 2024 are now due. The payment deadline is March 31, 2024. Members who have not settled their dues by the deadline will be temporarily marked as inactive, and their INMS ID QR codes will be deactivated. Please settle your dues through the online payment system or visit the INMS office. For questions regarding your dues status, please contact the secretariat.",
-      type: "dues",
-      priority: "high",
-      author: "INMS Secretariat",
-      publishDate: "2024-01-18",
-      attendanceResponse: "pending",
-      isRead: false,
-      emailSent: true
-    },
-    {
-      id: 3,
-      title: "New CME Requirements for 2024",
-      content: "The Philippine Medical Association has updated the CME requirements for 2024. All practicing physicians are now required to complete a minimum of 40 CME points annually, with at least 20 points from Category 1 activities. The INMS will be organizing various CME activities throughout the year to help members meet these requirements. Please track your CME points through the INMS portal and ensure compliance with the new guidelines.",
-      type: "cme",
-      priority: "medium",
-      author: "Dr. Roberto Aquino",
-      publishDate: "2024-01-15",
-      isRead: true,
-      emailSent: true
-    },
-    {
-      id: 4,
-      title: "Emergency Medicine Update Seminar",
-      content: "Join us for an important seminar on Emergency Medicine Updates, focusing on critical care protocols and emergency management techniques for primary care physicians. This seminar will cover the latest guidelines in emergency medicine, trauma management, and life-saving procedures. The event will provide 5 CME points and includes hands-on training sessions.",
-      type: "event",
-      priority: "medium",
-      author: "Emergency Medicine Society",
-      publishDate: "2024-01-12",
-      eventDate: "2024-02-20",
-      eventVenue: "INMS Conference Room",
-      attendanceResponse: "not_attending",
-      isRead: true,
-      emailSent: true
-    },
-    {
-      id: 5,
-      title: "INMS Constitution and By-laws Updated",
-      content: "The INMS Constitution and By-laws have been revised and updated to reflect current practices and regulations. All members are encouraged to review the updated document, which is now available in the INMS portal under the Constitution section. Key changes include updated membership categories, dues structure, and disciplinary procedures. The updated constitution will take effect on February 1, 2024.",
-      type: "general",
-      priority: "medium",
-      author: "INMS Board of Directors",
-      publishDate: "2024-01-10",
-      isRead: false,
-      emailSent: true
-    },
-    {
-      id: 6,
-      title: "URGENT: COVID-19 Protocol Updates",
-      content: "Important updates to COVID-19 protocols for healthcare workers. New guidelines from the Department of Health regarding patient management, PPE requirements, and vaccination protocols. All members must review and implement these protocols immediately. Additional training sessions will be scheduled for next week.",
-      type: "urgent",
-      priority: "high",
-      author: "DOH Ilocos Norte",
-      publishDate: "2024-01-08",
-      isRead: true,
-      emailSent: true,
-      attachments: ["covid-protocol-2024.pdf", "ppe-guidelines.pdf"]
+  const fetchAnnouncements = async (page = pageNumber, size = pageSize) => {
+    setApiLoading(true);
+    setApiError(null);
+    try {
+      const result = await announcementService.getAnnouncements({
+        pageNumber: page,
+        pageSize: size,
+        searchTerm: searchQuery || undefined,
+      });
+      setAnnouncements(result.items || []);
+      setTotalPages(result.totalPages || 1);
+      setTotalCount(result.totalCount || 0);
+    } catch (err: any) {
+      setApiError('Failed to load announcements.');
+    } finally {
+      setApiLoading(false);
     }
-  ];
+  };
 
-  const filteredAnnouncements = announcements.filter(announcement => {
+  useEffect(() => {
+    fetchAnnouncements();
+    // eslint-disable-next-line
+  }, [pageNumber, pageSize]);
+
+  // Enum mapping
+  const typeLabels: Record<number, string> = {
+    1: 'General', 2: 'Event', 3: 'Urgent', 4: 'Dues', 5: 'CME'
+  };
+  const typeColors: Record<number, string> = {
+    1: 'bg-gray-100 text-gray-700',
+    2: 'bg-blue-100 text-blue-700',
+    3: 'bg-red-100 text-red-700',
+    4: 'bg-orange-100 text-orange-700',
+    5: 'bg-purple-100 text-purple-700',
+  };
+  const priorityLabels: Record<number, string> = {
+    1: 'Low', 2: 'Medium', 3: 'High'
+  };
+  const priorityColors: Record<number, string> = {
+    1: 'bg-green-100 text-green-700',
+    2: 'bg-yellow-100 text-yellow-700',
+    3: 'bg-red-100 text-red-700',
+  };
+
+  const filteredAnnouncements = announcements.filter((announcement) => {
     const matchesSearch = announcement.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         announcement.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                         announcement.author.toLowerCase().includes(searchQuery.toLowerCase());
-    
-    const matchesType = typeFilter === 'all' || announcement.type === typeFilter;
-    const matchesPriority = priorityFilter === 'all' || announcement.priority === priorityFilter;
-    
+      announcement.content.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (announcement.author?.fullName || '').toLowerCase().includes(searchQuery.toLowerCase());
+    const matchesType = typeFilter === 'all' || typeLabels[announcement.type]?.toLowerCase() === typeFilter;
+    const matchesPriority = priorityFilter === 'all' || priorityLabels[announcement.priority]?.toLowerCase() === priorityFilter;
     return matchesSearch && matchesType && matchesPriority;
   });
 
@@ -197,27 +176,89 @@ export default function AnnouncementsPage() {
     }
   };
 
+  // Open modal for editing
+  const handleEditClick = (announcement: any) => {
+    setEditingAnnouncement(announcement);
+    setShowCreateAnnouncement(true);
+    setNewAnnouncement({
+      title: announcement.title,
+      content: announcement.content,
+      type: typeLabels[announcement.type]?.toLowerCase() || 'general',
+      priority: priorityLabels[announcement.priority]?.toLowerCase() || 'medium',
+      eventDate: announcement.eventDate ? announcement.eventDate.slice(0, 10) : '',
+      eventVenue: announcement.eventVenue || ''
+    });
+    setExpiryDate(announcement.expiryDate ? announcement.expiryDate.slice(0, 10) : '');
+    setSendEmail(!!announcement.isEmailSent);
+  };
+
+  // Reset modal state
+  const resetModal = () => {
+    setShowCreateAnnouncement(false);
+    setEditingAnnouncement(null);
+    setNewAnnouncement({
+      title: '',
+      content: '',
+      type: 'general',
+      priority: 'medium',
+      eventDate: '',
+      eventVenue: ''
+    });
+    setExpiryDate('');
+    setSendEmail(true);
+  };
+
+  // Create or update
   const handleCreateAnnouncement = async () => {
     if (!newAnnouncement.title || !newAnnouncement.content) {
       alert('Please fill in all required fields');
       return;
     }
-    
     setIsLoading(true);
-    // Simulate announcement creation
-    setTimeout(() => {
-      alert('Announcement created successfully!');
-      setNewAnnouncement({
-        title: '',
-        content: '',
-        type: 'general',
-        priority: 'medium',
-        eventDate: '',
-        eventVenue: ''
-      });
-      setShowCreateAnnouncement(false);
+    try {
+      // Map UI values to backend enums
+      const typeMap: Record<string, number> = {
+        general: 1, event: 2, urgent: 3, dues: 4, cme: 5
+      };
+      const priorityMap: Record<string, number> = {
+        low: 1, medium: 2, high: 3
+      };
+      const payload = {
+        title: newAnnouncement.title,
+        content: newAnnouncement.content,
+        type: typeMap[newAnnouncement.type],
+        priority: priorityMap[newAnnouncement.priority],
+        eventDate: newAnnouncement.eventDate ? new Date(newAnnouncement.eventDate).toISOString() : undefined,
+        eventVenue: newAnnouncement.eventVenue || undefined,
+        expiryDate: expiryDate ? new Date(expiryDate).toISOString() : undefined,
+        sendEmail,
+      };
+      if (editingAnnouncement) {
+        // Update
+        await announcementService.updateAnnouncement(editingAnnouncement.announcementId, {
+          title: newAnnouncement.title,
+          content: newAnnouncement.content,
+          type: typeMap[newAnnouncement.type],
+          priority: priorityMap[newAnnouncement.priority],
+          eventDate: newAnnouncement.eventDate ? new Date(newAnnouncement.eventDate).toISOString() : undefined,
+          eventVenue: newAnnouncement.eventVenue || undefined,
+          expiryDate: expiryDate ? new Date(expiryDate).toISOString() : undefined,
+          status: editingAnnouncement.status || 1
+        });
+        alert('Announcement updated successfully!');
+      } else {
+        // Create
+        await announcementService.createAnnouncement(payload);
+        alert('Announcement created successfully!');
+      }
+      resetModal();
+      fetchAnnouncements(1, pageSize);
+      setPageNumber(1);
+    } catch (err) {
+      alert('Failed to save announcement.');
+    } finally {
       setIsLoading(false);
-    }, 1000);
+    }
   };
 
   const handleArchive = (announcementId: number) => {
@@ -263,40 +304,38 @@ export default function AnnouncementsPage() {
               <p className="text-gray-600">Stay updated with INMS news and events</p>
             </div>
             <div className="flex items-center space-x-4">
-              <Dialog open={showCreateAnnouncement} onOpenChange={setShowCreateAnnouncement}>
-                <DialogTrigger asChild>
-                  <Button>
-                    <Plus className="w-4 h-4 mr-2" />
-                    Create Announcement
-                  </Button>
-                </DialogTrigger>
-                <DialogContent className="max-w-2xl">
-                  <DialogHeader>
-                    <DialogTitle>Create New Announcement</DialogTitle>
-                  </DialogHeader>
-                  <div className="space-y-4">
-                    <div>
-                      <Label htmlFor="announcementTitle">Title *</Label>
-                      <Input
-                        id="announcementTitle"
-                        value={newAnnouncement.title}
-                        onChange={(e) => setNewAnnouncement({...newAnnouncement, title: e.target.value})}
-                        placeholder="Announcement title"
-                      />
-                    </div>
-                    
-                    <div>
-                      <Label htmlFor="announcementContent">Content *</Label>
-                      <Textarea
-                        id="announcementContent"
-                        value={newAnnouncement.content}
-                        onChange={(e) => setNewAnnouncement({...newAnnouncement, content: e.target.value})}
-                        placeholder="Announcement content"
-                        rows={5}
-                      />
-                    </div>
-                    
-                    <div className="grid md:grid-cols-2 gap-4">
+              {isAdmin && (
+                <Dialog open={showCreateAnnouncement} onOpenChange={open => { setShowCreateAnnouncement(open); if (!open) resetModal(); }}>
+                  <DialogTrigger asChild>
+                    <Button>
+                      <Plus className="w-4 h-4 mr-2" />
+                      Create Announcement
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>{editingAnnouncement ? 'Edit Announcement' : 'Create New Announcement'}</DialogTitle>
+                    </DialogHeader>
+                    <div className="space-y-4">
+                      <div>
+                        <Label htmlFor="announcementTitle">Title *</Label>
+                        <Input
+                          id="announcementTitle"
+                          value={newAnnouncement.title}
+                          onChange={(e) => setNewAnnouncement({...newAnnouncement, title: e.target.value})}
+                          placeholder="Announcement title"
+                        />
+                      </div>
+                      <div>
+                        <Label htmlFor="announcementContent">Content *</Label>
+                        <Textarea
+                          id="announcementContent"
+                          value={newAnnouncement.content}
+                          onChange={(e) => setNewAnnouncement({...newAnnouncement, content: e.target.value})}
+                          placeholder="Announcement content"
+                          rows={5}
+                        />
+                      </div>
                       <div>
                         <Label htmlFor="announcementType">Type</Label>
                         <Select value={newAnnouncement.type} onValueChange={(value: Announcement['type']) => setNewAnnouncement({...newAnnouncement, type: value})}>
@@ -325,9 +364,6 @@ export default function AnnouncementsPage() {
                           </SelectContent>
                         </Select>
                       </div>
-                    </div>
-                    
-                    {newAnnouncement.type === 'event' && (
                       <div className="grid md:grid-cols-2 gap-4">
                         <div>
                           <Label htmlFor="eventDate">Event Date</Label>
@@ -348,29 +384,49 @@ export default function AnnouncementsPage() {
                           />
                         </div>
                       </div>
-                    )}
-                    
-                    <div className="flex justify-end space-x-2 pt-4">
-                      <Button variant="outline" onClick={() => setShowCreateAnnouncement(false)}>
-                        Cancel
-                      </Button>
-                      <Button onClick={handleCreateAnnouncement} disabled={isLoading}>
-                        {isLoading ? (
-                          <div className="flex items-center">
-                            <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                            Publishing...
-                          </div>
-                        ) : (
-                          <>
-                            <Send className="w-4 h-4 mr-2" />
-                            Publish
-                          </>
-                        )}
-                      </Button>
+                      <div className="grid md:grid-cols-2 gap-4">
+                        <div>
+                          <Label htmlFor="expiryDate">Expiry Date</Label>
+                          <Input
+                            id="expiryDate"
+                            type="date"
+                            value={expiryDate}
+                            onChange={(e) => setExpiryDate(e.target.value)}
+                          />
+                        </div>
+                        <div className="flex items-center mt-6">
+                          <input
+                            id="sendEmail"
+                            type="checkbox"
+                            checked={sendEmail}
+                            onChange={e => setSendEmail(e.target.checked)}
+                            className="mr-2"
+                          />
+                          <Label htmlFor="sendEmail">Send Email</Label>
+                        </div>
+                      </div>
+                      <div className="flex justify-end space-x-2">
+                        <Button variant="outline" onClick={resetModal}>
+                          Cancel
+                        </Button>
+                        <Button onClick={handleCreateAnnouncement} disabled={isLoading}>
+                          {isLoading ? (
+                            <div className="flex items-center">
+                              <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                              {editingAnnouncement ? 'Saving...' : 'Publishing...'}
+                            </div>
+                          ) : (
+                            <>
+                              <Send className="w-4 h-4 mr-2" />
+                              {editingAnnouncement ? 'Save Changes' : 'Publish'}
+                            </>
+                          )}
+                        </Button>
+                      </div>
                     </div>
-                  </div>
-                </DialogContent>
-              </Dialog>
+                  </DialogContent>
+                </Dialog>
+              )}
               <Badge variant="outline" className="text-sm">
                 {filteredAnnouncements.length} announcements
               </Badge>
@@ -379,6 +435,38 @@ export default function AnnouncementsPage() {
               </Badge>
             </div>
           </div>
+
+          {/* Pagination Controls */}
+          <div className="flex items-center justify-between mb-4">
+            <div className="text-sm text-gray-600">
+              Showing page {pageNumber} of {totalPages} ({totalCount} total)
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button size="sm" variant="outline" disabled={pageNumber === 1} onClick={() => setPageNumber(pageNumber - 1)}>
+                Previous
+              </Button>
+              <Button size="sm" variant="outline" disabled={pageNumber === totalPages} onClick={() => setPageNumber(pageNumber + 1)}>
+                Next
+              </Button>
+              <select
+                className="border rounded px-2 py-1 text-sm"
+                value={pageSize}
+                onChange={e => { setPageSize(Number(e.target.value)); setPageNumber(1); }}
+              >
+                {[5, 10, 20, 50].map(size => (
+                  <option key={size} value={size}>{size} per page</option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Loading/Error States */}
+          {apiLoading && (
+            <Card><CardContent className="text-center py-12">Loading announcements...</CardContent></Card>
+          )}
+          {apiError && (
+            <Card><CardContent className="text-center py-12 text-red-600">{apiError}</CardContent></Card>
+          )}
 
           {/* Search and Filters */}
           <Card className="mb-8">
@@ -440,96 +528,91 @@ export default function AnnouncementsPage() {
           </Card>
 
           {/* Announcements List */}
-          <div className="space-y-6">
-            {filteredAnnouncements.map((announcement) => (
-              <Card 
-                key={announcement.id} 
-                className={`hover:shadow-lg transition-shadow ${
-                  !announcement.isRead ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''
-                }`}
-              >
-                <CardHeader>
-                  <div className="flex justify-between items-start">
-                    <div className="flex-1">
-                      <div className="flex items-center space-x-3 mb-2">
-                        <CardTitle className="text-lg">{announcement.title}</CardTitle>
-                        {!announcement.isRead && (
-                          <Badge variant="destructive" className="text-xs">
-                            NEW
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex items-center space-x-4 text-sm text-gray-600">
-                        <div className="flex items-center">
-                          <User className="w-4 h-4 mr-1" />
-                          {announcement.author}
-                        </div>
-                        <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-1" />
-                          {announcement.publishDate}
-                        </div>
-                        <div className="flex items-center">
-                          <Mail className="w-4 h-4 mr-1" />
-                          {announcement.emailSent ? 'Email sent' : 'Email pending'}
-                        </div>
-                      </div>
+          {!apiLoading && !apiError && filteredAnnouncements.map((announcement) => (
+            <Card 
+              key={announcement.announcementId} 
+              className={`hover:shadow-lg transition-shadow ${!announcement.isRead ? 'border-l-4 border-l-blue-500 bg-blue-50/30' : ''}`}
+            >
+              <CardHeader>
+                <div className="flex justify-between items-start">
+                  <div className="flex-1">
+                    <div className="flex items-center space-x-3 mb-2">
+                      <CardTitle className="text-lg">{announcement.title}</CardTitle>
+                      {!announcement.isRead && (
+                        <Badge variant="destructive" className="text-xs">NEW</Badge>
+                      )}
                     </div>
-                    <div className="flex items-center space-x-2">
-                      <Badge className={getTypeColor(announcement.type)}>
-                        {announcement.type}
-                      </Badge>
-                      <Badge className={getPriorityColor(announcement.priority)}>
-                        {announcement.priority}
-                      </Badge>
+                    <div className="flex items-center space-x-4 text-sm text-gray-600">
+                      <div className="flex items-center">
+                        <User className="w-4 h-4 mr-1" />
+                        {announcement.author?.fullName || 'Unknown'}
+                      </div>
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-1" />
+                        {announcement.publishDate ? new Date(announcement.publishDate).toLocaleDateString() : ''}
+                      </div>
+                      <div className="flex items-center">
+                        <Mail className="w-4 h-4 mr-1" />
+                        {announcement.isEmailSent ? 'Email sent' : 'Email pending'}
+                      </div>
                     </div>
                   </div>
-                </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 mb-4 leading-relaxed">
-                    {announcement.content}
-                  </p>
-
-                  {/* Event Details */}
-                  {announcement.eventDate && (
-                    <div className="bg-blue-50 p-4 rounded-lg mb-4">
-                      <h4 className="font-semibold mb-2">Event Details:</h4>
-                      <div className="grid md:grid-cols-2 gap-2 text-sm">
+                  <Badge className={typeColors[announcement.type]}>
+                    {typeLabels[announcement.type] || 'Unknown'}
+                  </Badge>
+                  <Badge className={priorityColors[announcement.priority]}>
+                    {priorityLabels[announcement.priority] || 'Unknown'}
+                  </Badge>
+                  {isAdmin && (
+                    <Button size="sm" variant="outline" className="ml-2" onClick={() => handleEditClick(announcement)}>
+                      <Edit className="w-4 h-4 mr-1" /> Edit
+                    </Button>
+                  )}
+                </div>
+              </CardHeader>
+              <CardContent>
+                <p className="text-gray-700 mb-4 leading-relaxed">
+                  {announcement.content}
+                </p>
+                {/* Event Details */}
+                {announcement.eventDate && (
+                  <div className="bg-blue-50 p-4 rounded-lg mb-4">
+                    <h4 className="font-semibold mb-2">Event Details:</h4>
+                    <div className="grid md:grid-cols-2 gap-2 text-sm">
+                      <div className="flex items-center">
+                        <Calendar className="w-4 h-4 mr-2 text-blue-600" />
+                        <span>Date: {new Date(announcement.eventDate).toLocaleDateString()}</span>
+                      </div>
+                      {announcement.eventVenue && (
                         <div className="flex items-center">
-                          <Calendar className="w-4 h-4 mr-2 text-blue-600" />
-                          <span>Date: {announcement.eventDate}</span>
+                          <Bell className="w-4 h-4 mr-2 text-blue-600" />
+                          <span>Venue: {announcement.eventVenue}</span>
                         </div>
-                        {announcement.eventVenue && (
-                          <div className="flex items-center">
-                            <Bell className="w-4 h-4 mr-2 text-blue-600" />
-                            <span>Venue: {announcement.eventVenue}</span>
-                          </div>
-                        )}
-                      </div>
+                      )}
                     </div>
-                  )}
-
-                  {/* Attachments */}
-                  {announcement.attachments && announcement.attachments.length > 0 && (
-                    <div className="mb-4">
-                      <h4 className="font-semibold mb-2">Attachments:</h4>
-                      <div className="space-y-1">
-                        {announcement.attachments.map((attachment, index) => (
-                          <div key={index} className="flex items-center text-sm text-blue-600 hover:underline cursor-pointer">
-                            <Eye className="w-4 h-4 mr-2" />
-                            {attachment}
-                          </div>
-                        ))}
-                      </div>
+                  </div>
+                )}
+                {/* Attachments */}
+                {announcement.attachments && announcement.attachments.length > 0 && (
+                  <div className="mb-4">
+                    <h4 className="font-semibold mb-2">Attachments:</h4>
+                    <div className="space-y-1">
+                      {announcement.attachments.map((attachment: string, index: number) => (
+                        <div key={index} className="flex items-center text-sm text-blue-600 hover:underline cursor-pointer">
+                          <Eye className="w-4 h-4 mr-2" />
+                          {attachment}
+                        </div>
+                      ))}
                     </div>
-                  )}
-
-                  {/* Action Buttons */}
-                  <div className="flex items-center justify-between pt-4 border-t">
+                  </div>
+                )}
+                {/* Action Buttons (bookmark/share/etc.) can remain as before */}
+                <div className="flex items-center justify-between pt-4 border-t">
                     <div className="flex items-center space-x-4">
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => handleBookmark(announcement.id)}
+                        onClick={() => handleBookmark(announcement.announcementId)}
                       >
                         <Bookmark className="w-4 h-4 mr-1" />
                         Bookmark
@@ -546,7 +629,7 @@ export default function AnnouncementsPage() {
                         <Button 
                           size="sm" 
                           variant="outline"
-                          onClick={() => markAsRead(announcement.id)}
+                          onClick={() => markAsRead(announcement.announcementId)}
                         >
                           <Eye className="w-4 h-4 mr-1" />
                           Mark as Read
@@ -555,7 +638,7 @@ export default function AnnouncementsPage() {
                       <Button 
                         size="sm" 
                         variant="outline"
-                        onClick={() => handleArchive(announcement.id)}
+                        onClick={() => handleArchive(announcement.announcementId)}
                       >
                         <Archive className="w-4 h-4 mr-1" />
                         Archive
@@ -581,7 +664,7 @@ export default function AnnouncementsPage() {
                             <Button 
                               size="sm" 
                               disabled={isLoading}
-                              onClick={() => handleAttendanceResponse(announcement.id, 'attending')}
+                              onClick={() => handleAttendanceResponse(announcement.announcementId, 'attending')}
                             >
                               <CheckCircle className="w-4 h-4 mr-1" />
                               {isLoading ? 'Updating...' : 'Attend'}
@@ -590,7 +673,7 @@ export default function AnnouncementsPage() {
                               size="sm" 
                               variant="outline"
                               disabled={isLoading}
-                              onClick={() => handleAttendanceResponse(announcement.id, 'not_attending')}
+                              onClick={() => handleAttendanceResponse(announcement.announcementId, 'not_attending')}
                             >
                               <XCircle className="w-4 h-4 mr-1" />
                               Can't Attend
@@ -603,9 +686,8 @@ export default function AnnouncementsPage() {
                 </CardContent>
               </Card>
             ))}
-          </div>
 
-          {filteredAnnouncements.length === 0 && (
+          {!apiLoading && !apiError && filteredAnnouncements.length === 0 && (
             <Card>
               <CardContent className="text-center py-12">
                 <Bell className="w-16 h-16 mx-auto text-gray-300 mb-4" />

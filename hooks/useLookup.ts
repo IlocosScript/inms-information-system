@@ -1,13 +1,54 @@
-import { useApi, useMutation } from './useApi';
+import { useState, useEffect } from 'react';
 import { lookupService } from '@/services/lookupService';
 import { Specialty, Hospital } from '@/types/api';
+import { useMutation } from './useApi';
 
 export function useSpecialties() {
-  return useApi(() => lookupService.getSpecialties());
+  const [specialties, setSpecialties] = useState<Specialty[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchSpecialties = async () => {
+      try {
+        setLoading(true);
+        const response = await lookupService.getSpecialties(1, 100); // Get all specialties
+        setSpecialties(response.items);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch specialties');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchSpecialties();
+  }, []);
+
+  return { specialties, loading, error };
 }
 
 export function useHospitals() {
-  return useApi(() => lookupService.getHospitals());
+  const [hospitals, setHospitals] = useState<Hospital[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    const fetchHospitals = async () => {
+      try {
+        setLoading(true);
+        const response = await lookupService.getHospitals(1, 100); // Get all hospitals
+        setHospitals(response.items);
+      } catch (err: any) {
+        setError(err.message || 'Failed to fetch hospitals');
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchHospitals();
+  }, []);
+
+  return { hospitals, loading, error };
 }
 
 export function useCreateSpecialty() {

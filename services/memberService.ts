@@ -1,16 +1,22 @@
-import { api } from '@/lib/api';
+import { api, ApiResponse } from '@/lib/api';
 import { 
   Member, 
   CreateMemberRequest, 
   UpdateMemberRequest,
   SearchFilter,
-  PagedResult,
-  ApiResponse 
+  PagedResult
 } from '@/types/api';
 
 export const memberService = {
   async getMembers(filter?: SearchFilter): Promise<PagedResult<Member>> {
-    const response = await api.get<ApiResponse<PagedResult<Member>>>('/members', filter);
+    const params = new URLSearchParams();
+    if (filter?.pageNumber) params.append('page', filter.pageNumber.toString());
+    if (filter?.pageSize) params.append('pageSize', filter.pageSize.toString());
+    if (filter?.searchTerm) params.append('search', filter.searchTerm);
+    if (filter?.sortBy) params.append('sortBy', filter.sortBy);
+    if (filter?.sortDescending) params.append('sortDescending', filter.sortDescending.toString());
+
+    const response = await api.get<ApiResponse<PagedResult<Member>>>(`/Members?${params.toString()}`);
     return response.data;
   },
 
@@ -20,7 +26,7 @@ export const memberService = {
   },
 
   async createMember(data: CreateMemberRequest): Promise<Member> {
-    const response = await api.post<ApiResponse<Member>>('/members', data);
+    const response = await api.post<ApiResponse<Member>>('/Members', data);
     return response.data;
   },
 
@@ -53,5 +59,14 @@ export const memberService = {
   async getActiveMembers(): Promise<Member[]> {
     const response = await api.get<ApiResponse<Member[]>>('/members/active');
     return response.data;
+  },
+
+  async getPendingMembers(): Promise<Member[]> {
+    const response = await api.get<ApiResponse<Member[]>>('/members/pending');
+    return response.data;
+  },
+
+  async approveMember(id: number): Promise<void> {
+    await api.post<ApiResponse<void>>(`/members/${id}/approve`);
   }
 };

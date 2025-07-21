@@ -1,6 +1,6 @@
 import { useApi, useMutation } from './useApi';
 import { memberService } from '@/services/memberService';
-import { Member, CreateMemberRequest, UpdateMemberRequest, SearchFilter } from '@/types/api';
+import { CreateMemberRequest, UpdateMemberRequest, SearchFilter } from '@/types/api';
 
 export function useMembers(filter?: SearchFilter) {
   return useApi(() => memberService.getMembers(filter));
@@ -11,13 +11,16 @@ export function useMember(id: number) {
 }
 
 export function useCreateMember() {
-  return useMutation((data: CreateMemberRequest) => memberService.createMember(data));
+  return useMutation((data: CreateMemberRequest) => 
+    memberService.createMember(data)
+  );
 }
 
 export function useUpdateMember() {
-  return useMutation(({ id, data }: { id: number; data: UpdateMemberRequest }) => 
-    memberService.updateMember(id, data)
-  );
+  return useMutation(({ id, data }: { 
+    id: number; 
+    data: UpdateMemberRequest 
+  }) => memberService.updateMember(id, data));
 }
 
 export function useDeleteMember() {
@@ -28,4 +31,20 @@ export function useUploadProfileImage() {
   return useMutation(({ id, file }: { id: number; file: File }) => 
     memberService.uploadProfileImage(id, file)
   );
+}
+
+export function useMembersBySpecialty() {
+  return useMutation((specialtyId: number) => 
+    memberService.getMembersBySpecialty(specialtyId)
+  );
+}
+
+export function useMembersByHospital() {
+  return useMutation((hospitalId: number) => 
+    memberService.getMembersByHospital(hospitalId)
+  );
+}
+
+export function useActiveMembers() {
+  return useApi(() => memberService.getActiveMembers());
 }

@@ -17,13 +17,19 @@ import {
   UserCheck,
   AlertTriangle,
   FileText,
-  Database
+  Database,
+  Stethoscope,
+  RefreshCw
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
 import { StatsCard } from '@/components/ui/stats-card';
 import { useSecurityContext } from '@/components/SecurityProvider';
 import { useAuth } from '@/contexts/AuthContext';
+import { memberService } from '@/services/memberService';
+import { authService } from '@/services/authService';
+import { useMutation } from '@/hooks/useApi';
+import { Member, User } from '@/types/api';
 
 export default function AdminPage() {
   const router = useRouter();
@@ -39,7 +45,76 @@ export default function AdminPage() {
     announcements: 12
   });
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [pendingMembers, setPendingMembers] = useState<Member[]>([]);
+  const [pendingUsers, setPendingUsers] = useState<User[]>([]);
+  const [loadingPending, setLoadingPending] = useState(false);
+  const [loadingPendingUsers, setLoadingPendingUsers] = useState(false);
   const { logSecurityEvent } = useSecurityContext();
+
+  const approveMemberMutation = useMutation(memberService.approveMember);
+  const approveUserMutation = useMutation(authService.approveUser);
+
+  // Fetch pending members
+  const fetchPendingMembers = async () => {
+    try {
+      setLoadingPending(true);
+      const pending = await memberService.getPendingMembers();
+      setPendingMembers(pending);
+    } catch (error) {
+      console.error('Error fetching pending members:', error);
+    } finally {
+      setLoadingPending(false);
+    }
+  };
+
+  // Fetch pending users
+  const fetchPendingUsers = async () => {
+    try {
+      setLoadingPendingUsers(true);
+      const pending = await authService.getPendingUsers();
+      setPendingUsers(pending);
+    } catch (error) {
+      console.error('Error fetching pending users:', error);
+    } finally {
+      setLoadingPendingUsers(false);
+    }
+  };
+
+  // Handle member approval
+  const handleApproveMember = async (memberId: number) => {
+    try {
+      await approveMemberMutation.mutate(memberId);
+      // Refresh the pending members list
+      await fetchPendingMembers();
+      // Update stats
+      stats.pendingApplications = Math.max(0, stats.pendingApplications - 1);
+      // Show success message
+      alert('Member approved successfully!');
+    } catch (error) {
+      console.error('Error approving member:', error);
+      alert('Failed to approve member. Please try again.');
+    }
+  };
+
+  // Handle user approval
+  const handleApproveUser = async (userId: string) => {
+    try {
+      await approveUserMutation.mutate(userId);
+      // Refresh the pending users list
+      await fetchPendingUsers();
+      // Show success message
+      alert('User approved successfully!');
+    } catch (error) {
+      console.error('Error approving user:', error);
+      alert('Failed to approve user. Please try again.');
+    }
+  };
+
+  // Fetch pending data on component mount
+  useEffect(() => {
+    fetchPendingMembers();
+    fetchPendingUsers();
+  }, []);
 
   // Route protection for admin
   useEffect(() => {
@@ -202,6 +277,41 @@ export default function AdminPage() {
               color="purple"
             />
           </div>
+
+          {/* Quick Access to Member Management */}
+          <Card className="mb-8">
+            <CardHeader>
+              <CardTitle className="flex items-center justify-between">
+                <div className="flex items-center">
+                  <Users className="w-5 h-5 mr-2" />
+                  Member Applications
+                </div>
+                <Badge variant="outline" className="bg-orange-50 text-orange-700 border-orange-200">
+                  {pendingMembers.length + pendingUsers.length} pending
+                </Badge>
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-gray-600 mb-2">
+                    Review and approve new member applications with unified approval system.
+                  </p>
+                  <div className="flex items-center space-x-4 text-sm text-gray-500">
+                    <span>• Users: {pendingUsers.length}</span>
+                    <span>• Members: {pendingMembers.length}</span>
+                  </div>
+                </div>
+                <Button 
+                  onClick={() => router.push('/admin/members')}
+                  className="bg-green-600 hover:bg-green-700"
+                >
+                  <Users className="w-4 h-4 mr-2" />
+                  Manage Applications
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
 
           {/* System Health Dashboard */}
           <div className="grid lg:grid-cols-3 gap-6 mb-8">
@@ -381,7 +491,11 @@ export default function AdminPage() {
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
-                    <Button className="w-full justify-start" variant="outline">
+                    <Button 
+                      className="w-full justify-start" 
+                      variant="outline"
+                      onClick={() => router.push('/admin/members')}
+                    >
                       <Users className="w-4 h-4 mr-2" />
                       Manage Members
                     </Button>
@@ -396,6 +510,10 @@ export default function AdminPage() {
                     <Button className="w-full justify-start" variant="outline">
                       <FileText className="w-4 h-4 mr-2" />
                       Generate Reports
+                    </Button>
+                    <Button className="w-full justify-start" variant="outline" onClick={() => router.push('/admin/specialties')}>
+                      <Stethoscope className="w-4 h-4 mr-2" />
+                      Manage Specialties
                     </Button>
                     <Button className="w-full justify-start" variant="outline">
                       <Database className="w-4 h-4 mr-2" />

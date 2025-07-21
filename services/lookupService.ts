@@ -1,14 +1,14 @@
-import { api } from '@/lib/api';
-import { Specialty, Hospital, ApiResponse } from '@/types/api';
+import { api, ApiResponse } from '@/lib/api';
+import { Specialty, Hospital, PagedResult } from '@/types/api';
 
 export const lookupService = {
-  async getSpecialties(): Promise<Specialty[]> {
-    const response = await api.get<ApiResponse<Specialty[]>>('/lookup/specialties');
+  async getSpecialties(page: number = 1, pageSize: number = 10): Promise<PagedResult<Specialty>> {
+    const response = await api.get<ApiResponse<PagedResult<Specialty>>>(`/Lookup/specialties?page=${page}&pageSize=${pageSize}`);
     return response.data;
   },
 
-  async getHospitals(): Promise<Hospital[]> {
-    const response = await api.get<ApiResponse<Hospital[]>>('/lookup/hospitals');
+  async getHospitals(page: number = 1, pageSize: number = 10): Promise<PagedResult<Hospital>> {
+    const response = await api.get<ApiResponse<PagedResult<Hospital>>>(`/Lookup/hospitals?page=${page}&pageSize=${pageSize}`);
     return response.data;
   },
 

@@ -16,7 +16,7 @@ export const authService = {
   },
 
   async register(data: RegisterRequest): Promise<void> {
-    await api.post<ApiResponse<void>>('/auth/register', data);
+    await api.post<ApiResponse<void>>('/Auth/register', data);
   },
 
   async refreshToken(refreshToken: string): Promise<LoginResponse> {
@@ -51,5 +51,14 @@ export const authService = {
 
   async resendVerificationEmail(): Promise<void> {
     await api.post<ApiResponse<void>>('/auth/resend-verification');
+  },
+
+  async getPendingUsers(): Promise<User[]> {
+    const response = await api.get<ApiResponse<User[]>>('/Auth/pending-users');
+    return response.data;
+  },
+
+  async approveUser(userId: string): Promise<void> {
+    await api.post<ApiResponse<void>>(`/auth/approve-user/${userId}`);
   }
 };

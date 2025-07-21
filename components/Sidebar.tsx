@@ -30,11 +30,13 @@ import {
   ChevronDown,
   Building,
   QrCode,
-  ChevronRight
+  ChevronRight,
+  Stethoscope
 } from 'lucide-react';
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   className?: string;
@@ -47,6 +49,8 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [notificationCount] = useState(3);
   const isOnline = useOnlineStatus();
+  const { user } = useAuth();
+  const isAdmin = user?.roles?.some(role => ['admin', 'dev'].includes(role.toLowerCase()));
 
   // Notify parent component of mobile state changes
   useEffect(() => {
@@ -93,6 +97,8 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
 
   const adminItems = [
     { name: 'Admin Panel', href: '/admin', icon: Shield },
+    { name: 'Member Management', href: '/admin/members', icon: Users },
+    { name: 'Specialties', href: '/admin/specialties', icon: Stethoscope },
     { name: 'Settings', href: '/settings', icon: Settings },
   ];
 
@@ -206,38 +212,40 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
           </div>
 
           {/* Admin Section */}
-          <div className="mt-6 pt-4 border-t border-gray-200">
-            {(!isDesktopCollapsed || isMobileOpen) && (
-              <p className="px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
-                Administration
-              </p>
-            )}
-            <div className="space-y-1 px-2">
-              {adminItems.map((item) => (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={handleMobileNavClick}
-                  className={cn(
-                   "flex items-center space-x-3 px-3 py-3 rounded-lg text-inms-dark hover:bg-inms-light hover:text-inms-primary transition-colors group",
-                    isDesktopCollapsed && "lg:justify-center lg:px-2"
-                  )}
-                >
-                  <item.icon className="w-5 h-5 flex-shrink-0" />
-                  {(!isDesktopCollapsed || isMobileOpen) && (
-                    <span className="text-sm font-medium">{item.name}</span>
-                  )}
-                  
-                  {/* Tooltip for collapsed desktop view */}
-                  {isDesktopCollapsed && !isMobileOpen && (
-                    <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
-                      {item.name}
-                    </div>
-                  )}
-                </Link>
-              ))}
+          {isAdmin && (
+            <div className="mt-6 pt-4 border-t border-gray-200">
+              {(!isDesktopCollapsed || isMobileOpen) && (
+                <p className="px-5 text-xs font-semibold text-gray-500 uppercase tracking-wider mb-2">
+                  Administration
+                </p>
+              )}
+              <div className="space-y-1 px-2">
+                {adminItems.map((item) => (
+                  <Link
+                    key={item.name}
+                    href={item.href}
+                    onClick={handleMobileNavClick}
+                    className={cn(
+                     "flex items-center space-x-3 px-3 py-3 rounded-lg text-inms-dark hover:bg-inms-light hover:text-inms-primary transition-colors group",
+                      isDesktopCollapsed && "lg:justify-center lg:px-2"
+                    )}
+                  >
+                    <item.icon className="w-5 h-5 flex-shrink-0" />
+                    {(!isDesktopCollapsed || isMobileOpen) && (
+                      <span className="text-sm font-medium">{item.name}</span>
+                    )}
+                    
+                    {/* Tooltip for collapsed desktop view */}
+                    {isDesktopCollapsed && !isMobileOpen && (
+                      <div className="absolute left-full ml-2 px-2 py-1 bg-gray-800 text-white text-xs rounded opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none whitespace-nowrap z-50">
+                        {item.name}
+                      </div>
+                    )}
+                  </Link>
+                ))}
+              </div>
             </div>
-          </div>
+          )}
         </nav>
 
         {/* Footer - User Profile (Mobile Only) */}
