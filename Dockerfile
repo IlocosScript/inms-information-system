@@ -1,26 +1,15 @@
-# Use official Node.js image as the build environment
+# Stage 1: Build the static site
 FROM node:18-alpine AS builder
-
 WORKDIR /app
-
 COPY package.json package-lock.json ./
-RUN npm install
-
+RUN npm ci
 COPY . .
+RUN npm run build && npx next export
 
-# Build the Next.js app and export static files
-RUN npm run build && npm run export
-
-# Use a minimal Node.js image to serve the static files
-FROM node:18-alpine AS runner
+# Stage 2: Serve with http-server
+FROM node:18-alpine
 WORKDIR /app
-
-# Install a simple static file server
-RUN npm install -g serve
-
-# Copy the exported static site from the builder stage
+RUN npm install -g http-server
 COPY --from=builder /app/out ./out
-
 EXPOSE 9070
-
-CMD ["serve", "-s", "out", "-l", "9070"] 
+CMD ["http-server", "out", "-p", "9070", "-c-1"] 
