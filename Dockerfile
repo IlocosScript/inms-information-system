@@ -21,6 +21,6 @@ RUN npm install -g serve
 # Copy the exported static site from the builder stage
 COPY --from=builder /app/out ./out
 
-EXPOSE 9099
+EXPOSE 9070
 
-CMD ["serve", "-s", "out", "-l", "9099"] 
+CMD ["serve", "-s", "out", "-l", "9070"] 
