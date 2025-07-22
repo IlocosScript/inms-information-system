@@ -26,6 +26,7 @@ import {
 } from 'lucide-react';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useSecurityContext } from '@/components/SecurityProvider';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface TopBarProps {
   onMenuClick?: () => void;
@@ -40,6 +41,7 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   const [refreshing, setRefreshing] = useState(false);
   const isOnline = useOnlineStatus();
   const { lastActivity } = useSecurityContext();
+  const { logout } = useAuth();
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -187,7 +189,7 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
                 <Link href="/inms-id">My INMS ID</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
-              <DropdownMenuItem className="text-red-600">
+              <DropdownMenuItem className="text-red-600" onClick={logout}>
                 <LogOut className="w-4 h-4 mr-2" />
                 Log Out
               </DropdownMenuItem>
