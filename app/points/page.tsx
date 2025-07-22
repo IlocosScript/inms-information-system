@@ -4,7 +4,6 @@ import { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Progress } from '@/components/ui/progress';
 import { Label } from '@/components/ui/label';
 import {
   Select,
@@ -46,6 +45,17 @@ interface PointsActivity {
   organizer: string;
   year: number;
   certificate?: string;
+}
+
+function SimpleProgress({ value, className }: { value: number; className?: string }) {
+  return (
+    <div className={`h-3 w-full bg-gray-200 rounded ${className || ''}`}>
+      <div
+        className="h-3 bg-blue-600 rounded"
+        style={{ width: `${value}%` }}
+      />
+    </div>
+  );
 }
 
 export default function PointsPage() {
@@ -383,7 +393,7 @@ export default function PointsPage() {
                         <span className="text-sm font-medium">Current Points</span>
                         <span className="text-sm font-medium">{totalPoints}/{cogsRequirement}</span>
                       </div>
-                      <Progress value={Math.min(cogsProgress, 100)} className="h-3" />
+                      <SimpleProgress value={Math.min(cogsProgress, 100)} className="h-3" />
                       <p className="text-xs text-gray-600 mt-1">
                         {isEligibleForCogs 
                           ? 'You are eligible for COGS!' 
