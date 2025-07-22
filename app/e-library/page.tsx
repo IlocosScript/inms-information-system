@@ -204,7 +204,7 @@ export default function ELibraryPage() {
     return matchesSearch && matchesCategory && matchesSpecialty;
   });
 
-  const specialties = [...new Set(libraryResources.map(r => r.specialty))];
+  const specialties = Array.from(new Set(libraryResources.map(r => r.specialty)));
 
   const getCategoryColor = (category: string) => {
     switch (category) {

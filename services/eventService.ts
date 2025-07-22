@@ -7,7 +7,8 @@ import {
   CreateEventRegistrationRequest,
   SearchFilter,
   PagedResult,
-  ApiResponse 
+  ApiResponse,
+  Member
 } from '@/types/api';
 
 export const eventService = {
@@ -55,7 +56,7 @@ export const eventService = {
   },
 
   async markAttendance(registrationId: number): Promise<void> {
-    await api.post<ApiResponse<void>>(`/events/registrations/${registrationId}/attendance`);
+    await api.post<ApiResponse<void>>(`/events/registrations/${registrationId}/mark-attendance`);
   },
 
   async getUpcomingEvents(): Promise<Event[]> {
@@ -68,10 +69,6 @@ export const eventService = {
     formData.append('file', file);
     if (description) formData.append('description', description);
     await api.upload<ApiResponse<void>>(`/events/${eventId}/attachments`, formData);
-  },
-
-  async markAttendance(registrationId: number): Promise<void> {
-    await api.post<ApiResponse<void>>(`/events/registrations/${registrationId}/mark-attendance`);
   },
 
   async markBulkAttendance(registrationIds: number[]): Promise<void> {
@@ -96,7 +93,7 @@ export const eventService = {
   },
 
   async exportAttendanceReport(eventId: number): Promise<Blob> {
-    const response = await api.get(`/events/${eventId}/attendance-report`, { responseType: 'blob' });
-    return response;
+    const response = await api.get<Blob>(`/events/${eventId}/attendance-report`, { responseType: 'blob' });
+    return response as Blob;
   }
 };

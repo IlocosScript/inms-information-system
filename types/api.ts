@@ -607,3 +607,9 @@ export enum BookmarkType {
   Announcement = 1,
   Resource = 2
 }
+
+export interface ApiResponse<T> {
+  data: T;
+  message?: string;
+  success?: boolean;
+}

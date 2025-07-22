@@ -50,8 +50,8 @@ export const duesService = {
   },
 
   async downloadReceipt(paymentId: number): Promise<Blob> {
-    const response = await api.get(`/dues/payments/${paymentId}/receipt`, { responseType: 'blob' });
-    return response;
+    const response = await api.get<Blob>(`/dues/payments/${paymentId}/receipt`, { responseType: 'blob' });
+    return response as Blob;
   },
 
   async getMemberDuesStatus(memberId: number, year: number): Promise<{

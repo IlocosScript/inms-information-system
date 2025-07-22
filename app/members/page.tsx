@@ -183,7 +183,7 @@ export default function MembersPage() {
     return matchesSearch && matchesSpecialty && matchesGender && matchesStatus;
   });
 
-  const specialties = [...new Set(members.map(m => m.specialty))];
+  const specialties = Array.from(new Set(members.map(m => m.specialty)));
 
   const handleViewMember = (member: Member) => {
     setSelectedMember(member);
