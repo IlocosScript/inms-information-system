@@ -53,7 +53,9 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
       onMenuClick();
     } else {
       // Fallback to global function
-      (window as any).toggleMobileSidebar?.();
+      if (typeof window !== 'undefined' && (window as any).toggleMobileSidebar) {
+        (window as any).toggleMobileSidebar();
+      }
     }
   };
 

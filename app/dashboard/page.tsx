@@ -20,10 +20,12 @@ import TopBar from '@/components/TopBar';
 import { StatsCard } from '@/components/ui/stats-card';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
+import { useMobileMenu } from '@/hooks/useMobileMenu';
 import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useMobileMenu();
   const [attendedEventsCount, setAttendedEventsCount] = useState(12);
   const [dashboardPreferences, setDashboardPreferences] = useLocalStorage('dashboardPreferences', {
     showQuickStats: true,
@@ -118,11 +120,14 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        onDesktopToggle={setSidebarCollapsed}
+        onMobileToggle={setIsMobileMenuOpen}
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Dashboard"
           sidebarCollapsed={sidebarCollapsed}
         />
@@ -132,7 +137,7 @@ export default function Dashboard() {
           <div className="mb-8">
             <h2 className="text-2xl font-bold text-gray-800">Welcome back, Dr. Juan Dela Cruz</h2>
             <div className="flex items-center space-x-2">
-              <p className="text-gray-600">Here's what's happening with your INMS account today.</p>
+              <p className="text-gray-600">Here&apos;s what&apos;s happening with your INMS account today.</p>
               {!isOnline && (
                 <Badge className="bg-inms-secondary text-inms-black text-xs">
                   Offline Mode
