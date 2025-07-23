@@ -301,17 +301,14 @@ export default function Sidebar({ className, isMobileOpen: externalMobileOpen, o
                 <Button variant="ghost" className="w-full justify-start p-2">
                                       <div className="flex items-center space-x-3">
                       <div className="w-8 h-8 bg-inms-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
-                        {user?.firstName?.charAt(0) || 'D'}{user?.lastName?.charAt(0) || 'C'}
+                        JD
                       </div>
                       <div className="text-left">
                         <p className="text-sm font-medium">
-                          {user?.firstName && user?.lastName 
-                            ? `Dr. ${user.firstName} ${user.lastName}` 
-                            : 'Dr. Juan Dela Cruz'
-                          }
+                        'Dr. Juan Dela Cruz'
                         </p>
                         <p className="text-xs text-gray-600">
-                          {user?.specialization || 'Internal Medicine'}
+                        'Internal Medicine'
                         </p>
                         <div className="flex items-center mt-1">
                           <div className={`w-2 h-2 rounded-full mr-1 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
