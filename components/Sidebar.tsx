@@ -35,6 +35,7 @@ import {
 import Link from 'next/link';
 import { cn } from '@/lib/utils';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
+import { useAuth } from '@/contexts/AuthContext';
 
 interface SidebarProps {
   className?: string;
@@ -48,6 +49,7 @@ export default function Sidebar({ className, isMobileOpen: externalMobileOpen, o
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [notificationCount] = useState(3);
   const isOnline = useOnlineStatus();
+  const { logout, user } = useAuth();
 
   // Generate unique ID for this Sidebar instance
   const sidebarId = React.useId();
@@ -136,6 +138,12 @@ export default function Sidebar({ className, isMobileOpen: externalMobileOpen, o
 
   const handleMobileNavClick = () => {
     console.log(`Sidebar [${sidebarId}] - Navigation clicked, closing mobile menu`);
+    setIsMobileOpen(false);
+  };
+
+  const handleLogout = () => {
+    console.log('Logging out...');
+    logout();
     setIsMobileOpen(false);
   };
 
@@ -291,20 +299,27 @@ export default function Sidebar({ className, isMobileOpen: externalMobileOpen, o
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button variant="ghost" className="w-full justify-start p-2">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-8 h-8 bg-inms-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
-                      JD
-                    </div>
-                    <div className="text-left">
-                      <p className="text-sm font-medium">Dr. Juan Dela Cruz</p>
-                      <p className="text-xs text-gray-600">Internal Medicine</p>
-                      <div className="flex items-center mt-1">
-                        <div className={`w-2 h-2 rounded-full mr-1 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
-                        <span className="text-xs text-gray-500">{isOnline ? 'Online' : 'Offline'}</span>
+                                      <div className="flex items-center space-x-3">
+                      <div className="w-8 h-8 bg-inms-primary text-white rounded-full flex items-center justify-center text-sm font-medium">
+                        {user?.firstName?.charAt(0) || 'D'}{user?.lastName?.charAt(0) || 'C'}
                       </div>
+                      <div className="text-left">
+                        <p className="text-sm font-medium">
+                          {user?.firstName && user?.lastName 
+                            ? `Dr. ${user.firstName} ${user.lastName}` 
+                            : 'Dr. Juan Dela Cruz'
+                          }
+                        </p>
+                        <p className="text-xs text-gray-600">
+                          {user?.specialization || 'Internal Medicine'}
+                        </p>
+                        <div className="flex items-center mt-1">
+                          <div className={`w-2 h-2 rounded-full mr-1 ${isOnline ? 'bg-green-500' : 'bg-red-500'}`}></div>
+                          <span className="text-xs text-gray-500">{isOnline ? 'Online' : 'Offline'}</span>
+                        </div>
+                      </div>
+                      <ChevronDown className="w-4 h-4 text-gray-400 ml-auto" />
                     </div>
-                    <ChevronDown className="w-4 h-4 text-gray-400 ml-auto" />
-                  </div>
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56">
@@ -321,7 +336,7 @@ export default function Sidebar({ className, isMobileOpen: externalMobileOpen, o
                   <Link href="/inms-id">My INMS ID</Link>
                 </DropdownMenuItem>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="text-red-600">
+                <DropdownMenuItem className="text-red-600" onClick={handleLogout}>
                   <LogOut className="w-4 h-4 mr-2" />
                   Log Out
                 </DropdownMenuItem>
