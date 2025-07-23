@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import React, { useState } from 'react';
 import Link from 'next/link';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -42,6 +42,9 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   const isOnline = useOnlineStatus();
   const { lastActivity } = useSecurityContext();
   const { logout } = useAuth();
+  
+  // Generate unique ID for this TopBar instance
+  const topBarId = React.useId();
 
   const handleRefresh = () => {
     setRefreshing(true);
@@ -49,9 +52,12 @@ export default function TopBar({ onMenuClick, title = "Dashboard", showSearch = 
   };
 
   const handleMobileMenuClick = () => {
+    console.log(`TopBar [${topBarId}] - Menu button clicked`);
     if (onMenuClick) {
+      console.log(`TopBar [${topBarId}] - Using onMenuClick prop`);
       onMenuClick();
     } else {
+      console.log(`TopBar [${topBarId}] - Using global fallback`);
       // Fallback to global function
       if (typeof window !== 'undefined' && (window as any).toggleMobileSidebar) {
         (window as any).toggleMobileSidebar();

@@ -20,6 +20,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 import { StatsCard } from '@/components/ui/stats-card';
 import { useSecurityContext } from '@/components/SecurityProvider';
 
@@ -34,7 +35,7 @@ export default function AdminPage() {
     cmePoints: 8945,
     announcements: 12
   });
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
   const { logSecurityEvent } = useSecurityContext();
 
   // Enhanced admin analytics
@@ -123,11 +124,15 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Admin Dashboard"
           sidebarCollapsed={sidebarCollapsed}
         />

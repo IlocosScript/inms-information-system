@@ -26,6 +26,7 @@ import Link from 'next/link';
 
 export default function ViewProfilePage() {
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   const memberData = {
     id: "INMS-2024-001234",
@@ -59,11 +60,15 @@ export default function ViewProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={() => setIsMobileMenuOpen(true)}
           title="My Profile"
           showSearch={false}
           sidebarCollapsed={sidebarCollapsed}

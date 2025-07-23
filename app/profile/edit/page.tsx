@@ -31,12 +31,13 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 import Link from 'next/link';
 
 export default function EditProfilePage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
   
   const [formData, setFormData] = useState({
     // Personal Information
@@ -102,11 +103,15 @@ export default function EditProfilePage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Edit Profile"
           showSearch={false}
           sidebarCollapsed={sidebarCollapsed}

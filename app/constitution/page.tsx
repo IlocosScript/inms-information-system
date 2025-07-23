@@ -18,6 +18,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 interface ConstitutionSection {
   id: string;
@@ -40,7 +41,7 @@ interface ConstitutionArticle {
 export default function ConstitutionPage() {
   const [searchQuery, setSearchQuery] = useState('');
   const [selectedSection, setSelectedSection] = useState<string>('preamble');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
 
   const constitutionData: ConstitutionSection[] = [
     {
@@ -234,11 +235,15 @@ Amendment 2023-01 (Effective January 1, 2023):
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Constitution & By-laws"
           showSearch={false}
           sidebarCollapsed={sidebarCollapsed}

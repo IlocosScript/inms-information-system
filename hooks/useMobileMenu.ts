@@ -2,6 +2,8 @@ import { useState, useEffect } from 'react';
 
 export function useMobileMenu() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  
+  console.log('useMobileMenu - Current state:', isMobileMenuOpen);
 
   // Close mobile menu when screen size changes to desktop
   useEffect(() => {
@@ -21,7 +23,7 @@ export function useMobileMenu() {
     return () => {
       delete (window as any).toggleMobileSidebar;
     };
-  }, []);
+  }, [setIsMobileMenuOpen]);
 
   return {
     isMobileMenuOpen,

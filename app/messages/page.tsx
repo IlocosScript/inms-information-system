@@ -21,6 +21,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 interface Message {
   id: number;
@@ -50,7 +51,7 @@ export default function MessagesPage() {
   const [selectedConversation, setSelectedConversation] = useState<number | null>(1);
   const [newMessage, setNewMessage] = useState('');
   const [searchQuery, setSearchQuery] = useState('');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
 
   const conversations: Conversation[] = [
     {
@@ -187,11 +188,15 @@ export default function MessagesPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Messages"
           showSearch={false}
           sidebarCollapsed={sidebarCollapsed}

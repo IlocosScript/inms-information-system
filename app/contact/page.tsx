@@ -19,6 +19,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
@@ -28,7 +29,7 @@ export default function ContactPage() {
     message: ''
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
@@ -137,11 +138,15 @@ export default function ContactPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Contact Us"
           showSearch={false}
           sidebarCollapsed={sidebarCollapsed}

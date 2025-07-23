@@ -35,6 +35,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 interface DuesRecord {
   id: number;
@@ -60,7 +61,7 @@ interface PaymentMethod {
 export default function DuesPage() {
   const [selectedYear, setSelectedYear] = useState('2024');
   const [selectedPayment, setSelectedPayment] = useState<string>('');
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
 
   const duesRecords: DuesRecord[] = [
     {
@@ -200,11 +201,15 @@ export default function DuesPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Dues & Payments"
           sidebarCollapsed={sidebarCollapsed}
         />

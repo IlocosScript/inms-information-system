@@ -32,6 +32,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 interface GalleryItem {
   id: number;
@@ -53,7 +54,7 @@ export default function GalleryPage() {
   const [categoryFilter, setCategoryFilter] = useState('all');
   const [yearFilter, setYearFilter] = useState('all');
   const [selectedImage, setSelectedImage] = useState<string | null>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
 
   const galleryItems: GalleryItem[] = [
     {
@@ -214,11 +215,15 @@ export default function GalleryPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Gallery"
           sidebarCollapsed={sidebarCollapsed}
         />

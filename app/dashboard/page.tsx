@@ -20,13 +20,16 @@ import TopBar from '@/components/TopBar';
 import { StatsCard } from '@/components/ui/stats-card';
 import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 import { useLocalStorage } from '@/hooks/useLocalStorage';
-import { useMobileMenu } from '@/hooks/useMobileMenu';
+import { useSidebarState } from '@/hooks/useSidebarState';
 import { Button } from '@/components/ui/button';
 
 export default function Dashboard() {
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
-  const { isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useMobileMenu();
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
   const [attendedEventsCount, setAttendedEventsCount] = useState(12);
+  
+  // Debug logging
+  console.log('Dashboard [main] - Mobile menu state:', isMobileMenuOpen);
+  console.log('Dashboard [main] - About to render Sidebar with isMobileOpen:', isMobileMenuOpen);
   const [dashboardPreferences, setDashboardPreferences] = useLocalStorage('dashboardPreferences', {
     showQuickStats: true,
     showRecentActivities: true,
@@ -121,8 +124,9 @@ export default function Dashboard() {
   return (
     <div className="min-h-screen bg-white">
       <Sidebar 
-        onDesktopToggle={setSidebarCollapsed}
+        isMobileOpen={isMobileMenuOpen}
         onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed}
       />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>

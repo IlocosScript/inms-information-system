@@ -61,6 +61,7 @@ export default function EventsPage() {
   const [typeFilter, setTypeFilter] = useState('all');
   const [statusFilter, setStatusFilter] = useState('all');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
 
   const events: Event[] = [
@@ -173,11 +174,15 @@ export default function EventsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={() => setIsMobileMenuOpen(true)}
           title="Events"
           sidebarCollapsed={sidebarCollapsed}
         />

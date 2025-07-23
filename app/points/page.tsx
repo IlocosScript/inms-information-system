@@ -33,6 +33,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 interface PointsActivity {
   id: number;
@@ -61,7 +62,7 @@ function SimpleProgress({ value, className }: { value: number; className?: strin
 export default function PointsPage() {
   const [selectedYear, setSelectedYear] = useState('2024');
   const [cogsRequested, setCogsRequested] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
 
   const pointsActivities: PointsActivity[] = [
     {
@@ -216,11 +217,15 @@ export default function PointsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Points & Certification"
           sidebarCollapsed={sidebarCollapsed}
         />

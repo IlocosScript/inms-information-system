@@ -42,6 +42,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 import ProtectedRoute from '@/components/ProtectedRoute';
 import { Role, RegistrationStatus, EventType } from '@/types/api';
 import { eventService } from '@/services/eventService';
@@ -68,7 +69,7 @@ export default function EventAttendanceClient({ eventId }: EventAttendanceClient
     attendanceRate: 0
   });
   const [lastScannedMember, setLastScannedMember] = useState<any>(null);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
   const [showMobileScanner, setShowMobileScanner] = useState(false);
   const [bulkScanMode, setBulkScanMode] = useState(false);
   const [scannedQueue, setScannedQueue] = useState<string[]>([]);
@@ -234,10 +235,14 @@ export default function EventAttendanceClient({ eventId }: EventAttendanceClient
   return (
     <ProtectedRoute requiredRole={Role.Admin}>
       <div className="min-h-screen bg-gray-50">
-        <Sidebar onDesktopToggle={setSidebarCollapsed} />
+        <Sidebar 
+          isMobileOpen={isMobileMenuOpen}
+          onMobileToggle={setIsMobileMenuOpen}
+          onDesktopToggle={setSidebarCollapsed} 
+        />
         <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
           <TopBar 
-            onMenuClick={() => {}}
+            onMenuClick={openMobileMenu}
             title="Event Attendance"
             showSearch={false}
             sidebarCollapsed={sidebarCollapsed}

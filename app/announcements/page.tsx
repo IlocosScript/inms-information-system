@@ -44,6 +44,7 @@ import {
 } from 'lucide-react';
 import Sidebar from '@/components/Sidebar';
 import TopBar from '@/components/TopBar';
+import { useSidebarState } from '@/hooks/useSidebarState';
 
 interface Announcement {
   id: number;
@@ -68,7 +69,7 @@ export default function AnnouncementsPage() {
   const [selectedAnnouncement, setSelectedAnnouncement] = useState<Announcement | null>(null);
   const [showCreateAnnouncement, setShowCreateAnnouncement] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
+  const { sidebarCollapsed, setSidebarCollapsed, isMobileMenuOpen, setIsMobileMenuOpen, openMobileMenu } = useSidebarState();
   const [newAnnouncement, setNewAnnouncement] = useState({
     title: '',
     content: '',
@@ -248,11 +249,15 @@ export default function AnnouncementsPage() {
 
   return (
     <div className="min-h-screen bg-white">
-      <Sidebar onDesktopToggle={setSidebarCollapsed} />
+      <Sidebar 
+        isMobileOpen={isMobileMenuOpen}
+        onMobileToggle={setIsMobileMenuOpen}
+        onDesktopToggle={setSidebarCollapsed} 
+      />
       
       <div className={`transition-all duration-300 ${sidebarCollapsed ? 'lg:ml-16' : 'lg:ml-64'}`}>
         <TopBar 
-          onMenuClick={() => {}}
+          onMenuClick={openMobileMenu}
           title="Announcements"
           sidebarCollapsed={sidebarCollapsed}
         />

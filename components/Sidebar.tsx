@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
@@ -38,20 +38,50 @@ import { useOnlineStatus } from '@/hooks/useOnlineStatus';
 
 interface SidebarProps {
   className?: string;
+  isMobileOpen?: boolean;
   onMobileToggle?: (isOpen: boolean) => void;
   onDesktopToggle?: (isCollapsed: boolean) => void;
 }
 
-export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: SidebarProps) {
-  const [isMobileOpen, setIsMobileOpen] = useState(false);
+export default function Sidebar({ className, isMobileOpen: externalMobileOpen, onMobileToggle, onDesktopToggle }: SidebarProps) {
+  const [internalMobileOpen, setInternalMobileOpen] = useState(false);
   const [isDesktopCollapsed, setIsDesktopCollapsed] = useState(false);
   const [notificationCount] = useState(3);
   const isOnline = useOnlineStatus();
 
-  // Notify parent component of mobile state changes
+  // Generate unique ID for this Sidebar instance
+  const sidebarId = React.useId();
+
+  // Debug all props
+  console.log(`Sidebar [${sidebarId}] - All props:`, { className, isMobileOpen: externalMobileOpen, onMobileToggle: !!onMobileToggle, onDesktopToggle: !!onDesktopToggle });
+
+  // Check if external state is explicitly provided (not undefined)
+  const hasExternalState = externalMobileOpen !== undefined;
+  
+  // Use external state if provided, otherwise use internal state
+  const isMobileOpen = hasExternalState ? externalMobileOpen : internalMobileOpen;
+  const setIsMobileOpen = hasExternalState 
+    ? (value: boolean) => {
+        console.log(`Sidebar [${sidebarId}] - Setting external state to:`, value);
+        onMobileToggle?.(value);
+      }
+    : (value: boolean) => {
+        console.log(`Sidebar [${sidebarId}] - Setting internal state to:`, value);
+        setInternalMobileOpen(value);
+      };
+
+  // Debug logging
+  console.log(`Sidebar [${sidebarId}] - Has external state:`, hasExternalState);
+  console.log(`Sidebar [${sidebarId}] - External mobile open:`, externalMobileOpen);
+  console.log(`Sidebar [${sidebarId}] - Internal mobile open:`, internalMobileOpen);
+  console.log(`Sidebar [${sidebarId}] - Final mobile open:`, isMobileOpen);
+
+  // Notify parent component of mobile state changes (only when using internal state)
   useEffect(() => {
-    onMobileToggle?.(isMobileOpen);
-  }, [isMobileOpen, onMobileToggle]);
+    if (!hasExternalState) {
+      onMobileToggle?.(internalMobileOpen);
+    }
+  }, [internalMobileOpen, onMobileToggle, hasExternalState]);
 
   // Notify parent of desktop collapse state changes
   useEffect(() => {
@@ -72,8 +102,16 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
 
   // Expose mobile toggle function
   useEffect(() => {
-    (window as any).toggleMobileSidebar = () => setIsMobileOpen(prev => !prev);
-  }, []);
+    (window as any).toggleMobileSidebar = () => {
+      if (hasExternalState) {
+        // If external state is provided, toggle it
+        onMobileToggle?.(!externalMobileOpen);
+      } else {
+        // If using internal state, toggle it
+        setInternalMobileOpen(prev => !prev);
+      }
+    };
+  }, [hasExternalState, externalMobileOpen, onMobileToggle]);
 
   const navigationItems = [
     { name: 'Dashboard', href: '/dashboard', icon: Home },
@@ -97,6 +135,7 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
   ];
 
   const handleMobileNavClick = () => {
+    console.log(`Sidebar [${sidebarId}] - Navigation clicked, closing mobile menu`);
     setIsMobileOpen(false);
   };
 
@@ -106,16 +145,19 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
       {isMobileOpen && (
         <div 
           className="fixed inset-0 bg-black bg-opacity-50 z-40 lg:hidden"
-          onClick={() => setIsMobileOpen(false)}
+          onClick={() => {
+            console.log(`Sidebar [${sidebarId}] - Overlay clicked, closing mobile menu`);
+            setIsMobileOpen(false);
+          }}
         />
       )}
 
       {/* Sidebar */}
       <div className={cn(
         "fixed left-0 top-0 z-50 h-full bg-white border-r border-gray-200 transition-all duration-300 ease-in-out flex flex-col shadow-lg lg:shadow-sm",
-        // Mobile styles
+        // Mobile styles - only apply transform on mobile
         "lg:translate-x-0",
-        isMobileOpen ? "translate-x-0 w-80" : "-translate-x-full w-80",
+        isMobileOpen ? "translate-x-0 w-80" : "-translate-x-full w-80 lg:translate-x-0",
         // Desktop styles
         "lg:z-40",
         isDesktopCollapsed ? "lg:w-16" : "lg:w-64",
@@ -148,7 +190,10 @@ export default function Sidebar({ className, onMobileToggle, onDesktopToggle }: 
           <Button
             variant="ghost"
             size="sm"
-            onClick={() => setIsMobileOpen(false)}
+            onClick={() => {
+              console.log(`Sidebar [${sidebarId}] - Close button clicked`);
+              setIsMobileOpen(false);
+            }}
             className="lg:hidden"
           >
             <X className="w-5 h-5" />
