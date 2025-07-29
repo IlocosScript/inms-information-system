@@ -96,4 +96,41 @@
   body {
     @apply bg-white text-gray-800;
   }
+
+  /* Ensure modal overlay is properly opaque */
+  [data-radix-dialog-overlay] {
+    background-color: rgba(0, 0, 0, 0.8) !important;
+    backdrop-filter: blur(4px);
+  }
+
+  /* Ensure modal content has solid background */
+  [data-radix-dialog-content] {
+    background-color: white !important;
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25) !important;
+  }
+
+  /* Enhanced table styling */
+  table tbody tr:nth-child(even) {
+    background-color: rgba(249, 250, 251, 0.5);
+  }
+
+  table tbody tr:hover {
+    background-color: rgba(239, 246, 255, 0.6) !important;
+  }
+
+  table tbody tr[data-state="selected"] {
+    background-color: rgba(219, 234, 254, 0.8) !important;
+  }
+
+  /* Button tooltip styling */
+  .group:hover .group-hover\:opacity-100 {
+    opacity: 1;
+  }
+
+  /* Mobile touch support for tooltips */
+  @media (hover: none) and (pointer: coarse) {
+    .group:active .group-hover\:opacity-100 {
+      opacity: 1;
+    }
+  }
 }

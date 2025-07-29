@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -86,6 +86,29 @@ export default function MembersPage() {
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [showMobileFilters, setShowMobileFilters] = useState(false);
   const [showMobileProfile, setShowMobileProfile] = useState<Member | null>(null);
+  
+  // Modal stack management
+  const [modalStack, setModalStack] = useState<Array<{
+    type: 'view' | 'message' | 'referral';
+    member: Member;
+  }>>([]);
+  const [currentModal, setCurrentModal] = useState<{
+    type: 'view' | 'message' | 'referral';
+    member: Member;
+  } | null>(null);
+
+  // Mobile detection
+  const [isMobile, setIsMobile] = useState(false);
+
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768);
+    };
+
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   const members: Member[] = [
     {
@@ -186,42 +209,88 @@ export default function MembersPage() {
 
   const specialties = Array.from(new Set(members.map(m => m.specialty)));
 
+  const openModal = (type: 'view' | 'message' | 'referral', member: Member) => {
+    if (isMobile) {
+      // On mobile, show mobile profile for view, or use mobile drawer for message/referral
+      if (type === 'view') {
+        setShowMobileProfile(member);
+      } else {
+        // For message/referral on mobile, still use modal but don't show mobile profile
+        if (currentModal) {
+          setModalStack(prev => [...prev, currentModal]);
+        }
+        setCurrentModal({ type, member });
+        setSelectedMember(member);
+      }
+    } else {
+      // On desktop, use modal stack
+      if (currentModal) {
+        setModalStack(prev => [...prev, currentModal]);
+      }
+      setCurrentModal({ type, member });
+      setSelectedMember(member);
+    }
+  };
+
+  const closeCurrentModal = () => {
+    if (modalStack.length > 0) {
+      // If there are modals in stack, restore the previous one
+      const previousModal = modalStack[modalStack.length - 1];
+      setCurrentModal(previousModal);
+      setSelectedMember(previousModal.member);
+      setModalStack(prev => prev.slice(0, -1));
+    } else {
+      // No more modals in stack, close everything
+      setCurrentModal(null);
+      setSelectedMember(null);
+      setMessageContent('');
+      setReferralContent('');
+      setPatientDetails('');
+    }
+  };
+
+  const closeMobileProfile = () => {
+    setShowMobileProfile(null);
+  };
+
+  const closeAllModals = () => {
+    setCurrentModal(null);
+    setSelectedMember(null);
+    setModalStack([]);
+    setMessageContent('');
+    setReferralContent('');
+    setPatientDetails('');
+  };
+
   const handleViewMember = (member: Member) => {
-    setSelectedMember(member);
+    openModal('view', member);
   };
 
   const handleSendMessage = async () => {
-    if (!messageContent.trim() || !selectedMember) return;
+    if (!messageContent.trim() || !currentModal) return;
     
     setIsLoading(true);
     // Simulate sending message
     setTimeout(() => {
-      alert(`Message sent to ${selectedMember.name}!`);
+      alert(`Message sent to ${currentModal.member.name}!`);
       setMessageContent('');
-      setSelectedMember(null);
+      closeCurrentModal();
       setIsLoading(false);
     }, 1000);
   };
 
   const handleSendReferral = async () => {
-    if (!referralContent.trim() || !patientDetails.trim() || !selectedMember) return;
+    if (!referralContent.trim() || !patientDetails.trim() || !currentModal) return;
     
     setIsLoading(true);
     // Simulate sending referral
     setTimeout(() => {
-      alert(`Patient referral sent to ${selectedMember.name}!`);
+      alert(`Patient referral sent to ${currentModal.member.name}!`);
       setReferralContent('');
       setPatientDetails('');
-      setSelectedMember(null);
+      closeCurrentModal();
       setIsLoading(false);
     }, 1000);
-  };
-
-  const closeDialog = () => {
-    setSelectedMember(null);
-    setMessageContent('');
-    setReferralContent('');
-    setPatientDetails('');
   };
 
   return (
@@ -386,38 +455,24 @@ export default function MembersPage() {
                       </TableCell>
                       <TableCell>
                         <div className="flex space-x-2">
-                          <Button size="sm" variant="outline">
-                            <Dialog>
-                              <DialogTrigger asChild>
-                                <span 
-                                  onClick={() => {
-                                    handleViewMember(member);
-                                    setShowMobileProfile(member);
-                                  }} 
-                                  className="flex items-center cursor-pointer"
-                                >
-                                  <Eye className="w-4 h-4 mr-1" />
-                                  View
-                                </span>
-                              </DialogTrigger>
-                            </Dialog>
+                          <Button size="sm" variant="outline" onClick={() => openModal('view', member)} className="group relative">
+                            <Eye className="w-4 h-4" />
+                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                              View
+                            </span>
                           </Button>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
-                                <MessageSquare className="w-4 h-4 mr-1" />
-                                Message
-                              </Button>
-                            </DialogTrigger>
-                          </Dialog>
-                          <Dialog>
-                            <DialogTrigger asChild>
-                              <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
-                                <UserPlus className="w-4 h-4 mr-1" />
-                                Refer
-                              </Button>
-                            </DialogTrigger>
-                          </Dialog>
+                          <Button size="sm" variant="outline" onClick={() => openModal('message', member)} className="group relative">
+                            <MessageSquare className="w-4 h-4" />
+                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                              Message
+                            </span>
+                          </Button>
+                          <Button size="sm" variant="outline" onClick={() => openModal('referral', member)} className="group relative">
+                            <UserPlus className="w-4 h-4" />
+                            <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                              Refer
+                            </span>
+                          </Button>
                         </div>
                       </TableCell>
                     </TableRow>
@@ -426,194 +481,197 @@ export default function MembersPage() {
               </Table>
             </CardContent>
 
-            {/* View Member Dialog */}
-            <Dialog open={selectedMember !== null} onOpenChange={closeDialog}>
+            {/* Unified Modal Dialog */}
+            <Dialog open={currentModal !== null} onOpenChange={closeCurrentModal}>
               <DialogContent className="max-w-2xl">
-                <DialogHeader>
-                  <DialogTitle className="flex items-center">
-                    <User className="w-5 h-5 mr-2" />
-                    Member Profile
-                  </DialogTitle>
-                </DialogHeader>
-                {selectedMember && (
-                  <div className="space-y-6">
-                    {/* Header */}
-                    <div className="flex items-start space-x-4">
-                      <Avatar className="w-20 h-20">
-                        <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
-                          {selectedMember.name.split(' ').map(n => n[0]).join('')}
-                        </AvatarFallback>
-                      </Avatar>
-                      <div className="flex-1">
-                        <h2 className="text-xl font-semibold">{selectedMember.name}</h2>
-                        <div className="flex items-center space-x-2 mt-1">
-                          <Badge variant="outline">{selectedMember.specialty}</Badge>
-                          {selectedMember.subspecialty && (
-                            <Badge variant="secondary">{selectedMember.subspecialty}</Badge>
-                          )}
-                        </div>
-                        <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
-                          <span>{selectedMember.age} years old</span>
-                          <span>•</span>
-                          <span>{selectedMember.gender}</span>
-                          <span>•</span>
-                          <Badge className={selectedMember.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
-                            {selectedMember.status}
-                          </Badge>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Contact Information */}
-                    <div className="grid md:grid-cols-2 gap-4">
-                      <div className="space-y-3">
-                        <h3 className="font-semibold text-gray-800">Contact Information</h3>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center">
-                            <Phone className="w-4 h-4 mr-2 text-gray-400" />
-                            <span>{selectedMember.contact}</span>
-                          </div>
-                          <div className="flex items-center">
-                            <Mail className="w-4 h-4 mr-2 text-gray-400" />
-                            <span>{selectedMember.email}</span>
-                          </div>
-                          <div className="flex items-start">
-                            <MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
-                            <span>{selectedMember.address}</span>
-                          </div>
-                        </div>
-                      </div>
-                      <div className="space-y-3">
-                        <h3 className="font-semibold text-gray-800">Professional Details</h3>
-                        <div className="space-y-2 text-sm">
-                          <div className="flex items-center">
-                            <Building className="w-4 h-4 mr-2 text-gray-400" />
-                            <span>{selectedMember.hospital}</span>
-                          </div>
-                          {selectedMember.clinicAddress && (
-                            <div className="flex items-start">
-                              <MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
-                              <span>{selectedMember.clinicAddress}</span>
-                            </div>
-                          )}
-                          {selectedMember.clinicHours && (
-                            <div className="flex items-center">
-                              <Clock className="w-4 h-4 mr-2 text-gray-400" />
-                              <span>{selectedMember.clinicHours}</span>
-                            </div>
-                          )}
-                          <div className="flex items-center">
-                            <Calendar className="w-4 h-4 mr-2 text-gray-400" />
-                            <span>Member since {selectedMember.joinDate}</span>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-
-                    {/* Action Buttons */}
-                    <div className="flex justify-end space-x-3 pt-4 border-t">
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button variant="outline">
-                            <MessageSquare className="w-4 h-4 mr-2" />
-                            Send Message
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Send Message to {selectedMember.name}</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div>
-                              <Label htmlFor="message">Message</Label>
-                              <Textarea
-                                id="message"
-                                placeholder="Type your message here..."
-                                value={messageContent}
-                                onChange={(e) => setMessageContent(e.target.value)}
-                                rows={4}
-                              />
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <Button variant="outline" onClick={closeDialog}>
-                                Cancel
-                              </Button>
-                              <Button onClick={handleSendMessage} disabled={isLoading || !messageContent.trim()}>
-                                {isLoading ? (
-                                  <div className="flex items-center">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    Sending...
-                                  </div>
-                                ) : (
-                                  <>
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Send Message
-                                  </>
+                {currentModal && (
+                  <>
+                    {currentModal.type === 'view' && (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle className="flex items-center">
+                            <User className="w-5 h-5 mr-2" />
+                            Member Profile
+                          </DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-6">
+                          {/* Header */}
+                          <div className="flex items-start space-x-4">
+                            <Avatar className="w-20 h-20">
+                              <AvatarFallback className="text-lg bg-blue-100 text-blue-600">
+                                {currentModal.member.name.split(' ').map(n => n[0]).join('')}
+                              </AvatarFallback>
+                            </Avatar>
+                            <div className="flex-1">
+                              <h2 className="text-xl font-semibold">{currentModal.member.name}</h2>
+                              <div className="flex items-center space-x-2 mt-1">
+                                <Badge variant="outline">{currentModal.member.specialty}</Badge>
+                                {currentModal.member.subspecialty && (
+                                  <Badge variant="secondary">{currentModal.member.subspecialty}</Badge>
                                 )}
-                              </Button>
+                              </div>
+                              <div className="flex items-center space-x-4 mt-2 text-sm text-gray-600">
+                                <span>{currentModal.member.age} years old</span>
+                                <span>•</span>
+                                <span>{currentModal.member.gender}</span>
+                                <span>•</span>
+                                <Badge className={currentModal.member.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-700'}>
+                                  {currentModal.member.status}
+                                </Badge>
+                              </div>
                             </div>
                           </div>
-                        </DialogContent>
-                      </Dialog>
-                      
-                      <Dialog>
-                        <DialogTrigger asChild>
-                          <Button>
-                            <UserPlus className="w-4 h-4 mr-2" />
-                            Refer Patient
-                          </Button>
-                        </DialogTrigger>
-                        <DialogContent>
-                          <DialogHeader>
-                            <DialogTitle>Refer Patient to {selectedMember.name}</DialogTitle>
-                          </DialogHeader>
-                          <div className="space-y-4">
-                            <div>
-                              <Label htmlFor="patientDetails">Patient Details</Label>
-                              <Textarea
-                                id="patientDetails"
-                                placeholder="Patient name, age, chief complaint, relevant history..."
-                                value={patientDetails}
-                                onChange={(e) => setPatientDetails(e.target.value)}
-                                rows={3}
-                              />
+
+                          {/* Contact Information */}
+                          <div className="grid md:grid-cols-2 gap-4">
+                            <div className="space-y-3">
+                              <h3 className="font-semibold text-gray-800">Contact Information</h3>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex items-center">
+                                  <Phone className="w-4 h-4 mr-2 text-gray-400" />
+                                  <span>{currentModal.member.contact}</span>
+                                </div>
+                                <div className="flex items-center">
+                                  <Mail className="w-4 h-4 mr-2 text-gray-400" />
+                                  <span>{currentModal.member.email}</span>
+                                </div>
+                                <div className="flex items-start">
+                                  <MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
+                                  <span>{currentModal.member.address}</span>
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <Label htmlFor="referralReason">Referral Reason & Notes</Label>
-                              <Textarea
-                                id="referralReason"
-                                placeholder="Reason for referral, specific questions, urgency level..."
-                                value={referralContent}
-                                onChange={(e) => setReferralContent(e.target.value)}
-                                rows={3}
-                              />
-                            </div>
-                            <div className="flex justify-end space-x-2">
-                              <Button variant="outline" onClick={closeDialog}>
-                                Cancel
-                              </Button>
-                              <Button 
-                                onClick={handleSendReferral} 
-                                disabled={isLoading || !referralContent.trim() || !patientDetails.trim()}
-                              >
-                                {isLoading ? (
-                                  <div className="flex items-center">
-                                    <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
-                                    Sending...
+                            <div className="space-y-3">
+                              <h3 className="font-semibold text-gray-800">Professional Details</h3>
+                              <div className="space-y-2 text-sm">
+                                <div className="flex items-center">
+                                  <Building className="w-4 h-4 mr-2 text-gray-400" />
+                                  <span>{currentModal.member.hospital}</span>
+                                </div>
+                                {currentModal.member.clinicAddress && (
+                                  <div className="flex items-start">
+                                    <MapPin className="w-4 h-4 mr-2 text-gray-400 mt-0.5" />
+                                    <span>{currentModal.member.clinicAddress}</span>
                                   </div>
-                                ) : (
-                                  <>
-                                    <Send className="w-4 h-4 mr-2" />
-                                    Send Referral
-                                  </>
                                 )}
-                              </Button>
+                                {currentModal.member.clinicHours && (
+                                  <div className="flex items-center">
+                                    <Clock className="w-4 h-4 mr-2 text-gray-400" />
+                                    <span>{currentModal.member.clinicHours}</span>
+                                  </div>
+                                )}
+                                <div className="flex items-center">
+                                  <Calendar className="w-4 h-4 mr-2 text-gray-400" />
+                                  <span>Member since {currentModal.member.joinDate}</span>
+                                </div>
+                              </div>
                             </div>
                           </div>
-                        </DialogContent>
-                      </Dialog>
-                    </div>
-                  </div>
+
+                          {/* Action Buttons */}
+                          <div className="flex justify-end space-x-3 pt-4 border-t">
+                            <Button variant="outline" onClick={() => openModal('message', currentModal.member)}>
+                              <MessageSquare className="w-4 h-4 mr-2" />
+                              Send Message
+                            </Button>
+                            <Button onClick={() => openModal('referral', currentModal.member)}>
+                              <UserPlus className="w-4 h-4 mr-2" />
+                              Refer Patient
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {currentModal.type === 'message' && (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle>Send Message to {currentModal.member.name}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="message">Message</Label>
+                            <Textarea
+                              id="message"
+                              placeholder="Type your message here..."
+                              value={messageContent}
+                              onChange={(e) => setMessageContent(e.target.value)}
+                              rows={4}
+                            />
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button variant="outline" onClick={closeCurrentModal}>
+                              Cancel
+                            </Button>
+                            <Button onClick={handleSendMessage} disabled={isLoading || !messageContent.trim()}>
+                              {isLoading ? (
+                                <div className="flex items-center">
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                  Sending...
+                                </div>
+                              ) : (
+                                <>
+                                  <Send className="w-4 h-4 mr-2" />
+                                  Send Message
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+
+                    {currentModal.type === 'referral' && (
+                      <>
+                        <DialogHeader>
+                          <DialogTitle>Refer Patient to {currentModal.member.name}</DialogTitle>
+                        </DialogHeader>
+                        <div className="space-y-4">
+                          <div>
+                            <Label htmlFor="patientDetails">Patient Details</Label>
+                            <Textarea
+                              id="patientDetails"
+                              placeholder="Patient name, age, chief complaint, relevant history..."
+                              value={patientDetails}
+                              onChange={(e) => setPatientDetails(e.target.value)}
+                              rows={3}
+                            />
+                          </div>
+                          <div>
+                            <Label htmlFor="referralReason">Referral Reason & Notes</Label>
+                            <Textarea
+                              id="referralReason"
+                              placeholder="Reason for referral, specific questions, urgency level..."
+                              value={referralContent}
+                              onChange={(e) => setReferralContent(e.target.value)}
+                              rows={3}
+                            />
+                          </div>
+                          <div className="flex justify-end space-x-2">
+                            <Button variant="outline" onClick={closeCurrentModal}>
+                              Cancel
+                            </Button>
+                            <Button 
+                              onClick={handleSendReferral} 
+                              disabled={isLoading || !referralContent.trim() || !patientDetails.trim()}
+                            >
+                              {isLoading ? (
+                                <div className="flex items-center">
+                                  <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white mr-2"></div>
+                                  Sending...
+                                </div>
+                              ) : (
+                                <>
+                                  <Send className="w-4 h-4 mr-2" />
+                                  Send Referral
+                                </>
+                              )}
+                            </Button>
+                          </div>
+                        </div>
+                      </>
+                    )}
+                  </>
                 )}
               </DialogContent>
             </Dialog>
@@ -665,23 +723,24 @@ export default function MembersPage() {
                         {member.status}
                       </Badge>
                       <div className="flex space-x-2">
-                        <Button size="sm" variant="outline" onClick={() => handleViewMember(member)}>
+                        <Button size="sm" variant="outline" onClick={() => openModal('view', member)} className="group relative">
                           <Eye className="w-4 h-4" />
+                          <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            View
+                          </span>
                         </Button>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
-                              <MessageSquare className="w-4 h-4" />
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
-                        <Dialog>
-                          <DialogTrigger asChild>
-                            <Button size="sm" variant="outline" onClick={() => setSelectedMember(member)}>
-                              <UserPlus className="w-4 h-4" />
-                            </Button>
-                          </DialogTrigger>
-                        </Dialog>
+                        <Button size="sm" variant="outline" onClick={() => openModal('message', member)} className="group relative">
+                          <MessageSquare className="w-4 h-4" />
+                          <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            Message
+                          </span>
+                        </Button>
+                        <Button size="sm" variant="outline" onClick={() => openModal('referral', member)} className="group relative">
+                          <UserPlus className="w-4 h-4" />
+                          <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                            Refer
+                          </span>
+                        </Button>
                       </div>
                     </div>
                   </CardContent>
@@ -750,7 +809,7 @@ export default function MembersPage() {
             {/* Mobile Member Profile Drawer */}
             <MobileDrawer
               isOpen={showMobileProfile !== null}
-              onClose={() => setShowMobileProfile(null)}
+              onClose={closeMobileProfile}
               title="Member Profile"
             >
               {showMobileProfile && (
@@ -781,11 +840,11 @@ export default function MembersPage() {
                   </div>
                   
                   <div className="space-y-2">
-                    <Button className="w-full">
+                    <Button className="w-full" onClick={() => openModal('message', showMobileProfile)}>
                       <MessageSquare className="w-4 h-4 mr-2" />
                       Send Message
                     </Button>
-                    <Button variant="outline" className="w-full">
+                    <Button variant="outline" className="w-full" onClick={() => openModal('referral', showMobileProfile)}>
                       <UserPlus className="w-4 h-4 mr-2" />
                       Refer Patient
                     </Button>
