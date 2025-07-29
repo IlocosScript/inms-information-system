@@ -327,16 +327,24 @@ export default function DuesPage() {
                                   size="sm" 
                                   variant="outline"
                                   onClick={() => downloadReceipt(record.receiptNumber!)}
+                                  className="group relative"
                                 >
-                                  <Download className="w-4 h-4 mr-1" />
-                                  Receipt
+                                  <Download className="w-4 h-4" />
+                                  <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                    Download Receipt
+                                  </span>
                                 </Button>
                               ) : (
                                 <Button 
                                   size="sm"
+                                  variant="outline"
                                   onClick={() => handlePayment(record.id)}
+                                  className="group relative"
                                 >
-                                  Pay Now
+                                  <CreditCard className="w-4 h-4" />
+                                  <span className="absolute -top-8 left-1/2 transform -translate-x-1/2 bg-gray-800 text-white text-xs px-2 py-1 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap z-10">
+                                    Pay Now
+                                  </span>
                                 </Button>
                               )}
                             </div>
